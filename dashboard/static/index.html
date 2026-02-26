@@ -1288,5 +1288,70 @@ if (document.readyState === 'loading') {
 setInterval(loadCostWidget, 300000);
 </script>
 
+<script>
+// Load P&L Dashboard Data
+async function loadDashboardData() {
+  try {
+    const response = await fetch('/api/dashboard');
+    const data = await response.json();
+    
+    // Update values in the DOM
+    const costElements = document.querySelectorAll('[class*="cost"]');
+    const revenueElements = document.querySelectorAll('[class*="revenue"]');
+    
+    // Find and update TOTAL COSTS
+    document.querySelectorAll('div').forEach(div => {
+      if (div.textContent.includes('TOTAL COSTS')) {
+        const parent = div.parentElement || div;
+        const costDisplay = parent.querySelector('div[style*="font-size"]') || parent.nextElementSibling;
+        if (costDisplay) {
+          costDisplay.textContent = `$${data.total_costs.toFixed(2)}`;
+          if (data.total_costs > 0) {
+            costDisplay.style.color = '#ff4444';
+          }
+        }
+      }
+    });
+    
+    // Find and update TOTAL REVENUE
+    document.querySelectorAll('div').forEach(div => {
+      if (div.textContent.includes('TOTAL REVENUE')) {
+        const parent = div.parentElement || div;
+        const revenueDisplay = parent.querySelector('div[style*="font-size"]') || parent.nextElementSibling;
+        if (revenueDisplay) {
+          revenueDisplay.textContent = `$${data.total_revenue.toFixed(2)}`;
+        }
+      }
+    });
+    
+    // Find and update NET PROFIT / LOSS
+    document.querySelectorAll('div').forEach(div => {
+      if (div.textContent.includes('NET PROFIT')) {
+        const parent = div.parentElement || div;
+        const profitDisplay = parent.querySelector('div[style*="font-size"]') || parent.nextElementSibling;
+        if (profitDisplay) {
+          profitDisplay.textContent = `${data.net_profit >= 0 ? '+' : ''}$${data.net_profit.toFixed(2)}`;
+          profitDisplay.style.color = data.net_profit >= 0 ? '#00ff00' : '#ff4444';
+        }
+      }
+    });
+    
+    console.log('[DASHBOARD] Data loaded:', data);
+  } catch (err) {
+    console.error('[DASHBOARD] Error loading data:', err);
+  }
+}
+
+// Load on page load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', loadDashboardData);
+} else {
+  loadDashboardData();
+}
+
+// Refresh every 30 seconds
+setInterval(loadDashboardData, 30000);
+</script>
+
 </body>
 </html>
