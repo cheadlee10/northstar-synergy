@@ -1211,5 +1211,82 @@ async function fullSync(){
 // ── Boot ──────────────────────────────────────────────────────────────────
 loadPnL();
 </script>
+<!-- API COST TRACKER WIDGET -->
+<div id="api-cost-widget" class="widget api-cost-widget" style="background: #1a1a2e; border: 1px solid #16213e; border-radius: 8px; padding: 20px; margin: 20px; color: #eee;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h2 style="margin: 0; font-size: 18px; font-weight: 600;">💰 API Cost Tracker</h2>
+    <button onclick="location.reload()" style="background: #16213e; border: 1px solid #0f3460; color: #00d4ff; padding: 6px 12px; border-radius: 4px; cursor: pointer;">⟳</button>
+  </div>
+  
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 20px;">
+    <div style="background: #16213e; border: 1px solid #0f3460; border-radius: 6px; padding: 15px; text-align: center;">
+      <div style="font-size: 12px; color: #aaa; margin-bottom: 8px; text-transform: uppercase;">Today's Spend</div>
+      <div id="today-spend" style="font-size: 22px; font-weight: bold; color: #00ff00; margin-bottom: 5px;">$0.00</div>
+      <div id="today-budget" style="font-size: 11px; color: #777;">0% of $5.00</div>
+    </div>
+    <div style="background: #16213e; border: 1px solid #0f3460; border-radius: 6px; padding: 15px; text-align: center;">
+      <div style="font-size: 12px; color: #aaa; margin-bottom: 8px; text-transform: uppercase;">This Week</div>
+      <div id="week-spend" style="font-size: 22px; font-weight: bold; color: #00ff00; margin-bottom: 5px;">$0.00</div>
+      <div id="week-trend" style="font-size: 11px; color: #777;">Loading...</div>
+    </div>
+    <div style="background: #16213e; border: 1px solid #0f3460; border-radius: 6px; padding: 15px; text-align: center;">
+      <div style="font-size: 12px; color: #aaa; margin-bottom: 8px; text-transform: uppercase;">Monthly Projection</div>
+      <div id="month-projection" style="font-size: 22px; font-weight: bold; color: #00ff00; margin-bottom: 5px;">$0.00</div>
+      <div id="month-status" style="font-size: 11px; color: #777;">Loading...</div>
+    </div>
+  </div>
+  
+  <div style="font-size: 11px; color: #aaa; padding-top: 15px; border-top: 1px solid #16213e;">
+    <small>⚠️ Real-time Anthropic costs. OpenRouter optimization in progress.</small>
+  </div>
+</div>
+
+<script>
+async function loadCostWidget() {
+  try {
+    const response = await fetch('/api/usage/anthropic?days=1');
+    const data = await response.json();
+    
+    const todaySpend = data.total?.total_cost || 0;
+    const todayBudget = 5.00;
+    const budgetPercent = ((todaySpend / todayBudget) * 100).toFixed(1);
+    
+    document.getElementById('today-spend').textContent = `$${todaySpend.toFixed(2)}`;
+    document.getElementById('today-budget').textContent = `${budgetPercent}% of $${todayBudget.toFixed(2)}`;
+    
+    // Color coding
+    const todaySpendEl = document.getElementById('today-spend');
+    if (budgetPercent > 100) {
+      todaySpendEl.style.color = '#ff4444';
+    } else if (budgetPercent > 80) {
+      todaySpendEl.style.color = '#ffaa00';
+    }
+    
+    // Weekly
+    const weekResponse = await fetch('/api/usage/summary?days=7');
+    const weekData = await weekResponse.json();
+    const weekSpend = weekData.grand_total?.total_cost || 0;
+    document.getElementById('week-spend').textContent = `$${weekSpend.toFixed(2)}`;
+    
+    // Monthly projection
+    const monthlyProjection = (weekSpend / 7) * 30;
+    document.getElementById('month-projection').textContent = `$${monthlyProjection.toFixed(2)}`;
+    document.getElementById('month-status').textContent = monthlyProjection > 150 ? '🔴 OVER' : '🟢 ON TRACK';
+  } catch (err) {
+    console.error('Cost widget error:', err);
+  }
+}
+
+// Load on page load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', loadCostWidget);
+} else {
+  loadCostWidget();
+}
+
+// Refresh every 5 minutes
+setInterval(loadCostWidget, 300000);
+</script>
+
 </body>
 </html>
