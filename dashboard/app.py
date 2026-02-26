@@ -472,6 +472,52 @@ async def get_usage_summary(days: int = 7):
 # ══════════════════════════════════════════════════════════════════════════════
 # SUMMARY ENDPOINT — powers the dashboard KPIs and charts
 # ══════════════════════════════════════════════════════════════════════════════
+@app.get("/api/dashboard")
+async def get_dashboard():
+    """Get complete P&L dashboard data"""
+    db = await get_db()
+    try:
+        # Get today's data
+        today = str(date.today())
+        
+        # Total costs (API)
+        cur = await db.execute(
+            "SELECT SUM(cost_usd) FROM api_usage WHERE usage_date = ?",
+            (today,)
+        )
+        (total_costs,) = await cur.fetchone()
+        total_costs = total_costs or 0
+        
+        # Total revenue (from company_revenue table)
+        cur = await db.execute(
+            "SELECT SUM(amount) FROM company_revenue WHERE date = ?",
+            (today,)
+        )
+        (total_revenue,) = await cur.fetchone()
+        total_revenue = total_revenue or 0
+        
+        # Net profit
+        net_profit = total_revenue - total_costs
+        
+        # By segment (API costs by provider)
+        cur = await db.execute(
+            """SELECT provider, SUM(cost_usd) as cost FROM api_usage 
+               WHERE usage_date = ? GROUP BY provider""",
+            (today,)
+        )
+        segments = [dict(r) for r in await cur.fetchall()]
+        
+        return {
+            "date": today,
+            "total_revenue": round(total_revenue, 2),
+            "total_costs": round(total_costs, 2),
+            "net_profit": round(net_profit, 2),
+            "segments": segments,
+            "status": "live"
+        }
+    finally:
+        await db.close()
+
 @app.get("/api/summary")
 async def summary():
     db = await get_db()
