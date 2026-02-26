@@ -1,0 +1,31 @@
+{
+  "name": "collaboration_autonomy",
+  "purpose": "Enable autonomous coordination among Cliff (agent:main:main), John (agent:john:main), and Scalper (agent:scalper:main) with surface updates, blockers, decisions, and approvals.",
+  "triggers": [
+    "status_update",
+    "blocker",
+    "input_request",
+    "approval"
+  ],
+  "cadence": {
+    "daily": ["morning digest in #general", "end-of-day summary in #general"],
+    "real_time": ["blocker alert to Cliff", "approval routing"],
+    "escalation": ["blocker >24h to Cliff", "high-risk approval to Cliff"]
+  },
+  "participants": [
+    "agent:main:main", 
+    "agent:john:main",
+    "agent:scalper:main"
+  ],
+  "templates": {
+    "status_update": "Status update: moved $X today, blockers: $Y, next steps: $Z. Cadence: daily.",
+    "input_request": "Need decision on $A by EOD today; impact: $B.",
+    "blocker": "Blocker detected: $C; required action: $D; ETA: $E.",
+    "approval": "Approval requested for $F; rationale: $G; risk: $H."
+  },
+  "safeguards": {
+    "require_cliff_review_before_sensitive_action": true,
+    "log_gaps_to_skill_gaps": true,
+    "audit_trail": true
+  }
+}

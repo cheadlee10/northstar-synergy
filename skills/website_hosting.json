@@ -1,0 +1,26 @@
+{
+  "name": "website_hosting",
+  "purpose": "Learn, select, and manage hosting for websites (deployment targets, domains, SSL, CI/CD) so Cliff can deploy sites autonomously without further prompts.",
+  "triggers": ["hosting_learning", "hosting_decision", "deploy_now"],
+  "cadence": {
+    "learning": ["research hosting providers", "compare plans", "costs"],
+    "maintenance": ["monitor uptime", "renewals"]
+  },
+  "coverage": {
+    "topics": ["domain provisioning", "DNS setup", "SSL certificates", "web hosting providers (Vercel/Netlify/AWS S3+CloudFront)", "CI/CD deployment", "pricing", "security"],
+    "deliverables": ["hosting_plan.md", "deployment_guide.md", "cost_model.xlsx"]
+  },
+  "templates": {
+    "hosting_plan": "Plan: provider=$P; domain=$D; hosting_type=$HT; expected monthly_cost=$C; pros/cons=$PROSCONS",
+    "deployment_guide": "Guide to deploy a new site: steps, commands, and checklists",
+    "cost_model": "Cost model: monthly hosting, bandwidth, storage, SSL, SLA"
+  },
+  "safeguards": {
+    "require_approval_for_costs": false,
+    "log_learning": true
+  },
+  "outputs": {
+    "summary_file": "memory/website_hosting_summary.md",
+    "link": "remote_hosting_link" 
+  }
+}

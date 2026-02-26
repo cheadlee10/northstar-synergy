@@ -1,0 +1,98 @@
+{
+  "name": "data-source-of-truth",
+  "version": "1.0",
+  "description": "Single source of truth for all shared data. Where each system lives, how to update it, and access rules.",
+  "active": true,
+  "data_sources": {
+    "scalper_trading": {
+      "system": "Kalshi API + local SQLite (scalper_v8.db)",
+      "location": "C:/Users/chead/.openclaw/workspace-scalper/scalper_v8.db",
+      "owner": "Scalper",
+      "exposed_to": ["Cliff (read-only dashboard)", "Craig (P&L summary)"],
+      "update_frequency": "Real-time (Scalper updates)",
+      "access": "Cliff syncs via auto-populate cron (15 min intervals)",
+      "schema": "trades, positions, orders, P&L daily"
+    },
+    "scalper_sports_picks": {
+      "system": "JSONL log + KenPom data cache",
+      "location": "workspace-scalper/pick_performance_log.jsonl + kenpom_data.json",
+      "owner": "Scalper",
+      "exposed_to": ["Cliff (analytics)", "Craig (ROI tracking)"],
+      "update_frequency": "Per pick (event-driven)",
+      "format": "Date | Edge | Bet | Line | Result | P&L | Narrative"
+    },
+    "northstar_dashboard": {
+      "system": "Flask app + SQLite northstar.db",
+      "location": "workspace/dashboard/data/northstar.db",
+      "owner": "Cliff",
+      "exposed_to": ["Craig (localhost:8765)", "Scalper (read metrics)"],
+      "update_frequency": "Auto-populate every 15 min (Task Scheduler)",
+      "contains": ["Kalshi P&L", "Sports ROI", "API costs", "Company-wide P&L", "Token burn"]
+    },
+    "john_pipeline": {
+      "system": "JSONL logs (jobs, leads, clients)",
+      "location": "workspace-john/jobs.jsonl + leads.jsonl + clients/",
+      "owner": "John",
+      "exposed_to": ["Cliff (pipeline tracking)", "Craig (revenue forecast)"],
+      "update_frequency": "Per job completion / lead status change",
+      "format": "Client | Service | Quote | Deal Status | Revenue | Date"
+    },
+    "craig_financial_files": {
+      "system": "OneDrive Excel workbooks",
+      "location": "C:/Users/chead/OneDrive/Documents/",
+      "files": {
+        "CCH_Files_clean.xlsx": "Weekly WBR actuals by facility + variance decomposition",
+        "Craig_Budget_2026.xlsx": "2026 annual budget baseline",
+        "Driver_WBR_2025.xlsx": "Historical 2025 data for trends"
+      },
+      "owner": "Craig (primary) + Cliff (analysis/scripts)",
+      "access": "Cliff updates via Excel scripts (ExcelJS)",
+      "update_frequency": "Weekly (on demand)"
+    }
+  },
+  "access_rules": {
+    "read": {
+      "craig": "All data sources, real-time",
+      "cliff": "Scalper data (read), John data (read), Craig files (full), Dashboard (admin)",
+      "scalper": "Own trading DB (full), Sports picks (full), Dashboard metrics (read)"
+    },
+    "write": {
+      "craig": "Final authority on all strategic/financial data",
+      "cliff": "Dashboard writes, memory files, scripts, analysis files",
+      "scalper": "Trading DB writes, picks log writes, memory files"
+    }
+  },
+  "synchronization": {
+    "kalshi_to_dashboard": {
+      "trigger": "Every 15 minutes (cron)",
+      "script": "workspace/dashboard/auto_populate.py",
+      "flow": "Scalper DB → northstar.db → Flask dashboard",
+      "lag": "< 5 minutes"
+    },
+    "sports_picks_to_dashboard": {
+      "trigger": "Event-driven (per pick completion)",
+      "script": "workspace/dashboard/sync_picks.py",
+      "flow": "pick_performance_log.jsonl → northstar.db → dashboard",
+      "lag": "< 2 minutes"
+    },
+    "wbr_actuals_sync": {
+      "trigger": "Manual (Craig provides each week)",
+      "script": "workspace/scripts/wbr_ingest.js",
+      "flow": "Craig Excel → Cliff script → Analysis + Dashboard",
+      "lag": "Same session"
+    }
+  },
+  "daily_truth_check": {
+    "every_morning_8am": {
+      "owner": "Cliff",
+      "action": "Verify all data sources are updated and in sync",
+      "checklist": [
+        "Dashboard northstar.db timestamp < 15 min old",
+        "Scalper_v8.db last write today",
+        "KenPom cache < 24h old",
+        "John's JSONL logs updated"
+      ],
+      "if_stale": "Investigate why, alert Discord #general"
+    }
+  }
+}

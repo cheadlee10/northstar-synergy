@@ -1,0 +1,11 @@
+import sqlite3
+db = sqlite3.connect('C:\\Users\\chead\\.openclaw\\workspace\\dashboard\\data\\northstar.db')
+cur = db.cursor()
+cur.execute('SELECT snapshot_ts, balance_cents FROM kalshi_snapshots ORDER BY snapshot_ts DESC LIMIT 1')
+row = cur.fetchone()
+print('Latest snapshot:')
+print('  Timestamp:', row[0])
+print('  Balance (cents):', row[1])
+print('  Balance (USD):', row[1]/100)
+print('  Rounded to 2 decimals:', round(row[1]/100, 2))
+db.close()

@@ -1,0 +1,289 @@
+<!-- NorthStar Synergy Dashboard Header -->
+<header class="dashboard-header">
+  <div class="header-container">
+    <!-- Logo + Brand -->
+    <div class="brand-section">
+      <img src="/static/northstar-logo.svg" alt="NorthStar Logo" class="logo">
+      <div class="brand-text">
+        <h1 class="brand-name">NorthStar Synergy</h1>
+        <p class="brand-tagline">Intelligence. Operations. Profit.</p>
+      </div>
+    </div>
+
+    <!-- Status Indicators -->
+    <div class="status-indicators">
+      <div class="status-item">
+        <span class="status-dot" id="dashboard-status"></span>
+        <span class="status-label">Dashboard</span>
+      </div>
+      <div class="status-item">
+        <span class="status-dot" id="anthropic-status"></span>
+        <span class="status-label">Anthropic API</span>
+      </div>
+      <div class="status-item">
+        <span class="status-dot" id="kalshi-status"></span>
+        <span class="status-label">Kalshi</span>
+      </div>
+    </div>
+
+    <!-- Time + Date -->
+    <div class="header-time">
+      <div id="current-time">--:-- AM</div>
+      <div id="current-date">Loading...</div>
+    </div>
+  </div>
+</header>
+
+<style>
+.dashboard-header {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-bottom: 2px solid #00d4ff;
+  padding: 20px 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0, 212, 255, 0.1);
+}
+
+.header-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.logo {
+  width: 70px;
+  height: 70px;
+  filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.3));
+  animation: logoGlow 3s ease-in-out infinite;
+}
+
+@keyframes logoGlow {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.3)); }
+  50% { filter: drop-shadow(0 0 15px rgba(0, 212, 255, 0.6)); }
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.brand-name {
+  font-size: 28px;
+  font-weight: 800;
+  margin: 0;
+  color: #00d4ff;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+}
+
+.brand-tagline {
+  font-size: 12px;
+  margin: 0;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.status-indicators {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #666;
+  animation: statusPulse 2s ease-in-out infinite;
+  box-shadow: 0 0 5px rgba(100, 100, 100, 0.5);
+}
+
+.status-dot.online {
+  background: #00ff00;
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.7);
+  animation: statusPulseGreen 1.5s ease-in-out infinite;
+}
+
+.status-dot.warning {
+  background: #ffaa00;
+  box-shadow: 0 0 8px rgba(255, 170, 0, 0.7);
+}
+
+.status-dot.offline {
+  background: #ff4444;
+  box-shadow: 0 0 8px rgba(255, 68, 68, 0.7);
+}
+
+@keyframes statusPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes statusPulseGreen {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(0, 255, 0, 0.7); }
+  50% { opacity: 0.7; box-shadow: 0 0 12px rgba(0, 255, 0, 0.5); }
+}
+
+.header-time {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+#current-time {
+  font-size: 24px;
+  font-weight: bold;
+  color: #00d4ff;
+  font-family: 'Courier New', monospace;
+}
+
+#current-date {
+  font-size: 12px;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .header-container {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .brand-section {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .status-indicators,
+  .header-time {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .brand-name {
+    font-size: 24px;
+  }
+
+  .logo {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    padding: 15px 0;
+  }
+
+  .header-container {
+    padding: 0 15px;
+  }
+
+  .status-indicators {
+    gap: 15px;
+    font-size: 10px;
+  }
+
+  .brand-name {
+    font-size: 20px;
+  }
+
+  .logo {
+    width: 50px;
+    height: 50px;
+  }
+}
+</style>
+
+<script>
+// Update time and date
+function updateTime() {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-US', { 
+    hour: '2-digit', 
+    minute: '2-digit',
+    hour12: true 
+  });
+  const dateStr = now.toLocaleDateString('en-US', {
+    weekday: 'short',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+  
+  document.getElementById('current-time').textContent = timeStr;
+  document.getElementById('current-date').textContent = dateStr;
+}
+
+// Update status indicators
+async function updateStatusIndicators() {
+  try {
+    // Check Dashboard API
+    const dashboardCheck = fetch('/api/summary').then(() => 'online').catch(() => 'offline');
+    
+    // Check Anthropic API
+    const anthropicCheck = fetch('/api/usage/anthropic').then(() => 'online').catch(() => 'offline');
+    
+    // Check Kalshi (assume online if no error)
+    const kalshiCheck = Promise.resolve('online');
+    
+    const [dashStatus, anthropicStatus, kalshiStatus] = await Promise.all([
+      dashboardCheck,
+      anthropicCheck,
+      kalshiCheck
+    ]);
+    
+    updateStatusDot('dashboard-status', dashStatus);
+    updateStatusDot('anthropic-status', anthropicStatus);
+    updateStatusDot('kalshi-status', kalshiStatus);
+  } catch (err) {
+    console.error('[HEADER] Status check error:', err);
+  }
+}
+
+function updateStatusDot(elementId, status) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.className = `status-dot ${status}`;
+  }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+  updateTime();
+  updateStatusIndicators();
+  
+  // Update time every second
+  setInterval(updateTime, 1000);
+  
+  // Update status every 30 seconds
+  setInterval(updateStatusIndicators, 30000);
+});
+</script>

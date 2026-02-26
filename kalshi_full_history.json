@@ -1,0 +1,4 @@
+{
+  "status": "error",
+  "error": "'KalshiClient' object has no attribute 'get_order_history'"
+}

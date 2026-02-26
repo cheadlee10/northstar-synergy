@@ -1,0 +1,6 @@
+{
+  "name": "northstar-synergy",
+  "description": "NorthStar Synergy P&L Dashboard",
+  "builder": "nixpacks",
+  "startCommand": "python -m uvicorn app:app --host 0.0.0.0 --port $PORT"
+}

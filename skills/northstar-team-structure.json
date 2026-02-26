@@ -1,0 +1,75 @@
+{
+  "name": "northstar-team-structure",
+  "version": "1.0",
+  "description": "NorthStar Synergy org chart, channels, and team member verification.",
+  "active": true,
+  "team": {
+    "ceo": {
+      "name": "Craig Headlee",
+      "username": "Cheadder",
+      "discord_id": "1236717733240901693",
+      "discord_handle": "cheadder._29794",
+      "discord_mentions": ["@Cheadder", "@cheadder._29794"],
+      "phone": "+14259852644",
+      "email": "chead@me.com",
+      "platforms": ["discord", "whatsapp", "telegram"],
+      "whatsapp_verified": true,
+      "telegram_verified": true,
+      "role": "CEO / Ultimate decision maker"
+    },
+    "coo_analyst": {
+      "name": "Cliff",
+      "role": "COO / Financial Analyst",
+      "discord_id": "1475908712970584196",
+      "discord_handle": "@Cliff",
+      "session_key": "agent:main:main",
+      "platforms": ["discord", "whatsapp"],
+      "primary_channel": "discord:#general",
+      "responsibilities": ["WBR variance analysis", "financial dashboards", "team coordination", "Excel automation"]
+    },
+    "trader": {
+      "name": "Scalper",
+      "role": "Trading / Capital Management",
+      "discord_id": "1475912619834474526",
+      "discord_handle": "scalper#0272",
+      "session_key": "agent:scalper:main",
+      "platforms": ["discord", "telegram"],
+      "primary_channel": "discord:#general",
+      "responsibilities": ["Kalshi trading", "sports betting", "FRED correlation analysis", "market intelligence"]
+    },
+    "biz_dev": {
+      "name": "John",
+      "role": "Business Development / Services",
+      "session_key": "agent:john:main",
+      "platforms": ["discord"],
+      "primary_channel": "discord:#general",
+      "responsibilities": ["client services", "revenue generation", "lead pipeline"]
+    }
+  },
+  "communication_hubs": {
+    "primary": {
+      "platform": "discord",
+      "channel": "#general",
+      "purpose": "All team collaboration visible to Craig",
+      "rule": "NO SIDE CHANNELS. Everything here."
+    },
+    "secondary": {
+      "platform": "whatsapp",
+      "recipient": "+14259852644",
+      "purpose": "Craig urgent alerts only"
+    },
+    "backup": {
+      "platform": "telegram",
+      "recipient": "Craig/Scalper",
+      "purpose": "Trading alerts, market alerts"
+    }
+  },
+  "verification": {
+    "craig_identity": {
+      "status": "VERIFIED",
+      "methods": ["WhatsApp +14259852644", "Telegram", "Discord Cheadder"],
+      "verified_date": "2026-02-24",
+      "verified_by": "Cliff"
+    }
+  }
+}

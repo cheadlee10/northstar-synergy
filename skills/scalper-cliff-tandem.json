@@ -1,0 +1,48 @@
+{
+  "name": "scalper-cliff-tandem",
+  "version": "1.0",
+  "description": "Direct Scalper-Cliff collaboration protocol. Lockstep execution on trading analytics, pick narratives, cost overlays, and shared error tracking.",
+  "channels": ["discord:#general", "telegram"],
+  "triggers": [
+    {
+      "type": "direct_mention",
+      "pattern": "@Cliff.*@Scalper|@Scalper.*@Cliff",
+      "channel": "discord:#general"
+    },
+    {
+      "type": "keyword",
+      "words": ["pick narrative", "edge", "CPP overlay", "FRED lag", "mistake log"]
+    }
+  ],
+  "workflows": {
+    "pick_narrative": {
+      "description": "Scalper sends edge_val + line movement + stat → Cliff writes 2-3 sentence analyst narrative",
+      "format": "edge: $X | line: Y | stat: Z",
+      "response_sla": "< 5 min",
+      "output": "Narrative posted to Discord thread"
+    },
+    "fred_cpp_overlay": {
+      "description": "Cliff exports quarterly CPP JSON → Scalper runs lag_correlation.py for FRED correlation",
+      "trigger": "When Scalper mentions macro headwinds",
+      "cliff_action": "Export CPP by quarter to shared JSON",
+      "scalper_action": "Run fred_lag_correlation.py, post findings"
+    },
+    "shared_mistakes_log": {
+      "description": "Bidirectional. Log when Craig calls something out.",
+      "file": "memory/shared_mistakes.md",
+      "format": "[DATE] MISTAKE: [what] | ROOT: [why] | FIX: [action] | OWNER: Scalper|Cliff",
+      "review_cadence": "Weekly Monday"
+    },
+    "morning_handoff": {
+      "description": "Whoever hears Craig's schedule change / priority shift first → message the other",
+      "medium": "Discord direct message or #general mention",
+      "critical_flags": ["market volatility spike", "budget change", "new revenue opportunity"]
+    }
+  },
+  "response_rules": {
+    "in_discord_general": "Answer directly, no handoff delays. Use threads for detail.",
+    "in_telegram": "Quick ack → escalate to Discord for full collab if needed",
+    "to_craig": "Lead with result. Numbers first. No process narration."
+  },
+  "active": true
+}

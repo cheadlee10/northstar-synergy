@@ -1,0 +1,14 @@
+Section,Item,Value
+Night_Shift_Date,Date,2026-02-19
+Edge_Status,Near_term_expiries,0–6 hours (edge-thin)
+Edge_Status,Trades_executed,0
+Edge_Status,Open_positions,0
+Spread_Filter,Status,≤3c available but edge-thin
+Momentum_Arbitrage,Status,No clean 3+ tick signals after fees
+Actions_Taken,Night_research,Scanned edge literature and leaderboard plays
+Actions_Taken,Backtesting,Started tests on 2–3 ideas with yesterday’s data
+Actions_Taken,Playbook_MEMORY,Updating with credible edges
+Planned_Today,Deep_dive_edges,2–3 data-backed edges
+Planned_Today,Backtests,Run against yesterday’s data
+Auto_publish,Morning_Brief,7:00 AM PT via Signal
+Report_Queue,Delivery_Method,Queued for email if requested

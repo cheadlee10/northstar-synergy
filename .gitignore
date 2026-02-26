@@ -1,0 +1,20 @@
+# Credentials & secrets — never commit these
+TOOLS.md
+.env
+*.pem
+*.key
+*.p12
+*_private_key*
+SCALPER_BRIEFING.md
+
+# Logs & temp
+logs/
+*.log
+temp_*.js
+temp_*.py
+__pycache__/
+*.pyc
+node_modules/
+
+# Memory — personal context
+memory/

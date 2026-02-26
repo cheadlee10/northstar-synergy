@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="95" fill="#1a1a2e" stroke="#00d4ff" stroke-width="2"/>
+  
+  <!-- Central star (North Star) -->
+  <g id="north-star">
+    <!-- Main star points -->
+    <polygon points="100,20 120,60 165,60 130,95 150,135 100,100 50,135 70,95 35,60 80,60" 
+             fill="#00d4ff" opacity="0.9"/>
+    <!-- Inner glow -->
+    <circle cx="100" cy="100" r="12" fill="#ffffff" opacity="0.6"/>
+    <circle cx="100" cy="100" r="8" fill="#00d4ff" opacity="0.8"/>
+  </g>
+  
+  <!-- Synergy rings (orbiting elements) -->
+  <g id="synergy-rings" stroke="#00d4ff" stroke-width="1.5" fill="none" opacity="0.6">
+    <!-- Inner ring -->
+    <circle cx="100" cy="100" r="35"/>
+    <!-- Outer ring -->
+    <circle cx="100" cy="100" r="55"/>
+  </g>
+  
+  <!-- Synergy nodes (3 agents: Cliff, Scalper, John) -->
+  <g id="synergy-nodes">
+    <!-- Node 1 (Cliff) - Top right -->
+    <circle cx="145" cy="65" r="4" fill="#00d4ff"/>
+    <line x1="100" y1="100" x2="145" y2="65" stroke="#00d4ff" stroke-width="1" opacity="0.5"/>
+    
+    <!-- Node 2 (Scalper) - Bottom right -->
+    <circle cx="130" cy="140" r="4" fill="#00d4ff"/>
+    <line x1="100" y1="100" x2="130" y2="140" stroke="#00d4ff" stroke-width="1" opacity="0.5"/>
+    
+    <!-- Node 3 (John) - Left -->
+    <circle cx="55" cy="100" r="4" fill="#00d4ff"/>
+    <line x1="100" y1="100" x2="55" y2="100" stroke="#00d4ff" stroke-width="1" opacity="0.5"/>
+  </g>
+  
+  <!-- Border accent -->
+  <circle cx="100" cy="100" r="95" fill="none" stroke="#00d4ff" stroke-width="3" opacity="0.3"/>
+</svg>

@@ -1,0 +1,63 @@
+{
+  "name": "daily-sync-protocol",
+  "version": "1.0",
+  "description": "Daily operations sync between Cliff, Scalper, and Craig. What gets reported, when, and how.",
+  "active": true,
+  "daily_cadence": {
+    "morning_7am_pt": {
+      "owner": "Scalper",
+      "channel": "discord:#general",
+      "report": "Market open alert + overnight Kalshi P&L + sports picks edge",
+      "format": "1-3 lines. Numbers first.",
+      "visibility": "Craig and Cliff see in real-time"
+    },
+    "morning_8am_pt": {
+      "owner": "Cliff",
+      "channel": "discord:#general",
+      "report": "Daily token burn summary + NorthStar P&L snapshot + any blockers",
+      "format": "API costs $X | Company P&L +/- $Y | Status",
+      "visibility": "Craig and Scalper"
+    },
+    "midday_12pm_pt": {
+      "owner": "Scalper or Cliff",
+      "channel": "discord:#general",
+      "trigger": "Only if material market move or anomaly detected",
+      "format": "Alert: [what happened] | Impact: [P&L effect] | Action: [next step]"
+    },
+    "close_5pm_pt": {
+      "owner": "Scalper",
+      "channel": "discord:#general",
+      "report": "Kalshi close P&L + daily variance summary",
+      "format": "Today: $+/- X | MTD: $+/- Y | Trending"
+    }
+  },
+  "weekly_cadence": {
+    "monday_morning": {
+      "owner": "Cliff",
+      "channel": "discord:#general",
+      "report": "Weekly P&L summary + token spend review + team priorities for week",
+      "format": "Revenue: $X | Costs: $Y | Net: $Z | Token burn: $A | Status",
+      "thread": "yes"
+    }
+  },
+  "alert_triggers": {
+    "critical": {
+      "kalshi_balance_below_20": "Scalper → Cliff → Craig (WhatsApp if critical)",
+      "daily_burn_exceeds_2k": "Cliff → Craig (WhatsApp) + Discord",
+      "api_key_compromised": "Whoever notices → ALL channels + backup to email"
+    },
+    "high": {
+      "major_variance_gt_50k": "Cliff → Discord thread",
+      "sports_pick_loss_gt_5k": "Scalper → Discord thread",
+      "client_payment_issue": "John → Discord"
+    }
+  },
+  "message_format_rules": {
+    "all_messages": [
+      "Lead with the number/result",
+      "No process narration",
+      "No approval-seeking language",
+      "Use threads for detail; keep main channel scannable"
+    ]
+  }
+}

@@ -1,0 +1,1 @@
+Get-ScheduledTask | Where-Object { $_.TaskName -like '*Scalper*' -or $_.TaskName -like '*Sharp*' -or $_.TaskName -like '*scanner*' -or $_.TaskName -like '*ScalperV8*' } | Select-Object TaskPath, TaskName, State

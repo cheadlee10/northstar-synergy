@@ -1,0 +1,29 @@
+{
+  "name": "discord-mention-notifications",
+  "version": "1.0",
+  "description": "Real-time notification system when Cliff or Scalper are @mentioned in Discord #general.",
+  "active": true,
+  "monitoring": {
+    "channel": "discord:#general (1475902887753420923)",
+    "triggers": [
+      "@Cliff",
+      "@Scalper",
+      "@scalper#0272",
+      "@cliff",
+      "1475908712970584196",
+      "1475912619834474526"
+    ]
+  },
+  "notification_behavior": {
+    "on_mention": "Immediate notification to agent session",
+    "format": "Mention from [sender] | Time: [timestamp] | Message: [preview]",
+    "response_sla": "< 2 minutes",
+    "logging": "Log to memory/notifications.md with timestamp + action taken"
+  },
+  "context_included": {
+    "sender": "Who mentioned you",
+    "timestamp": "When",
+    "message_preview": "First 100 chars",
+    "full_message_link": "Discord thread link if available"
+  }
+}

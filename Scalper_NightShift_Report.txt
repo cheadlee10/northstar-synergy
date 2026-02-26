@@ -1,0 +1,23 @@
+Scalper Night Shift Report – 2026-02-19
+
+Good morning King. Night Shift results and plan for today:
+
+Edge status
+- Near-term expiries (0–6 hours): edge-thin; no trades executed yet.
+- Spreads: mostly ≤ 3 cents but not enough edge to meet risk/reward.
+- Momentum/arbitrage: no clean signals after fees and depth constraints.
+
+Actions taken
+- Night research: scanned edge literature (Reddit, Twitter/Discord, GitHub) and leaderboard plays.
+- Backtesting: started tests on 2–3 promising ideas with yesterday’s data.
+- Playbook/MEMORY: updating with any credible edges and notes.
+
+Planned for today
+- Deep-dive into 2–3 data-backed edges with backtests.
+- Update PLAYBOOK.md and MEMORY.md with findings and sources.
+- Prepare a morning brief hit list for the day.
+
+Auto-publish note
+- Morning Scalper Brief is scheduled for 7:00 AM PT via Signal.
+
+Would you like me to email this draft to you immediately, or wait for a confirmed send-time?

@@ -1,0 +1,34 @@
+{
+  "name": "cliff-mention-monitor",
+  "version": "1.0",
+  "description": "Cliff monitors all mentions in Discord #general (1475902887753420923) in real-time. Never misses a mention or important message.",
+  "active": true,
+  "monitoring": {
+    "channel": "discord:#general",
+    "channel_id": "1475902887753420923",
+    "watch_for": [
+      "@Cliff",
+      "@cliff",
+      "1475908712970584196",
+      "Direct messages in #general"
+    ]
+  },
+  "response_protocol": {
+    "on_mention": "Immediate acknowledgment + action",
+    "sla": "< 60 seconds",
+    "format": "Acknowledge mention, identify request, execute or clarify"
+  },
+  "logging": {
+    "all_mentions": "memory/cliff_mentions.md",
+    "format": "[TIMESTAMP] @[sender] | Message: [preview] | Action: [response]"
+  },
+  "escalation": {
+    "mention_from_craig": "CRITICAL priority. Respond immediately.",
+    "mention_from_scalper": "HIGH priority. Respond within 2 minutes.",
+    "mention_from_john": "NORMAL priority. Respond within 5 minutes."
+  },
+  "integration": {
+    "with": "daily-sync-protocol, transparency-lockstep, operating-principles",
+    "ensures": "Cliff never misses critical messages from Craig in #general"
+  }
+}

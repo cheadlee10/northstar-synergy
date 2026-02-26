@@ -1,0 +1,603 @@
+﻿{
+  "summary": {
+    "full_rollout": {
+      "facs": "FACs",
+      "savings_2h": 21471953.142017905,
+      "volume_2h": 213799997,
+      "cpp_impact": 0.10043009094157239
+    },
+    "with_savings": {
+      "facs": "FACs",
+      "savings_2h": 32748501.88704595,
+      "volume_2h": 144989134,
+      "cpp_impact": 0.22586866328235294
+    },
+    "high_sav_low_vol": {
+      "count": 16,
+      "impact": 9504801.27017272,
+      "avg_daily_vol": 74312.95616438355,
+      "cpp_impact": 0.2902362160857335
+    },
+    "high_error_rates": {
+      "count": 9,
+      "impact": 7349486.851026256,
+      "avg_daily_vol": 109932.71232876713,
+      "cpp_impact": 0.2244220781877485
+    },
+    "forecast_assumptions": {
+      "asset_util": 0.85,
+      "shipments_per_route": 1
+    }
+  },
+  "by_facility": {
+    "total_facilities": 96,
+    "top_adhoc_pct": [
+      {
+        "branch": "Knoxville",
+        "adhoc_pct": 20.103706657534794,
+        "current_base": 11410.0,
+        "current_cps": 2.9186842651333986
+      },
+      {
+        "branch": "Toledo",
+        "adhoc_pct": 16.34360471841831,
+        "current_base": 9975.0,
+        "current_cps": 2.8402840080772758
+      },
+      {
+        "branch": "Meadville",
+        "adhoc_pct": 16.205918021417187,
+        "current_base": 12775.0,
+        "current_cps": 2.7829127256135004
+      },
+      {
+        "branch": "Indianapolis",
+        "adhoc_pct": 15.466659866186383,
+        "current_base": 15645.0,
+        "current_cps": 2.212146253621173
+      },
+      {
+        "branch": "Minneapolis",
+        "adhoc_pct": 13.837922325786487,
+        "current_base": 21717.5,
+        "current_cps": 2.4407386568513676
+      },
+      {
+        "branch": "Dayton",
+        "adhoc_pct": 12.897061624704714,
+        "current_base": 12390.0,
+        "current_cps": 1.9965033313827552
+      },
+      {
+        "branch": "Cleveland",
+        "adhoc_pct": 12.501665577773549,
+        "current_base": 21210.0,
+        "current_cps": 1.9576416529758793
+      },
+      {
+        "branch": "Lexington",
+        "adhoc_pct": 11.930535717579293,
+        "current_base": 10325.0,
+        "current_cps": 2.1525327641207084
+      },
+      {
+        "branch": "Columbus",
+        "adhoc_pct": 11.05430645418952,
+        "current_base": 30718.0,
+        "current_cps": 3.1613050984796818
+      },
+      {
+        "branch": "Pittsburgh",
+        "adhoc_pct": 10.977583021627447,
+        "current_base": 35690.0,
+        "current_cps": 2.3748292998955063
+      },
+      {
+        "branch": "Akron",
+        "adhoc_pct": 10.317965655955772,
+        "current_base": 20797.0,
+        "current_cps": 2.0255658484735433
+      },
+      {
+        "branch": "Detroit",
+        "adhoc_pct": 10.145967383165882,
+        "current_base": 40215.0,
+        "current_cps": 2.279764535267536
+      },
+      {
+        "branch": "COLORADO SPRINGS",
+        "adhoc_pct": 9.48210299483895,
+        "current_base": 8500.0,
+        "current_cps": 2.3435043884324984
+      },
+      {
+        "branch": "Harrisburg",
+        "adhoc_pct": 8.69193310167268,
+        "current_base": 15827.0,
+        "current_cps": 2.297120147129562
+      },
+      {
+        "branch": "Rochester",
+        "adhoc_pct": 8.621378706669203,
+        "current_base": 9520.0,
+        "current_cps": 2.32268637024006
+      }
+    ],
+    "top_by_base": [
+      {
+        "branch": "Sacramento",
+        "adhoc_pct": 0.9424836717921202,
+        "current_base": 86025.0,
+        "current_cps": 2.4344104435138565
+      },
+      {
+        "branch": "Atlanta",
+        "adhoc_pct": 8.467161153214477,
+        "current_base": 78029.0,
+        "current_cps": 2.6379272344572424
+      },
+      {
+        "branch": "Vancouver",
+        "adhoc_pct": 0.5736691016613885,
+        "current_base": 76093.0,
+        "current_cps": 2.581354246779821
+      },
+      {
+        "branch": "Burbank",
+        "adhoc_pct": 0.9879667878162977,
+        "current_base": 68850.0,
+        "current_cps": 1.8323303899395769
+      },
+      {
+        "branch": "Houston",
+        "adhoc_pct": 2.7031830474270513,
+        "current_base": 65565.0,
+        "current_cps": 1.9998807205240474
+      },
+      {
+        "branch": "Dallas",
+        "adhoc_pct": 4.637155290938217,
+        "current_base": 64155.0,
+        "current_cps": 2.4039389308063166
+      },
+      {
+        "branch": "Miami",
+        "adhoc_pct": 6.249223064834716,
+        "current_base": 61980.0,
+        "current_cps": 2.115415271350564
+      },
+      {
+        "branch": "Northern NJ",
+        "adhoc_pct": 3.0568206281141936,
+        "current_base": 61700.0,
+        "current_cps": 1.9987146359976091
+      },
+      {
+        "branch": "Ontario",
+        "adhoc_pct": 0.6057136707935903,
+        "current_base": 59199.0,
+        "current_cps": 2.015647487964604
+      },
+      {
+        "branch": "Petaluma",
+        "adhoc_pct": 0.04899691511685089,
+        "current_base": 51350.0,
+        "current_cps": 2.559109330801341
+      },
+      {
+        "branch": "JFK",
+        "adhoc_pct": 0.10471478333942716,
+        "current_base": 50631.0,
+        "current_cps": 2.092833508291891
+      },
+      {
+        "branch": "Charlotte",
+        "adhoc_pct": 7.68535650983964,
+        "current_base": 48356.0,
+        "current_cps": 2.44647731949118
+      },
+      {
+        "branch": "Boston",
+        "adhoc_pct": 0.33359838079681986,
+        "current_base": 48069.0,
+        "current_cps": 1.8983079444062352
+      },
+      {
+        "branch": "Commerce",
+        "adhoc_pct": 0.8272361901687246,
+        "current_base": 48000.0,
+        "current_cps": 1.7802786262957588
+      },
+      {
+        "branch": "Franklin",
+        "adhoc_pct": 0.33984946698203644,
+        "current_base": 45465.0,
+        "current_cps": 2.1933224010090204
+      }
+    ]
+  },
+  "louisville": {
+    "raw_rows": [
+      [
+        1,
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          "Volume",
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      ],
+      [
+        2,
+        [
+          null,
+          "2026-01-01 00:00:00",
+          "2026-02-01 00:00:00",
+          "2026-03-01 00:00:00",
+          "2026-04-01 00:00:00",
+          "2026-05-01 00:00:00",
+          "2026-06-01 00:00:00",
+          "2026-07-01 00:00:00",
+          "2026-08-01 00:00:00",
+          "2026-09-01 00:00:00",
+          "2026-10-01 00:00:00",
+          "2026-11-01 00:00:00",
+          "2026-12-01 00:00:00",
+          null,
+          null
+        ]
+      ],
+      [
+        3,
+        [
+          "Volume",
+          112064,
+          92453,
+          108562,
+          111063,
+          117867,
+          117167,
+          126072,
+          128073,
+          130074,
+          131275,
+          154088,
+          186106,
+          null,
+          null
+        ]
+      ],
+      [
+        4,
+        [
+          "Vans",
+          29.686191912764382,
+          27.115214306185678,
+          28.758498415490493,
+          30.401723867500674,
+          31.22342930987471,
+          32.07259645771726,
+          33.39696590185993,
+          33.927038628314826,
+          35.605681733262045,
+          34.77526095220717,
+          42.17913100938606,
+          49.300207311151915,
+          null,
+          null
+        ]
+      ],
+      [
+        5,
+        [
+          "Routes",
+          782.2311569013415,
+          645.3421004872191,
+          757.7864332481745,
+          775.2439586212672,
+          822.7373623151985,
+          817.85120967179,
+          880.0100515140091,
+          893.9774678560957,
+          907.9448841981822,
+          916.3281260906589,
+          1075.5678407393445,
+          1299.060462648853,
+          null,
+          null
+        ]
+      ],
+      [
+        6,
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      ],
+      [
+        7,
+        [
+          null,
+          null,
+          "Feb",
+          "Feb",
+          "Mar",
+          "Mar",
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      ],
+      [
+        8,
+        [
+          null,
+          null,
+          "Week 7",
+          "Week 8",
+          "Week 9",
+          "Week 10",
+          null,
+          "Route Cost (per)",
+          "Incentive",
+          "Van Cost",
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      ],
+      [
+        9,
+        [
+          null,
+          "Volume",
+          37000,
+          13207.57142857143,
+          15508.857142857143,
+          15508.857142857143,
+          null,
+          232,
+          0.18,
+          1200,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      ],
+      [
+        10,
+        [
+          null,
+          "Vans",
+          34,
+          4.24088455896634,
+          4.108356916498642,
+          4.108356916498642,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      ],
+      [
+        11,
+        [
+          null,
+          "Routes",
+          243,
+          92.1917286410313,
+          108.2552047497392,
+          108.2552047497392,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      ],
+      [
+        12,
+        [
+          null,
+          "Route Cost",
+          56376,
+          21388.48104471926,
+          25115.207501939494,
+          25115.207501939494,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      ],
+      [
+        13,
+        [
+          null,
+          "Van Cost",
+          40800,
+          5089.061470759608,
+          4930.02829979837,
+          4930.02829979837,
+          null,
+          null,
+          null,
+          null,
+          "volume",
+          37000,
+          null,
+          null,
+          null
+        ]
+      ],
+      [
+        14,
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "routes",
+          243,
+          null,
+          null,
+          null
+        ]
+      ],
+      [
+        15,
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "vans ",
+          34,
+          null,
+          null,
+          null
+        ]
+      ],
+      [
+        16,
+        [
+          "RBS",
+          "CPP",
+          2.8063783783783784,
+          2.1847245368820056,
+          2.117295283913018,
+          2.117295283913018,
+          null,
+          null,
+          null,
+          null,
+          "SPR ",
+          143,
+          null,
+          null,
+          null
+        ]
+      ],
+      [
+        17,
+        [
+          "SCM",
+          "CPP",
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          "Idle vans",
+          "x",
+          null,
+          null,
+          null
+        ]
+      ]
+    ]
+  },
+  "cost_inputs": {
+    "total_facilities": 95,
+    "sample": [
+      {
+        "fac": "Akron",
+        "forecast_ppr": 140.886,
+        "gas_maint_ppm": 0.3344444444444444,
+        "labor_ppd": 228.0,
+        "avg_miles": 106.34131160000001
+      },
+      {
+        "fac": "Albany",
+        "forecast_ppr": 169.722,
+        "gas_maint_ppm": 0.34214814814814754,
+        "labor_ppd": 257.64,
+        "avg_miles": 103.49408012500014
+      },
+      {
+        "fac": "Atlanta",
+        "forecast_ppr": 124.90200000000002,
+        "gas_maint_ppm": 0.3320740740740734,
+        "labor_ppd": 238.44,
+        "avg_miles": 109.53688283650204
+      },
+      {
+        "fac": "Austin",
+        "forecast_ppr": 153.19800000000004,
+        "gas_maint_ppm": 0.3119259259259254,
+        "labor_ppd": 239.16,
+        "avg_miles": 114.23323598920882
+      },
+      {
+        "fac": "Bakersfield",
+        "forecast_ppr": 155.41199999999998,
+        "gas_maint_ppm": 0.4391851851851848,
+        "labor_ppd": 254.87999999999997,
+        "avg_miles": 95.87127556910578
+      }
+    ]
+  }
+}

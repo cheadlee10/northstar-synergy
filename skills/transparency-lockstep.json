@@ -1,0 +1,34 @@
+{
+  "name": "transparency-lockstep",
+  "version": "1.0",
+  "description": "All Cliff ↔ Scalper collaboration MUST happen in Discord #general. Craig watches. No private channels, no DMs, no side threads. Full transparency.",
+  "enforced": true,
+  "rules": {
+    "primary_channel": "discord:#general",
+    "all_collaboration": [
+      "pick narratives",
+      "CPP/FRED overlays",
+      "mistake logs",
+      "morning handoffs",
+      "data requests",
+      "blockers",
+      "insights"
+    ],
+    "exception": "NONE — everything visible to Craig",
+    "format": "Thread replies or @mentions in #general only"
+  },
+  "escalation": {
+    "if_in_dm": "Forward summary to #general immediately",
+    "if_in_private_channel": "Move conversation to #general thread",
+    "if_delayed": "Craig sees latency; breaks lockstep"
+  },
+  "protocol": {
+    "step_1": "Cliff or Scalper posts request in #general",
+    "step_2": "Other agent replies in thread (visible to Craig)",
+    "step_3": "Work happens offline if needed, results posted back to thread",
+    "step_4": "Craig can react, comment, or redirect in real-time"
+  },
+  "active": true,
+  "owner": "Craig (Cheadder)",
+  "reason": "Full operational transparency. No black boxes."
+}

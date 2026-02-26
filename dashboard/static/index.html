@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Northstar Synergy — P&L Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<style>
+:root{
+  --bg:#05080f;--bg2:#0a0f1e;--bg3:#0d1525;
+  --border:#1a2540;--border2:#233050;
+  --blue:#3b82f6;--blue-dim:#1d3461;
+  --green:#10b981;--green-dim:#064e3b;
+  --red:#ef4444;--red-dim:#7f1d1d;
+  --amber:#f59e0b;--amber-dim:#451a03;
+  --text:#f0f4ff;--text2:#94a3b8;--text3:#475569;
+  --mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);font-family:'Inter',system-ui,sans-serif;color:var(--text);min-height:100vh;font-size:14px}
+/* ── Layout ── */
+.app-header{position:sticky;top:0;z-index:50;background:rgba(5,8,15,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-mark{width:32px;height:32px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff}
+.logo-text{font-weight:700;font-size:15px;color:var(--text);line-height:1.1}
+.logo-sub{font-size:10px;color:var(--text3);letter-spacing:.05em;text-transform:uppercase}
+.header-center{display:flex;align-items:center;gap:16px}
+.header-kpi{text-align:center}
+.header-kpi-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em}
+.header-kpi-val{font-family:var(--mono);font-size:15px;font-weight:600}
+.nav-tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);padding:0 20px;overflow-x:auto;background:var(--bg2)}
+.nav-tab{padding:10px 16px;font-size:13px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;color:var(--text3);white-space:nowrap;transition:.15s;user-select:none}
+.nav-tab:hover{color:var(--text2)}
+.nav-tab.active{color:#fff;border-bottom-color:var(--blue)}
+/* ── Period bar ── */
+.period-bar{display:flex;align-items:center;gap:8px;padding:12px 20px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.period-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-right:4px}
+.period-btn{padding:4px 12px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);color:var(--text3);background:transparent;transition:.15s}
+.period-btn:hover{border-color:var(--blue);color:var(--text)}
+.period-btn.active{background:var(--blue);border-color:var(--blue);color:#fff}
+/* ── Main ── */
+main{padding:20px;max-width:1400px;margin:0 auto}
+/* ── Cards ── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px}
+.card-sm{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px}
+.card-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:16px}
+.card-insight{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:12px;line-height:1.4}
+/* ── KPI grid ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.kpi-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px 20px;position:relative;overflow:hidden}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:3px 0 0 3px}
+.kpi-card.positive::before{background:var(--green)}
+.kpi-card.negative::before{background:var(--red)}
+.kpi-card.neutral::before{background:var(--blue)}
+.kpi-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:6px}
+.kpi-value{font-family:var(--mono);font-size:26px;font-weight:700;line-height:1;margin-bottom:6px}
+.kpi-value.up{color:var(--green)}
+.kpi-value.down{color:var(--red)}
+.kpi-value.neutral{color:var(--text)}
+.kpi-meta{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:6px}
+.delta-up{color:var(--green)}
+.delta-down{color:var(--red)}
+.rag{display:inline-block;width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.rag-green{background:var(--green)}
+.rag-red{background:var(--red)}
+.rag-amber{background:var(--amber)}
+/* ── P&L Statement ── */
+.pnl-table{width:100%;border-collapse:collapse}
+.pnl-table th{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);padding:8px 12px;text-align:right;border-bottom:1px solid var(--border2)}
+.pnl-table th:first-child{text-align:left}
+.pnl-table td{padding:9px 12px;font-size:13px;text-align:right;border-bottom:1px solid rgba(26,37,64,.5);font-family:var(--mono)}
+.pnl-table td:first-child{text-align:left;font-family:'Inter',sans-serif;font-weight:500;padding-left:12px}
+.pnl-table tr:hover td{background:rgba(255,255,255,.02)}
+.pnl-section-header td{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);padding:14px 12px 6px;border-bottom:none;font-family:'Inter',sans-serif}
+.pnl-total td{border-top:1px solid var(--border2);font-weight:700;background:rgba(59,130,246,.05)}
+.pnl-total td:first-child{font-family:'Inter',sans-serif}
+.pnl-indent{padding-left:28px!important;font-family:'Inter',sans-serif!important;font-weight:400!important;color:var(--text2)!important}
+.var-pos{color:var(--green)}
+.var-neg{color:var(--red)}
+/* ── Segment matrix ── */
+.seg-matrix{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.seg-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px}
+.seg-name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.seg-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.seg-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.seg-metric{font-size:11px;color:var(--text3)}
+.seg-val{font-family:var(--mono);font-size:12px;font-weight:500}
+.seg-divider{border:none;border-top:1px solid var(--border);margin:8px 0}
+.seg-pl{font-family:var(--mono);font-size:18px;font-weight:700;margin-top:6px}
+/* ── Cost table ── */
+.cost-bar-wrap{height:5px;background:var(--border2);border-radius:3px;margin-top:4px}
+.cost-bar{height:5px;border-radius:3px;transition:.4s}
+/* ── Buttons ── */
+.btn{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;border:none}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:#2563eb}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text3)}
+.btn-ghost:hover{border-color:var(--blue);color:var(--text)}
+.btn-danger{background:transparent;border:1px solid var(--red-dim);color:#fca5a5;font-size:11px;padding:3px 8px;border-radius:5px}
+/* ── Badge ── */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:600;letter-spacing:.04em}
+.badge-win{background:#064e3b;color:#6ee7b7}
+.badge-loss{background:var(--red-dim);color:#fca5a5}
+.badge-pending{background:#1e3a5f;color:#93c5fd}
+.badge-paid{background:#064e3b;color:#6ee7b7}
+.badge-unpaid{background:#7c2d12;color:#fed7aa}
+.badge-completed{background:#064e3b;color:#6ee7b7}
+.badge-in_progress{background:#1e3a5f;color:#93c5fd}
+.badge-quoted{background:var(--bg3);color:var(--text3)}
+/* ── Tables ── */
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);padding:10px 14px;border-bottom:1px solid var(--border2)}
+.data-table td{padding:10px 14px;font-size:13px;color:var(--text2);border-bottom:1px solid rgba(26,37,64,.5)}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:rgba(255,255,255,.02)}
+/* ── Grid helpers ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+/* ── Modals ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(6px);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:24px;width:100%;max-width:480px}
+.modal-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.modal-close{color:var(--text3);cursor:pointer;font-size:20px;line-height:1}
+.modal-close:hover{color:var(--text)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group.full{grid-column:1/-1}
+.form-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3)}
+.form-input{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:8px 11px;font-size:13px;outline:none;width:100%;font-family:inherit}
+.form-input:focus{border-color:var(--blue)}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+/* ── Toast ── */
+#toast{position:fixed;bottom:24px;right:24px;z-index:200;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:500;display:none;max-width:320px}
+/* ── Divider ── */
+.divider{border:none;border-top:1px solid var(--border);margin:16px 0}
+/* ── Sparkline placeholder ── */
+.spark{display:inline-block}
+/* ── Hidden ── */
+.hidden{display:none!important}
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+/* ── Responsive ── */
+@media(max-width:640px){
+  .kpi-grid{grid-template-columns:1fr 1fr}
+  .grid-2,.grid-3{grid-template-columns:1fr}
+  .seg-matrix{grid-template-columns:1fr}
+  .header-center{display:none}
+  .form-grid{grid-template-columns:1fr}
+  .form-group.full{grid-column:1}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ NORTHSTAR SYNERGY BRANDED HEADER ════════════════════════════════════ -->
+<header class="northstar-header">
+  <div class="northstar-container">
+    <div class="northstar-brand">
+      <svg class="northstar-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="60" height="60">
+        <circle cx="100" cy="100" r="95" fill="#1a1a2e" stroke="#00d4ff" stroke-width="2"/>
+        <g id="north-star">
+          <polygon points="100,20 120,60 165,60 130,95 150,135 100,100 50,135 70,95 35,60 80,60" fill="#00d4ff" opacity="0.9"/>
+          <circle cx="100" cy="100" r="12" fill="#ffffff" opacity="0.6"/>
+          <circle cx="100" cy="100" r="8" fill="#00d4ff" opacity="0.8"/>
+        </g>
+        <g id="synergy-rings" stroke="#00d4ff" stroke-width="1.5" fill="none" opacity="0.6">
+          <circle cx="100" cy="100" r="35"/>
+          <circle cx="100" cy="100" r="55"/>
+        </g>
+        <g id="synergy-nodes">
+          <circle cx="145" cy="65" r="4" fill="#00d4ff"/>
+          <line x1="100" y1="100" x2="145" y2="65" stroke="#00d4ff" stroke-width="1" opacity="0.5"/>
+          <circle cx="130" cy="140" r="4" fill="#00d4ff"/>
+          <line x1="100" y1="100" x2="130" y2="140" stroke="#00d4ff" stroke-width="1" opacity="0.5"/>
+          <circle cx="55" cy="100" r="4" fill="#00d4ff"/>
+          <line x1="100" y1="100" x2="55" y2="100" stroke="#00d4ff" stroke-width="1" opacity="0.5"/>
+        </g>
+        <circle cx="100" cy="100" r="95" fill="none" stroke="#00d4ff" stroke-width="3" opacity="0.3"/>
+      </svg>
+      <div class="northstar-text">
+        <h1>NorthStar Synergy</h1>
+        <p>Intelligence. Operations. Profit.</p>
+      </div>
+    </div>
+    <div class="northstar-status">
+      <div class="status-item online">
+        <span class="status-dot"></span>
+        <span>Command Center Live</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<style>
+.northstar-header {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-bottom: 2px solid #00d4ff;
+  padding: 15px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 15px rgba(0, 212, 255, 0.15);
+}
+
+.northstar-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.northstar-brand {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.northstar-logo {
+  filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.3));
+  animation: logoGlow 3s ease-in-out infinite;
+}
+
+@keyframes logoGlow {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.3)); }
+  50% { filter: drop-shadow(0 0 15px rgba(0, 212, 255, 0.6)); }
+}
+
+.northstar-text h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: #00d4ff;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+}
+
+.northstar-text p {
+  margin: 2px 0 0 0;
+  font-size: 11px;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.northstar-status {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.status-item.online {
+  color: #00ff00;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #00ff00;
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.7);
+  animation: statusPulseGreen 1.5s ease-in-out infinite;
+}
+
+@keyframes statusPulseGreen {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(0, 255, 0, 0.7); }
+  50% { opacity: 0.7; box-shadow: 0 0 12px rgba(0, 255, 0, 0.5); }
+}
+</style>
+
+<!-- ══ STICKY HEADER ══════════════════════════════════════════════════════ -->
+<header class="app-header">
+  <div class="logo">
+    <div class="logo-mark">NS</div>
+    <div>
+      <div class="logo-text">Northstar Synergy</div>
+      <div class="logo-sub">P&amp;L Command Center</div>
+    </div>
+  </div>
+  <div class="header-center">
+    <div class="header-kpi">
+      <div class="header-kpi-label">Net P&amp;L</div>
+      <div class="header-kpi-val" id="h-net-pl" style="color:var(--text2)">—</div>
+    </div>
+    <div style="width:1px;height:28px;background:var(--border)"></div>
+    <div class="header-kpi">
+      <div class="header-kpi-label">Revenue</div>
+      <div class="header-kpi-val" id="h-revenue" style="color:var(--green)">—</div>
+    </div>
+    <div style="width:1px;height:28px;background:var(--border)"></div>
+    <div class="header-kpi">
+      <div class="header-kpi-label">Costs</div>
+      <div class="header-kpi-val" id="h-costs" style="color:var(--red)">—</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <span id="live-clock" style="font-size:11px;color:var(--text3);font-family:var(--mono)"></span>
+    <button onclick="fullSync()" class="btn btn-ghost" style="font-size:11px">⚡ Sync</button>
+  </div>
+</header>
+
+<!-- ══ NAV ════════════════════════════════════════════════════════════════ -->
+<nav class="nav-tabs">
+  <div class="nav-tab active" id="tab-pnl" onclick="showTab('pnl')">P&amp;L Statement</div>
+  <div class="nav-tab" id="tab-segments" onclick="showTab('segments')">Segments</div>
+  <div class="nav-tab" id="tab-kalshi" onclick="showTab('kalshi')">⚡ Kalshi</div>
+  <div class="nav-tab" id="tab-sports" onclick="showTab('sports')">Sports Picks</div>
+  <div class="nav-tab" id="tab-john" onclick="showTab('john')">John's Business</div>
+  <div class="nav-tab" id="tab-costs" onclick="showTab('costs')">Cost Drill-Down</div>
+  <div class="nav-tab" id="tab-ledger" onclick="showTab('ledger')">Ledger</div>
+</nav>
+
+<!-- ══ PERIOD BAR ══════════════════════════════════════════════════════════ -->
+<div class="period-bar">
+  <span class="period-label">Period</span>
+  <button class="period-btn" onclick="setPeriod('today')">Today</button>
+  <button class="period-btn" onclick="setPeriod('week')">7D</button>
+  <button class="period-btn active" onclick="setPeriod('month')">MTD</button>
+  <button class="period-btn" onclick="setPeriod('quarter')">QTD</button>
+  <button class="period-btn" onclick="setPeriod('year')">YTD</button>
+  <button class="period-btn" onclick="setPeriod('all')">All Time</button>
+</div>
+
+<main>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!--  P&L STATEMENT TAB                                                   -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div id="content-pnl">
+
+  <!-- Headline KPIs -->
+  <div class="kpi-grid" style="margin-bottom:20px">
+    <div class="kpi-card" id="kpi-card-revenue" style="border-color:var(--green-dim)">
+      <div class="kpi-label">Total Revenue</div>
+      <div class="kpi-value up" id="kpi-revenue">—</div>
+      <div class="kpi-meta"><span class="rag rag-green"></span><span id="kpi-revenue-meta">All segments combined</span></div>
+    </div>
+    <div class="kpi-card" id="kpi-card-costs" style="border-color:var(--red-dim)">
+      <div class="kpi-label">Total Costs</div>
+      <div class="kpi-value down" id="kpi-costs">—</div>
+      <div class="kpi-meta"><span class="rag" id="rag-costs"></span><span id="kpi-costs-meta">Operating + API spend</span></div>
+    </div>
+    <div class="kpi-card" id="kpi-card-net">
+      <div class="kpi-label">Net Profit / Loss</div>
+      <div class="kpi-value neutral" id="kpi-net">—</div>
+      <div class="kpi-meta"><span class="rag" id="rag-net"></span><span id="kpi-net-meta">Revenue minus all costs</span></div>
+    </div>
+  </div>
+
+  <!-- Two column: Waterfall + Income Statement -->
+  <div class="grid-2" style="margin-bottom:20px">
+    <!-- P&L Waterfall -->
+    <div class="card">
+      <div class="card-title">P&L Bridge — Where every dollar comes from and goes</div>
+      <div id="chart-waterfall"></div>
+    </div>
+    <!-- Income Statement -->
+    <div class="card">
+      <div class="card-title">Income Statement</div>
+      <table class="pnl-table">
+        <thead>
+          <tr>
+            <th style="text-align:left">Line Item</th>
+            <th>Amount</th>
+            <th>% of Rev</th>
+          </tr>
+        </thead>
+        <tbody id="income-statement-body">
+          <tr><td colspan="3" style="text-align:center;color:var(--text3);padding:20px">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Revenue trend + Cost breakdown -->
+  <div class="grid-2" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-title">Revenue Trend — Cumulative P&L over time</div>
+      <div id="chart-trend"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Cost Structure — Where money is spent</div>
+      <div id="cost-breakdown-list" style="margin-top:4px"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!--  SEGMENTS TAB                                                         -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div id="content-segments" class="hidden">
+  <div class="seg-matrix" style="margin-bottom:20px" id="segment-cards"></div>
+  <div class="card">
+    <div class="card-title">Segment P&L Matrix</div>
+    <table class="pnl-table">
+      <thead>
+        <tr>
+          <th style="text-align:left">Segment</th>
+          <th>Revenue</th>
+          <th>Costs</th>
+          <th>Gross Profit</th>
+          <th>Margin %</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="segment-matrix-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!--  KALSHI TAB                                                           -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div id="content-kalshi" class="hidden">
+  <div class="kpi-grid" style="margin-bottom:20px">
+    <div class="kpi-card neutral"><div class="kpi-label">Account Balance</div><div class="kpi-value neutral" id="k-balance">—</div><div class="kpi-meta">Live Kalshi balance</div></div>
+    <div class="kpi-card" id="k-pl-card"><div class="kpi-label">Total P&amp;L</div><div class="kpi-value neutral" id="k-total-pl">—</div><div class="kpi-meta" id="k-last">—</div></div>
+    <div class="kpi-card neutral"><div class="kpi-label">Open Positions</div><div class="kpi-value neutral" id="k-open">—</div><div class="kpi-meta" id="k-wl">0W / 0L</div></div>
+  </div>
+  <div class="grid-2" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-title">P&L by Period</div>
+      <table class="pnl-table">
+        <thead><tr><th style="text-align:left">Period</th><th>Net P&L</th><th>Fills</th><th>W / L</th></tr></thead>
+        <tbody id="k-periods-body"></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">P&L by Category</div>
+      <div id="chart-kalshi-cats"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Cumulative Kalshi P&L — by strategy category</div>
+    <div id="chart-kalshi-ts"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!--  SPORTS PICKS TAB                                                     -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div id="content-sports" class="hidden">
+  <div class="grid-3" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-title">Profitability by Sport</div>
+      <table class="data-table">
+        <thead><tr><th style="text-align:left">Sport</th><th>W/L</th><th>P&L</th><th>ROI</th></tr></thead>
+        <tbody id="prof-sport"></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">Profitability by Edge Size</div>
+      <table class="data-table">
+        <thead><tr><th style="text-align:left">Edge</th><th>Picks</th><th>P&L</th></tr></thead>
+        <tbody id="prof-edge"></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">Profitability by Signal Type</div>
+      <table class="data-table">
+        <thead><tr><th style="text-align:left">Type</th><th>Picks</th><th>P&L</th></tr></thead>
+        <tbody id="prof-framing"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div class="card-title" style="margin-bottom:0">All Picks</div>
+      <button onclick="fullSync()" class="btn btn-ghost" style="font-size:11px">⚡ Sync</button>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="data-table">
+        <thead><tr>
+          <th style="text-align:left">Date</th><th style="text-align:left">Game</th>
+          <th style="text-align:left">Pick</th><th>ML</th><th>Edge</th>
+          <th>Conf</th><th>Result</th><th>P&L</th>
+        </tr></thead>
+        <tbody id="sports-picks-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!--  JOHN'S BUSINESS TAB                                                  -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div id="content-john" class="hidden">
+  <div class="kpi-grid" style="margin-bottom:20px">
+    <div class="kpi-card positive"><div class="kpi-label">Total Invoiced</div><div class="kpi-value neutral" id="j-invoiced">—</div><div class="kpi-meta" id="j-jobs-meta">— jobs</div></div>
+    <div class="kpi-card positive"><div class="kpi-label">Collected</div><div class="kpi-value up" id="j-collected">—</div><div class="kpi-meta">Cash in hand</div></div>
+    <div class="kpi-card negative"><div class="kpi-label">Outstanding</div><div class="kpi-value down" id="j-outstanding">—</div><div class="kpi-meta">Awaiting payment</div></div>
+  </div>
+  <div class="grid-2" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-title">Revenue by Client</div>
+      <div id="chart-john-clients"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Invoice Status</div>
+      <div id="chart-john-status"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div class="card-title" style="margin-bottom:0">Jobs &amp; Invoices</div>
+      <button onclick="openModal('modal-job')" class="btn btn-primary" style="font-size:11px">+ Add Job</button>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="data-table">
+        <thead><tr>
+          <th style="text-align:left">Date</th><th style="text-align:left">Client</th>
+          <th style="text-align:left">Service</th><th>Status</th><th>Amount</th><th>Paid</th><th></th>
+        </tr></thead>
+        <tbody id="john-jobs-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!--  COST DRILL-DOWN TAB                                                  -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div id="content-costs" class="hidden">
+  <div class="grid-2" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-title">Cost by Category — Ranked by magnitude</div>
+      <div id="chart-cost-ranked"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">API Cost by Provider</div>
+      <div id="chart-api-providers"></div>
+      <div style="margin-top:16px">
+        <table class="data-table">
+          <thead><tr><th style="text-align:left">Date</th><th style="text-align:left">Provider / Model</th><th>Tokens In</th><th>Tokens Out</th><th>Cost</th></tr></thead>
+          <tbody id="api-log-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div class="card-title" style="margin-bottom:0">All Expenses</div>
+      <div style="display:flex;gap:8px">
+        <button onclick="openModal('modal-api')" class="btn btn-ghost" style="font-size:11px">+ Log API Usage</button>
+        <button onclick="openModal('modal-expense')" class="btn btn-primary" style="font-size:11px">+ Add Expense</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="data-table">
+        <thead><tr><th style="text-align:left">Date</th><th style="text-align:left">Segment</th><th style="text-align:left">Description</th><th>Amount</th><th></th></tr></thead>
+        <tbody id="expenses-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!--  LEDGER TAB                                                           -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div id="content-ledger" class="hidden">
+  <div class="grid-2">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div class="card-title" style="margin-bottom:0">Revenue Entries</div>
+        <button onclick="openModal('modal-revenue')" class="btn btn-primary" style="font-size:11px">+ Add</button>
+      </div>
+      <table class="data-table">
+        <thead><tr><th style="text-align:left">Date</th><th style="text-align:left">Segment</th><th style="text-align:left">Description</th><th>Amount</th><th></th></tr></thead>
+        <tbody id="revenue-body"></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div class="card-title" style="margin-bottom:0">Manual Bets Log</div>
+        <button onclick="openModal('modal-bet')" class="btn btn-primary" style="font-size:11px">+ Add Bet</button>
+      </div>
+      <table class="data-table">
+        <thead><tr><th style="text-align:left">Date</th><th style="text-align:left">Game</th><th>Stake</th><th>Result</th><th>P&L</th><th></th></tr></thead>
+        <tbody id="bets-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- ══ MODALS ══════════════════════════════════════════════════════════════ -->
+<!-- Add Job -->
+<div id="modal-job" class="hidden modal-bg">
+  <div class="modal-box">
+    <div class="modal-title">Add Job / Invoice<span class="modal-close" onclick="closeModal('modal-job')">×</span></div>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Date</label><input type="date" id="j-date" class="form-input"/></div>
+      <div class="form-group"><label class="form-label">Client</label><input type="text" id="j-client" class="form-input" placeholder="Client name"/></div>
+      <div class="form-group full"><label class="form-label">Description</label><input type="text" id="j-desc" class="form-input" placeholder="Service description"/></div>
+      <div class="form-group"><label class="form-label">Status</label><select id="j-status" class="form-input"><option value="quoted">Quoted</option><option value="in_progress">In Progress</option><option value="completed">Completed</option></select></div>
+      <div class="form-group"><label class="form-label">Invoice Amount ($)</label><input type="number" id="j-amount" class="form-input" placeholder="0.00" step="0.01"/></div>
+      <div class="form-group"><label class="form-label">Paid?</label><select id="j-paid" class="form-input"><option value="0">No</option><option value="1">Yes</option></select></div>
+      <div class="form-group"><label class="form-label">Paid Date</label><input type="date" id="j-paid-date" class="form-input"/></div>
+    </div>
+    <div class="modal-footer">
+      <button onclick="closeModal('modal-job')" class="btn btn-ghost">Cancel</button>
+      <button onclick="saveJob()" class="btn btn-primary">Save Job</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Bet -->
+<div id="modal-bet" class="hidden modal-bg">
+  <div class="modal-box">
+    <div class="modal-title">Add Bet<span class="modal-close" onclick="closeModal('modal-bet')">×</span></div>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Date</label><input type="date" id="b-date" class="form-input"/></div>
+      <div class="form-group"><label class="form-label">Sport</label><select id="b-sport" class="form-input"><option>NCAAB</option><option>NBA</option><option>NFL</option><option>NHL</option><option>MLB</option><option>Other</option></select></div>
+      <div class="form-group full"><label class="form-label">Game</label><input type="text" id="b-game" class="form-input" placeholder="Kansas @ Houston"/></div>
+      <div class="form-group"><label class="form-label">Book</label><select id="b-book" class="form-input"><option>Kalshi</option><option>DraftKings</option><option>FanDuel</option><option>BetOnline</option></select></div>
+      <div class="form-group"><label class="form-label">Stake ($)</label><input type="number" id="b-stake" class="form-input" step="0.01"/></div>
+      <div class="form-group"><label class="form-label">Odds</label><input type="text" id="b-odds" class="form-input" placeholder="+124"/></div>
+      <div class="form-group"><label class="form-label">Result</label><select id="b-result" class="form-input"><option>PENDING</option><option>WIN</option><option>LOSS</option></select></div>
+      <div class="form-group"><label class="form-label">P&L ($)</label><input type="number" id="b-pl" class="form-input" step="0.01"/></div>
+    </div>
+    <div class="modal-footer">
+      <button onclick="closeModal('modal-bet')" class="btn btn-ghost">Cancel</button>
+      <button onclick="saveBet()" class="btn btn-primary">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add API Usage -->
+<div id="modal-api" class="hidden modal-bg">
+  <div class="modal-box">
+    <div class="modal-title">Log API Usage<span class="modal-close" onclick="closeModal('modal-api')">×</span></div>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Date</label><input type="date" id="a-date" class="form-input"/></div>
+      <div class="form-group"><label class="form-label">Provider</label><select id="a-provider" class="form-input"><option>Anthropic</option><option>OpenRouter</option></select></div>
+      <div class="form-group full"><label class="form-label">Model</label><input type="text" id="a-model" class="form-input" placeholder="claude-sonnet-4-6"/></div>
+      <div class="form-group"><label class="form-label">Tokens In</label><input type="number" id="a-tin" class="form-input"/></div>
+      <div class="form-group"><label class="form-label">Tokens Out</label><input type="number" id="a-tout" class="form-input"/></div>
+      <div class="form-group"><label class="form-label">Cost ($)</label><input type="number" id="a-cost" class="form-input" step="0.0001"/></div>
+      <div class="form-group"><label class="form-label">Notes</label><input type="text" id="a-notes" class="form-input"/></div>
+    </div>
+    <div class="modal-footer">
+      <button onclick="closeModal('modal-api')" class="btn btn-ghost">Cancel</button>
+      <button onclick="saveApi()" class="btn btn-primary">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Expense -->
+<div id="modal-expense" class="hidden modal-bg">
+  <div class="modal-box">
+    <div class="modal-title">Add Expense<span class="modal-close" onclick="closeModal('modal-expense')">×</span></div>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Date</label><input type="date" id="e-date" class="form-input"/></div>
+      <div class="form-group"><label class="form-label">Segment</label><select id="e-segment" class="form-input"><option>Kalshi</option><option>Sports Betting</option><option>John's Business</option><option>AI / Tech</option><option>Operations</option><option>Other</option></select></div>
+      <div class="form-group full"><label class="form-label">Description</label><input type="text" id="e-desc" class="form-input"/></div>
+      <div class="form-group"><label class="form-label">Amount ($)</label><input type="number" id="e-amount" class="form-input" step="0.01"/></div>
+      <div class="form-group"><label class="form-label">Category</label><input type="text" id="e-cat" class="form-input" placeholder="Software, Labor…"/></div>
+    </div>
+    <div class="modal-footer">
+      <button onclick="closeModal('modal-expense')" class="btn btn-ghost">Cancel</button>
+      <button onclick="saveExpense()" class="btn btn-primary">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Revenue -->
+<div id="modal-revenue" class="hidden modal-bg">
+  <div class="modal-box">
+    <div class="modal-title">Add Revenue<span class="modal-close" onclick="closeModal('modal-revenue')">×</span></div>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Date</label><input type="date" id="r-date" class="form-input"/></div>
+      <div class="form-group"><label class="form-label">Segment</label><select id="r-segment" class="form-input"><option>Betting</option><option>John's Business</option><option>Consulting</option><option>Other</option></select></div>
+      <div class="form-group full"><label class="form-label">Description</label><input type="text" id="r-desc" class="form-input"/></div>
+      <div class="form-group full"><label class="form-label">Amount ($)</label><input type="number" id="r-amount" class="form-input" step="0.01"/></div>
+    </div>
+    <div class="modal-footer">
+      <button onclick="closeModal('modal-revenue')" class="btn btn-ghost">Cancel</button>
+      <button onclick="saveRevenue()" class="btn btn-primary">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- ══ SCRIPTS ══════════════════════════════════════════════════════════════ -->
+<script>
+// ── Helpers ─────────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const today = () => new Date().toISOString().slice(0,10);
+const fmtUSD = (n,d=2) => n==null?'—':'$'+Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtPct = (n,d=1) => n==null?'—':(n>=0?'+':'')+n.toFixed(d)+'%';
+const signColor = n => n>0?'var(--green)':n<0?'var(--red)':'var(--text2)';
+const fmtPL = (n,d=2) => {
+  if(n==null) return '<span style="color:var(--text3)">—</span>';
+  return `<span style="color:${signColor(n)};font-family:var(--mono)">${n>=0?'+':''}${fmtUSD(n,d)}</span>`;
+};
+let charts = {};
+let activePeriod = 'month';
+
+// ── Clock ─────────────────────────────────────────────────────────────────
+setInterval(()=>{ $('live-clock').textContent = new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); },1000);
+
+// ── Toast ─────────────────────────────────────────────────────────────────
+function toast(msg,ok=true){
+  const el=$('toast');
+  el.textContent=msg;
+  el.style.cssText=`display:block;background:${ok?'#064e3b':'#7f1d1d'};border:1px solid ${ok?'#10b981':'#ef4444'};color:${ok?'#6ee7b7':'#fca5a5'}`;
+  setTimeout(()=>el.style.display='none',3500);
+}
+
+// ── Period ────────────────────────────────────────────────────────────────
+function setPeriod(p){
+  activePeriod=p;
+  document.querySelectorAll('.period-btn').forEach(b=>{
+    const sel=b.getAttribute('onclick')===`setPeriod('${p}')`;
+    b.classList.toggle('active',sel);
+  });
+  refreshCurrentTab();
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────────
+const TABS=['pnl','segments','kalshi','sports','john','costs','ledger'];
+function showTab(name){
+  TABS.forEach(t=>{
+    $(`tab-${t}`).classList.toggle('active',t===name);
+    $(`content-${t}`).classList.toggle('hidden',t!==name);
+  });
+  refreshCurrentTab();
+}
+function refreshCurrentTab(){
+  const active=TABS.find(t=>!$(`content-${t}`).classList.contains('hidden'));
+  if(active==='pnl') loadPnL();
+  else if(active==='segments') loadSegments();
+  else if(active==='kalshi') loadKalshi();
+  else if(active==='sports') loadSports();
+  else if(active==='john') loadJohn();
+  else if(active==='costs') loadCosts();
+  else if(active==='ledger') loadLedger();
+}
+
+// ── Modals ────────────────────────────────────────────────────────────────
+function openModal(id){
+  const d=$(id).querySelector('input[type="date"]');
+  if(d&&!d.value) d.value=today();
+  $(id).classList.remove('hidden');
+}
+function closeModal(id){ $(id).classList.add('hidden'); }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// P&L STATEMENT
+// ═══════════════════════════════════════════════════════════════════════════
+async function loadPnL(){
+  const [p, ts, s] = await Promise.all([
+    fetch(`/api/summary/period?period=${activePeriod}`).then(r=>r.json()),
+    fetch('/api/bets/timeseries').then(r=>r.json()),
+    fetch('/api/summary').then(r=>r.json()),
+  ]);
+
+  const revenue = p.revenue + p.john.collected + Math.max(0, p.betting.pl);
+  const costs   = p.expenses + p.api_cost + Math.max(0, -p.betting.pl);
+  const net     = p.net_pl;
+
+  // Header KPIs
+  $('h-revenue').textContent = fmtUSD(revenue);
+  $('h-costs').textContent   = fmtUSD(costs);
+  $('h-net-pl').textContent  = (net>=0?'+':'')+fmtUSD(net);
+  $('h-net-pl').style.color  = signColor(net);
+
+  // KPI cards
+  $('kpi-revenue').textContent = fmtUSD(revenue);
+  $('kpi-costs').textContent   = fmtUSD(costs);
+  $('kpi-net').textContent     = (net>=0?'+':'')+fmtUSD(net);
+  $('kpi-net').style.color     = signColor(net);
+  $('kpi-card-net').style.borderColor = net>=0?'var(--green-dim)':'var(--red-dim)';
+  $('rag-net').className = `rag ${net>=0?'rag-green':'rag-red'}`;
+  $('kpi-net-meta').textContent = net>=0?'Profitable period':'In the red this period';
+
+  // Waterfall data
+  const wfData = [
+    { label: "John's Rev",  val: p.john.collected, type: 'rev' },
+    { label: 'Other Rev',   val: p.revenue,         type: 'rev' },
+    { label: 'Bet P&L',     val: p.betting.pl,      type: p.betting.pl>=0?'rev':'cost' },
+    { label: 'API Costs',   val: -p.api_cost,        type: 'cost' },
+    { label: 'Expenses',    val: -p.expenses,         type: 'cost' },
+  ].filter(d=>d.val!==0);
+  renderWaterfall(wfData, net);
+
+  // Income statement
+  const tbody = $('income-statement-body');
+  const pct = v => revenue>0?((v/revenue)*100).toFixed(1)+'%':'—';
+  const row = (label, val, bold=false, indent=false, isNeg=false) => {
+    const color = isNeg?'var(--red)':signColor(val);
+    const style = bold?'font-weight:700;border-top:1px solid var(--border2);background:rgba(59,130,246,.04)':'';
+    const labelStyle = indent?'padding-left:24px;color:var(--text3);font-weight:400':'';
+    return `<tr style="${style}">
+      <td style="${labelStyle}">${label}</td>
+      <td style="color:${color};font-family:var(--mono)">${val>=0?'':'-'}${fmtUSD(Math.abs(val))}</td>
+      <td style="color:var(--text3);font-family:var(--mono)">${pct(Math.abs(val))}</td>
+    </tr>`;
+  };
+  tbody.innerHTML =
+    `<tr class="pnl-section-header"><td colspan="3">REVENUE</td></tr>` +
+    row("John's Business", p.john.collected, false, true) +
+    row("Sports Betting P&L", Math.max(0, p.betting.pl), false, true) +
+    row("Kalshi P&L", 0, false, true) +
+    row("Other Revenue", p.revenue, false, true) +
+    row("TOTAL REVENUE", revenue, true) +
+    `<tr class="pnl-section-header"><td colspan="3">OPERATING COSTS</td></tr>` +
+    row("API / AI Spend", p.api_cost, false, true, true) +
+    row("Other Expenses", p.expenses, false, true, true) +
+    row("Betting Losses", Math.max(0,-p.betting.pl), false, true, true) +
+    row("TOTAL COSTS", costs, true, false, true) +
+    row("NET PROFIT / LOSS", net, true);
+
+  // Cost breakdown
+  renderCostBreakdown(p);
+
+  // Trend chart
+  renderTrend(ts);
+}
+
+function renderWaterfall(items, net){
+  if(charts.wf) charts.wf.destroy();
+  // Build waterfall using stacked bars trick
+  const labels = [...items.map(i=>i.label), 'Net P&L'];
+  const colors = [...items.map(i=>i.type==='rev'?'#10b981':'#ef4444'), net>=0?'#3b82f6':'#ef4444'];
+  const vals   = [...items.map(i=>Math.abs(i.val)), Math.abs(net)];
+
+  charts.wf = new ApexCharts($('chart-waterfall'),{
+    chart:{type:'bar',height:220,background:'transparent',toolbar:{show:false},animations:{enabled:false}},
+    theme:{mode:'dark'},
+    series:[{name:'Amount',data:vals}],
+    colors,plotOptions:{bar:{borderRadius:5,distributed:true,columnWidth:'55%'}},
+    legend:{show:false},
+    xaxis:{categories:labels,labels:{style:{colors:'#64748b',fontSize:'11px'}}},
+    yaxis:{labels:{style:{colors:'#64748b',fontSize:'11px'},formatter:v=>`$${v.toFixed(0)}`}},
+    grid:{borderColor:'#1a2540'},
+    tooltip:{theme:'dark',y:{formatter:v=>`$${v.toFixed(2)}`},x:{formatter:(v,{dataPointIndex})=>labels[dataPointIndex]}},
+    dataLabels:{enabled:true,formatter:v=>`$${v.toFixed(0)}`,style:{fontSize:'10px',colors:['#fff']}},
+  });
+  charts.wf.render();
+}
+
+function renderTrend(ts){
+  if(charts.trend) charts.trend.destroy();
+  if(!ts.length) return;
+  charts.trend = new ApexCharts($('chart-trend'),{
+    chart:{type:'area',height:200,background:'transparent',toolbar:{show:false}},
+    theme:{mode:'dark'},
+    series:[{name:'Cumulative P&L',data:ts.map(r=>({x:r.date,y:r.cumulative}))}],
+    colors:[ts[ts.length-1]?.cumulative>=0?'#10b981':'#ef4444'],
+    fill:{type:'gradient',gradient:{shadeIntensity:1,opacityFrom:.3,opacityTo:.02}},
+    stroke:{curve:'smooth',width:2},
+    xaxis:{type:'datetime',labels:{style:{colors:'#64748b',fontSize:'10px'}}},
+    yaxis:{labels:{style:{colors:'#64748b',fontSize:'10px'},formatter:v=>`$${v.toFixed(0)}`}},
+    grid:{borderColor:'#1a2540'},
+    tooltip:{theme:'dark',x:{format:'MMM dd'},y:{formatter:v=>`$${v.toFixed(2)}`}},
+  });
+  charts.trend.render();
+}
+
+function renderCostBreakdown(p){
+  const costs=[
+    {label:'Sports Bet Losses',val:Math.max(0,-p.betting.pl),color:'#ef4444'},
+    {label:'API / AI Spend',   val:p.api_cost,               color:'#6366f1'},
+    {label:'Other Expenses',   val:p.expenses,               color:'#f59e0b'},
+  ].filter(c=>c.val>0).sort((a,b)=>b.val-a.val);
+  const total=costs.reduce((s,c)=>s+c.val,0)||1;
+  $('cost-breakdown-list').innerHTML=costs.length?costs.map(c=>`
+    <div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:12px;color:var(--text2)">${c.label}</span>
+        <span style="font-family:var(--mono);font-size:12px;color:var(--red)">${fmtUSD(c.val)}</span>
+      </div>
+      <div class="cost-bar-wrap"><div class="cost-bar" style="width:${(c.val/total*100).toFixed(1)}%;background:${c.color}"></div></div>
+      <div style="font-size:10px;color:var(--text3);margin-top:3px">${(c.val/total*100).toFixed(1)}% of total costs</div>
+    </div>`).join('')
+    :'<div style="color:var(--text3);text-align:center;padding:20px">No costs recorded yet</div>';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SEGMENTS
+// ═══════════════════════════════════════════════════════════════════════════
+async function loadSegments(){
+  const p = await fetch(`/api/summary/period?period=${activePeriod}`).then(r=>r.json());
+  const segments = [
+    {name:'Sports Betting', color:'#6366f1', revenue:Math.max(0,p.betting.pl), costs:Math.max(0,-p.betting.pl), meta:`${p.betting.wins}W/${p.betting.losses}L · ${p.betting.win_rate}% win rate`},
+    {name:"John's Business",color:'#10b981', revenue:p.john.collected, costs:0, meta:`${p.john.jobs} jobs · ${fmtUSD(p.john.invoiced-p.john.collected)} outstanding`},
+    {name:'AI / API Costs', color:'#f59e0b', revenue:0, costs:p.api_cost, meta:'Anthropic + OpenRouter'},
+    {name:'Other',          color:'#94a3b8', revenue:p.revenue, costs:p.expenses, meta:'Ledger entries'},
+  ];
+
+  $('segment-cards').innerHTML = segments.map(s=>{
+    const gp = s.revenue - s.costs;
+    const margin = s.revenue>0?((gp/s.revenue)*100).toFixed(1):null;
+    return `<div class="seg-card">
+      <div class="seg-name"><span class="seg-dot" style="background:${s.color}"></span>${s.name}</div>
+      <div class="seg-row"><span class="seg-metric">Revenue</span><span class="seg-val" style="color:var(--green)">${fmtUSD(s.revenue)}</span></div>
+      <div class="seg-row"><span class="seg-metric">Costs</span><span class="seg-val" style="color:var(--red)">${fmtUSD(s.costs)}</span></div>
+      <hr class="seg-divider"/>
+      <div class="seg-pl" style="color:${signColor(gp)}">${gp>=0?'+':''}${fmtUSD(gp)}</div>
+      ${margin!=null?`<div style="font-size:11px;color:var(--text3);margin-top:2px">${margin}% margin</div>`:''}
+      <div style="font-size:10px;color:var(--text3);margin-top:6px">${s.meta}</div>
+    </div>`;
+  }).join('');
+
+  $('segment-matrix-body').innerHTML = segments.map(s=>{
+    const gp=s.revenue-s.costs;
+    const margin=s.revenue>0?((gp/s.revenue)*100).toFixed(1):null;
+    const rag=gp>0?'rag-green':gp<0?'rag-red':'rag-amber';
+    return `<tr>
+      <td style="font-weight:600;color:var(--text)"><span class="seg-dot" style="background:${s.color};display:inline-block;margin-right:8px;vertical-align:middle"></span>${s.name}</td>
+      <td style="color:var(--green);font-family:var(--mono)">${fmtUSD(s.revenue)}</td>
+      <td style="color:var(--red);font-family:var(--mono)">${fmtUSD(s.costs)}</td>
+      <td style="color:${signColor(gp)};font-family:var(--mono);font-weight:600">${gp>=0?'+':''}${fmtUSD(gp)}</td>
+      <td style="font-family:var(--mono)">${margin!=null?margin+'%':'—'}</td>
+      <td><span class="rag ${rag}"></span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// KALSHI
+// ═══════════════════════════════════════════════════════════════════════════
+async function loadKalshi(){
+  const [k,ts]=await Promise.all([
+    fetch('/api/kalshi/summary').then(r=>r.json()),
+    fetch('/api/kalshi/timeseries').then(r=>r.json()),
+  ]);
+  const live=k.live||{};
+  $('k-balance').textContent=fmtUSD(live.balance_usd||0);
+  $('k-total-pl').textContent=(live.total_pnl_usd>=0?'+':'')+fmtUSD(live.total_pnl_usd||0);
+  $('k-total-pl').style.color=signColor(live.total_pnl_usd||0);
+  $('k-open').textContent=live.open_positions||0;
+  $('k-wl').textContent=`${live.win_count||0}W / ${live.loss_count||0}L`;
+  $('k-last').textContent=live.last_update?new Date(live.last_update).toLocaleString():'—';
+  const order=['today','week','month','quarter','year','all'];
+  const lbl={today:'Today',week:'7 Days',month:'MTD',quarter:'QTD',year:'YTD',all:'All Time'};
+  $('k-periods-body').innerHTML=order.map(p=>{
+    const d=(k.periods||{})[p]||{};
+    return `<tr><td style="color:var(--text2)">${lbl[p]}</td><td style="font-family:var(--mono)">${fmtPL(d.pnl_usd||0)}</td><td style="color:var(--text3);font-family:var(--mono)">${d.fills||0}</td><td style="color:var(--text3);font-family:var(--mono)">${d.wins||0}/${d.losses||0}</td></tr>`;
+  }).join('');
+  // Category chart
+  const cats=k.categories||{};
+  if(charts.kCats) charts.kCats.destroy();
+  charts.kCats=new ApexCharts($('chart-kalshi-cats'),{
+    chart:{type:'bar',height:180,background:'transparent',toolbar:{show:false}},
+    theme:{mode:'dark'},
+    series:[{name:'P&L ($)',data:Object.values(cats)}],
+    xaxis:{categories:Object.keys(cats).map(c=>c.replace('_',' ')),labels:{style:{colors:'#64748b',fontSize:'10px'}}},
+    yaxis:{labels:{style:{colors:'#64748b',fontSize:'10px'},formatter:v=>`$${v.toFixed(2)}`}},
+    colors:Object.values(cats).map(v=>v>=0?'#10b981':'#ef4444'),
+    plotOptions:{bar:{borderRadius:4,distributed:true,columnWidth:'50%'}},
+    legend:{show:false},grid:{borderColor:'#1a2540'},
+    tooltip:{theme:'dark',y:{formatter:v=>`$${v.toFixed(4)}`}},
+  });
+  charts.kCats.render();
+  // Timeseries
+  if(!ts.length) return;
+  if(charts.kTs) charts.kTs.destroy();
+  charts.kTs=new ApexCharts($('chart-kalshi-ts'),{
+    chart:{type:'line',height:200,background:'transparent',toolbar:{show:false}},
+    theme:{mode:'dark'},
+    series:[
+      {name:'Total',data:ts.map(r=>({x:r.date,y:r.total_pnl}))},
+      {name:'Weather',data:ts.map(r=>({x:r.date,y:r.weather}))},
+      {name:'Market Making',data:ts.map(r=>({x:r.date,y:r.mm}))},
+    ],
+    colors:['#3b82f6','#60a5fa','#a78bfa'],
+    stroke:{curve:'smooth',width:[3,1,1]},
+    xaxis:{type:'datetime',labels:{style:{colors:'#64748b',fontSize:'10px'}}},
+    yaxis:{labels:{style:{colors:'#64748b',fontSize:'10px'},formatter:v=>`$${v.toFixed(2)}`}},
+    grid:{borderColor:'#1a2540'},legend:{labels:{colors:'#94a3b8'}},
+    tooltip:{theme:'dark',x:{format:'MMM dd'},y:{formatter:v=>`$${v.toFixed(4)}`}},
+  });
+  charts.kTs.render();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SPORTS
+// ═══════════════════════════════════════════════════════════════════════════
+async function loadSports(){
+  const [picks,prof]=await Promise.all([
+    fetch('/api/sports-picks').then(r=>r.json()),
+    fetch('/api/sports-picks/profitability').then(r=>r.json()),
+  ]);
+  const noData='<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:16px">No settled picks yet</td></tr>';
+  $('prof-sport').innerHTML=(prof.by_sport||[]).length
+    ?prof.by_sport.map(r=>`<tr><td style="color:var(--text)">${r.sport}</td><td style="font-family:var(--mono)">${r.wins||0}/${r.losses||0}</td><td>${fmtPL(r.total_pl)}</td><td style="font-family:var(--mono)">${r.total_staked?((r.total_pl/r.total_staked)*100).toFixed(1)+'%':'—'}</td></tr>`).join(''):noData;
+  $('prof-edge').innerHTML=(prof.by_edge||[]).length
+    ?prof.by_edge.map(r=>`<tr><td style="color:var(--text)">${r.edge_bucket}</td><td style="color:var(--text3);font-family:var(--mono)">${r.total}</td><td>${fmtPL(r.total_pl)}</td></tr>`).join(''):noData;
+  $('prof-framing').innerHTML=(prof.by_framing||[]).length
+    ?prof.by_framing.map(r=>`<tr><td style="color:var(--text);font-size:11px">${(r.framing_type||'').replace('_',' ')}</td><td style="color:var(--text3);font-family:var(--mono)">${r.total}</td><td>${fmtPL(r.total_pl)}</td></tr>`).join(''):noData;
+  $('sports-picks-body').innerHTML=picks.length
+    ?picks.map(p=>`<tr>
+      <td>${p.pick_date}</td>
+      <td style="font-size:12px;color:var(--text2);max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.game}</td>
+      <td style="color:#60a5fa;font-weight:500">${p.pick||'—'}</td>
+      <td style="font-family:var(--mono);text-align:center">${p.ml>0?'+':''}${p.ml||'—'}</td>
+      <td style="text-align:center;font-family:var(--mono);color:${(p.edge_val||0)>=5?'var(--green)':'var(--text3)'}">${p.edge_val!=null?p.edge_val.toFixed(1)+'%':'—'}</td>
+      <td style="text-align:center;font-size:11px;color:var(--text3)">${p.confidence||'—'}</td>
+      <td><span class="badge badge-${(p.result||'pending').toLowerCase()}">${p.result||'PENDING'}</span></td>
+      <td>${p.result==='PENDING'?'<span style="color:var(--text3)">—</span>':fmtPL(p.profit_loss)}</td>
+    </tr>`).join('')
+    :'<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:20px">No picks yet. Sync Scalper above.</td></tr>';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// JOHN
+// ═══════════════════════════════════════════════════════════════════════════
+async function loadJohn(){
+  const [s,jobs]=await Promise.all([
+    fetch('/api/summary').then(r=>r.json()),
+    fetch('/api/jobs').then(r=>r.json()),
+  ]);
+  $('j-invoiced').textContent=fmtUSD(s.john.invoiced);
+  $('j-collected').textContent=fmtUSD(s.john.collected);
+  $('j-outstanding').textContent=fmtUSD(s.john.outstanding);
+  $('j-jobs-meta').textContent=`${s.john.jobs} total jobs`;
+  // Client chart
+  if(charts.jClients) charts.jClients.destroy();
+  if(s.john_clients?.length){
+    charts.jClients=new ApexCharts($('chart-john-clients'),{
+      chart:{type:'bar',height:200,background:'transparent',toolbar:{show:false}},
+      theme:{mode:'dark'},
+      series:[{name:'Invoiced',data:s.john_clients.map(c=>c.total||0)},{name:'Paid',data:s.john_clients.map(c=>c.paid||0)}],
+      xaxis:{categories:s.john_clients.map(c=>c.client_name),labels:{style:{colors:'#64748b',fontSize:'10px'}}},
+      yaxis:{labels:{style:{colors:'#64748b',fontSize:'10px'},formatter:v=>`$${v.toFixed(0)}`}},
+      colors:['#6366f1','#10b981'],legend:{labels:{colors:'#94a3b8'}},
+      plotOptions:{bar:{borderRadius:4}},grid:{borderColor:'#1a2540'},
+      tooltip:{theme:'dark',y:{formatter:v=>`$${v.toFixed(2)}`}},
+    });
+    charts.jClients.render();
+  } else {
+    $('chart-john-clients').innerHTML='<div style="color:var(--text3);text-align:center;padding:40px">No client data yet</div>';
+  }
+  // Status donut
+  const paid=jobs.filter(j=>j.paid).length, unpaid=jobs.filter(j=>!j.paid&&j.status==='completed').length, inprog=jobs.filter(j=>j.status==='in_progress').length, quoted=jobs.filter(j=>j.status==='quoted').length;
+  if(charts.jStatus) charts.jStatus.destroy();
+  if(jobs.length){
+    charts.jStatus=new ApexCharts($('chart-john-status'),{
+      chart:{type:'donut',height:200,background:'transparent'},
+      theme:{mode:'dark'},
+      series:[paid,unpaid,inprog,quoted],
+      labels:['Paid','Unpaid (Done)','In Progress','Quoted'],
+      colors:['#10b981','#ef4444','#3b82f6','#94a3b8'],
+      legend:{labels:{colors:'#94a3b8'}},
+      tooltip:{theme:'dark'},
+      plotOptions:{pie:{donut:{size:'65%'}}},
+    });
+    charts.jStatus.render();
+  }
+  $('john-jobs-body').innerHTML=jobs.length
+    ?jobs.map(j=>`<tr>
+      <td>${j.job_date}</td>
+      <td style="font-weight:600;color:var(--text)">${j.client_name}</td>
+      <td style="color:var(--text3);font-size:12px">${j.job_description||'—'}</td>
+      <td><span class="badge badge-${j.status}">${j.status.replace('_',' ')}</span></td>
+      <td style="font-family:var(--mono)">${fmtUSD(j.invoice_amount)}</td>
+      <td><span class="badge badge-${j.paid?'paid':'unpaid'}">${j.paid?'Paid':'Unpaid'}</span></td>
+      <td><button onclick="deleteJob(${j.id})" class="btn btn-danger">✕</button></td>
+    </tr>`).join('')
+    :'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:20px">No jobs yet. Add one or wait for John to log activity.</td></tr>';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COSTS
+// ═══════════════════════════════════════════════════════════════════════════
+async function loadCosts(){
+  const [api,expenses,p]=await Promise.all([
+    fetch('/api/api-usage').then(r=>r.json()),
+    fetch('/api/expenses').then(r=>r.json()),
+    fetch(`/api/summary/period?period=${activePeriod}`).then(r=>r.json()),
+  ]);
+  // Ranked cost chart
+  const costCats=[
+    {label:'Betting Losses',val:Math.max(0,-p.betting.pl)},
+    {label:'API Spend',val:p.api_cost},
+    {label:'Other Expenses',val:p.expenses},
+  ].filter(c=>c.val>0).sort((a,b)=>b.val-a.val);
+  if(charts.costRanked) charts.costRanked.destroy();
+  if(costCats.length){
+    charts.costRanked=new ApexCharts($('chart-cost-ranked'),{
+      chart:{type:'bar',height:180,background:'transparent',toolbar:{show:false}},
+      theme:{mode:'dark'},
+      series:[{name:'Cost',data:costCats.map(c=>c.val)}],
+      xaxis:{categories:costCats.map(c=>c.label),labels:{style:{colors:'#64748b',fontSize:'10px'}}},
+      yaxis:{labels:{style:{colors:'#64748b',fontSize:'10px'},formatter:v=>`$${v.toFixed(2)}`}},
+      colors:['#ef4444','#f59e0b','#6366f1'],
+      plotOptions:{bar:{horizontal:true,borderRadius:4,distributed:true}},
+      legend:{show:false},grid:{borderColor:'#1a2540'},
+      tooltip:{theme:'dark',y:{formatter:v=>`$${v.toFixed(2)}`}},
+      dataLabels:{enabled:true,formatter:v=>`$${v.toFixed(2)}`,style:{fontSize:'11px'}},
+    });
+    charts.costRanked.render();
+  }
+  // Provider breakdown
+  const byProvider={};
+  api.forEach(u=>{byProvider[u.provider]=(byProvider[u.provider]||0)+(u.cost_usd||0);});
+  if(charts.apiProv) charts.apiProv.destroy();
+  if(Object.keys(byProvider).length){
+    charts.apiProv=new ApexCharts($('chart-api-providers'),{
+      chart:{type:'donut',height:150,background:'transparent'},
+      theme:{mode:'dark'},
+      series:Object.values(byProvider),
+      labels:Object.keys(byProvider),
+      colors:['#6366f1','#3b82f6','#0ea5e9'],
+      legend:{labels:{colors:'#94a3b8'}},
+      tooltip:{theme:'dark',y:{formatter:v=>`$${v.toFixed(4)}`}},
+      plotOptions:{pie:{donut:{size:'60%'}}},
+    });
+    charts.apiProv.render();
+  } else {
+    $('chart-api-providers').innerHTML='<div style="color:var(--text3);text-align:center;padding:20px;font-size:12px">No API usage logged</div>';
+  }
+  $('api-log-body').innerHTML=api.slice(0,20).map(u=>`<tr>
+    <td>${u.usage_date}</td>
+    <td style="color:var(--text2)">${u.provider} <span style="color:var(--text3);font-size:11px">${u.model||''}</span></td>
+    <td style="font-family:var(--mono)">${(u.tokens_in||0).toLocaleString()}</td>
+    <td style="font-family:var(--mono)">${(u.tokens_out||0).toLocaleString()}</td>
+    <td style="font-family:var(--mono);color:var(--red)">${fmtUSD(u.cost_usd,4)}</td>
+  </tr>`).join('')||'<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:16px">No API usage logged</td></tr>';
+  $('expenses-body').innerHTML=expenses.map(e=>`<tr>
+    <td>${e.expense_date}</td>
+    <td style="color:var(--text2)">${e.segment}</td>
+    <td style="color:var(--text3);font-size:12px">${e.description}</td>
+    <td style="font-family:var(--mono);color:var(--red)">${fmtUSD(e.amount)}</td>
+    <td><button onclick="deleteExpense(${e.id})" class="btn btn-danger">✕</button></td>
+  </tr>`).join('')||'<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:20px">No expenses recorded</td></tr>';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LEDGER
+// ═══════════════════════════════════════════════════════════════════════════
+async function loadLedger(){
+  const [rev,bets]=await Promise.all([
+    fetch('/api/revenue').then(r=>r.json()),
+    fetch('/api/bets').then(r=>r.json()),
+  ]);
+  $('revenue-body').innerHTML=rev.length
+    ?rev.map(r=>`<tr><td>${r.revenue_date}</td><td style="color:var(--text2)">${r.segment}</td><td style="color:var(--text3);font-size:12px">${r.description}</td><td style="font-family:var(--mono);color:var(--green)">${fmtUSD(r.amount)}</td><td><button onclick="deleteRevenue(${r.id})" class="btn btn-danger">✕</button></td></tr>`).join('')
+    :'<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:20px">No revenue entries</td></tr>';
+  $('bets-body').innerHTML=bets.length
+    ?bets.map(b=>`<tr><td>${b.bet_date}</td><td style="color:var(--text2);font-size:12px">${b.game}</td><td style="font-family:var(--mono)">${fmtUSD(b.stake)}</td><td><span class="badge badge-${(b.result||'pending').toLowerCase()}">${b.result}</span></td><td>${fmtPL(b.profit_loss)}</td><td><button onclick="deleteBet(${b.id})" class="btn btn-danger">✕</button></td></tr>`).join('')
+    :'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px">No bets logged</td></tr>';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CRUD
+// ═══════════════════════════════════════════════════════════════════════════
+async function saveJob(){
+  const body={job_date:$('j-date').value||today(),client_name:$('j-client').value,job_description:$('j-desc').value,status:$('j-status').value,invoice_amount:parseFloat($('j-amount').value)||0,paid:parseInt($('j-paid').value),paid_date:$('j-paid-date').value||null};
+  const r=await fetch('/api/jobs',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(r.ok){closeModal('modal-job');toast('Job saved');loadJohn();}else toast('Error',false);
+}
+async function saveBet(){
+  const body={bet_date:$('b-date').value||today(),sport:$('b-sport').value,game:$('b-game').value,book:$('b-book').value,bet_type:'ML',stake:parseFloat($('b-stake').value)||0,odds:$('b-odds').value,result:$('b-result').value,profit_loss:parseFloat($('b-pl').value)||0};
+  const r=await fetch('/api/bets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(r.ok){closeModal('modal-bet');toast('Bet saved');loadLedger();}else toast('Error',false);
+}
+async function saveApi(){
+  const body={usage_date:$('a-date').value||today(),provider:$('a-provider').value,model:$('a-model').value,tokens_in:parseInt($('a-tin').value)||0,tokens_out:parseInt($('a-tout').value)||0,cost_usd:parseFloat($('a-cost').value)||0,notes:$('a-notes').value};
+  const r=await fetch('/api/api-usage',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(r.ok){closeModal('modal-api');toast('Usage logged');loadCosts();}else toast('Error',false);
+}
+async function saveExpense(){
+  const body={expense_date:$('e-date').value||today(),segment:$('e-segment').value,description:$('e-desc').value,amount:parseFloat($('e-amount').value)||0,category:$('e-cat').value};
+  const r=await fetch('/api/expenses',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(r.ok){closeModal('modal-expense');toast('Expense saved');loadCosts();}else toast('Error',false);
+}
+async function saveRevenue(){
+  const body={revenue_date:$('r-date').value||today(),segment:$('r-segment').value,description:$('r-desc').value,amount:parseFloat($('r-amount').value)||0};
+  const r=await fetch('/api/revenue',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(r.ok){closeModal('modal-revenue');toast('Revenue saved');loadLedger();}else toast('Error',false);
+}
+async function deleteJob(id){if(!confirm('Delete?'))return;await fetch(`/api/jobs/${id}`,{method:'DELETE'});loadJohn();}
+async function deleteBet(id){if(!confirm('Delete?'))return;await fetch(`/api/bets/${id}`,{method:'DELETE'});loadLedger();}
+async function deleteExpense(id){if(!confirm('Delete?'))return;await fetch(`/api/expenses/${id}`,{method:'DELETE'});loadCosts();}
+async function deleteRevenue(id){if(!confirm('Delete?'))return;await fetch(`/api/revenue/${id}`,{method:'DELETE'});loadLedger();}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SYNC
+// ═══════════════════════════════════════════════════════════════════════════
+async function fullSync(){
+  toast('Syncing…');
+  const r=await fetch('/api/sync',{method:'POST'}).then(r=>r.json());
+  toast(`Synced: +${r.kalshi_snapshots||0} Kalshi, +${r.sports_picks||0} picks, +${r.john_jobs||0} jobs`);
+  refreshCurrentTab();
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────
+loadPnL();
+</script>
+</body>
+</html>

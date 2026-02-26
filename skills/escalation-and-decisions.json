@@ -1,0 +1,92 @@
+{
+  "name": "escalation-and-decisions",
+  "version": "1.0",
+  "description": "Decision authority, escalation paths, and crisis protocols for NorthStar Synergy.",
+  "active": true,
+  "decision_authority": {
+    "financial_decisions_over_1k": {
+      "owner": "Craig",
+      "escalation_path": "Cliff identifies opportunity → Discord thread → Craig final call",
+      "timeline": "Real-time"
+    },
+    "trading_strategy_changes": {
+      "owner": "Craig",
+      "input_from": "Scalper (edge analysis + FRED correlation)",
+      "channel": "discord:#general thread",
+      "timeline": "Before market open"
+    },
+    "api_spend_over_daily_budget": {
+      "owner": "Cliff",
+      "action": "Implement cost cuts immediately, report to Craig + Scalper",
+      "examples": ["Model downgrade to Haiku", "Batch processing instead of real-time", "Cache more aggressively"]
+    },
+    "operational_process_changes": {
+      "owner": "Cliff",
+      "approval": "Craig must approve before implementation",
+      "thread": "discord:#general",
+      "format": "What: [change] | Why: [impact] | Cost: [token/time] | Approval?"
+    },
+    "new_skill_creation": {
+      "owner": "Whoever sees the gap",
+      "notification": "Discord #general ping",
+      "approval": "Craig optional (Cliff/Scalper can create skills autonomously)",
+      "logging": "Add to memory/skill_gaps.md with status"
+    }
+  },
+  "escalation_paths": {
+    "level_1_notice": {
+      "condition": "Anomaly detected, not yet critical",
+      "action": "Post in Discord #general as observation",
+      "example": "Noticed CPP spike 15% vs budget. Investigating."
+    },
+    "level_2_alert": {
+      "condition": "Material impact or pattern confirmed",
+      "action": "Discord thread + @Craig mention + request guidance",
+      "example": "@Cheadder CPP variance $50K at LAX. Root: Ad hoc charges spiked. Recommend [action]?"
+    },
+    "level_3_critical": {
+      "condition": "P&L loss >$100K or security issue or system failure",
+      "action": "Discord #general PING + WhatsApp to +14259852644 (Craig)",
+      "example": "ALERT: Kalshi connection down for 2h. $20K exposure. Escalating."
+    }
+  },
+  "crisis_protocols": {
+    "api_key_compromised": {
+      "responsible_agent": "Whoever notices",
+      "immediate_action": "Revoke key, ping Discord + WhatsApp",
+      "communication": "Discord #general thread (don't paste key)",
+      "recovery": "Generate new key, update .env, restart services",
+      "logging": "memory/security_log.md with timestamp + remediation"
+    },
+    "system_downtime": {
+      "detector": "Whoever gets the error",
+      "notification": "Discord #general + @Craig + @Scalper",
+      "format": "System: [what] | Impact: [revenue at risk] | ETA fix: [time]",
+      "updates": "Every 30 min until resolved"
+    },
+    "large_unexpected_loss": {
+      "threshold": ">$50K loss in one day",
+      "notification": "Discord #general thread + WhatsApp Craig",
+      "action": "Halt new positions/bets. Investigate root cause. Report findings.",
+      "escalation": "If loss >$100K, Craig makes final call on recovery strategy"
+    }
+  },
+  "standby_protocols": {
+    "if_craig_unreachable": {
+      "duration": "< 4 hours",
+      "authority": "Cliff makes operational calls, Scalper makes trade decisions",
+      "logging": "Log all decisions to Discord thread for Craig review when back",
+      "escalation": "If critical issue requires immediate action and Craig still unreachable after 4h, coordinate Cliff + Scalper + John for emergency response"
+    },
+    "if_scalper_offline": {
+      "duration": "< 4 hours",
+      "authority": "Cliff manages daily operations. No new trades without Craig approval.",
+      "impact": "Hold all open positions. No new bets."
+    },
+    "if_cliff_offline": {
+      "duration": "< 4 hours",
+      "authority": "Scalper reports directly to Craig. John reports directly to Craig.",
+      "daily_sync": "Delayed until Cliff returns"
+    }
+  }
+}

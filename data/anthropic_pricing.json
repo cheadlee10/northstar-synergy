@@ -1,0 +1,27 @@
+{
+  "claude-opus-4-6": {
+    "input": 15,
+    "output": 75,
+    "context": 200000
+  },
+  "claude-sonnet-4-6": {
+    "input": 3,
+    "output": 15,
+    "context": 200000
+  },
+  "claude-haiku-4-5": {
+    "input": 0.8,
+    "output": 4,
+    "context": 200000
+  },
+  "claude-3.5-sonnet": {
+    "input": 3,
+    "output": 15,
+    "context": 200000
+  },
+  "claude-3-opus": {
+    "input": 15,
+    "output": 75,
+    "context": 200000
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-02-24T23:50:00Z",
+  "note": "Craig reported $733 in open positions. Database/API unreachable. Positions to be filled in manually.",
+  "positions": [
+    {
+      "ticker": "PLACEHOLDER",
+      "quantity": 0,
+      "side": "yes/no",
+      "entry_price": 0,
+      "current_price": 0,
+      "unrealized_pnl": 0,
+      "category": "weather/crypto/econ"
+    }
+  ],
+  "summary": {
+    "total_unrealized_pnl": 733.00,
+    "total_realized_pnl": 0,
+    "open_positions_count": 0,
+    "source": "manual_input"
+  }
+}

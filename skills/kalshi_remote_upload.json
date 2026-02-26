@@ -1,0 +1,25 @@
+{
+  "name": "kalshi_remote_upload",
+  "purpose": "Automate retrieval of Kalshi data and upload to a remote URL for access by the dashboard and stakeholders.",
+  "triggers": ["data_refresh", "manual_trigger"],
+  "cadence": {
+    "daily": ["refresh Kalshi data", "upload to remote URL"],
+    "on_demand": ["upload now"]
+  },
+  "steps": [
+    {"step": 1, "action": "fetch Kalshi data from configured source or API"},
+    {"step": 2, "action": "validate schema and freshness"},
+    {"step": 3, "action": "host selection: remote URL (S3 / HTTP endpoint) - ask user for preference"},
+    {"step": 4, "action": "upload data.json to remote URL with authentication if required"},
+    {"step": 5, "action": "return the remote link and confirm success"}
+  ],
+  "safeguards": {
+    "validate_before_upload": true,
+    "log_uploads": true
+  },
+  "outputs": {
+    "link_field": "remote_url",
+    "status": "success|failure",
+    "timestamp_field": "upload_time"
+  }
+}

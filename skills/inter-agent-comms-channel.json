@@ -1,0 +1,37 @@
+{
+  "name": "inter-agent-comms-channel",
+  "version": "1.0",
+  "description": "All inter-agent communication (Cliff ↔ Scalper ↔ John) MUST happen on Discord channel #1475902887753420924 ONLY. No exceptions.",
+  "active": true,
+  "rule": "MANDATORY — NO EXCEPTIONS",
+  "channel_id": "1475902887753420924",
+  "channel_name": "TBD (inter-agent-comms)",
+  "applies_to": [
+    "Cliff (agent:main:main)",
+    "Scalper (agent:scalper:main)",
+    "John (agent:john:main)"
+  ],
+  "prohibited": [
+    "Direct agent-to-agent messaging via sessions_send",
+    "Private DMs",
+    "#general for inter-agent coordination"
+  ],
+  "allowed": [
+    "All inter-agent collaboration",
+    "Data requests",
+    "Task coordination",
+    "Status updates between agents",
+    "Real-time alerts to each other"
+  ],
+  "visibility": {
+    "craig": "Does NOT monitor this channel by default",
+    "agents": "All three agents can see and post"
+  },
+  "escalation": {
+    "alert_craig": "When critical issue needs CEO attention, post to #general or tag @Cheadder"
+  },
+  "enforcement": {
+    "violators": "If an agent uses wrong channel, other agent redirects to correct channel immediately",
+    "exception": "NONE — always use #1475902887753420924 for agent-to-agent work"
+  }
+}
