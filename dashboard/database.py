@@ -1,7 +1,14 @@
 import aiosqlite
 import os
+import tempfile
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "data", "northstar.db")
+# For Railway deployment: use temp directory if data folder doesn't exist
+if os.environ.get('RAILWAY_ENVIRONMENT'):
+    # Running on Railway - use temp storage
+    DB_PATH = os.path.join(tempfile.gettempdir(), "northstar.db")
+else:
+    # Local development - use relative path
+    DB_PATH = os.path.join(os.path.dirname(__file__), "data", "northstar.db")
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS bets (
