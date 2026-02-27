@@ -490,7 +490,7 @@ async def get_dashboard():
         
         # Total revenue (from company_revenue table)
         cur = await db.execute(
-            "SELECT SUM(amount) FROM company_revenue WHERE date = ?",
+            "SELECT SUM(amount) FROM revenue WHERE revenue_date = ?",
             (today,)
         )
         (total_revenue,) = await cur.fetchone()
