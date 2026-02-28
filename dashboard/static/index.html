@@ -552,23 +552,119 @@ function renderKalshi(d) {
 // TAB: SPORTS PICKS
 // ══════════════════════════════════════════════════════════════
 function renderSports() {
-  app.innerHTML = `<div class="card card-p empty">
-    <div class="empty-icon">🏆</div>
-    <div class="empty-title">Sports Picks Analytics</div>
-    <div class="empty-desc">Connect <code>pick_performance_log.jsonl</code> from Scalper's workspace to populate CLV tracking, sport-by-sport ROI, parlay analysis, and unit tracking.</div>
-    <div class="section-title" style="margin-top:24px">Metrics Available Once Connected</div>
-    <div class="grid g3" style="gap:10px;max-width:600px;margin:12px auto 0">
-      ${['CLV Distribution','ROI by Sport','Unit P&L Curve','Win Rate by Bet Type','Streak Analysis','Variance Tracking'].map(m=>
-        `<div class="card card-p" style="text-align:center;font:500 11px/1.3 var(--font);color:var(--text2);padding:12px">${m}</div>`
-      ).join('')}
-    </div>
-  </div>`;
+    const container = document.getElementById('tab-content');
+    container.innerHTML = '<div style="text-align:center;padding:40px;color:#4a5568;">Loading sports picks...</div>';
+
+    fetch('/api/sports-picks')
+        .then(r => r.json())
+        .then(data => {
+            if (!data || !data.picks || !data.picks.length) {
+                container.innerHTML = `
+                    <div class="card" style="padding:48px;text-align:center;">
+                        <div style="font-size:32px;margin-bottom:12px;">&#127942;</div>
+                        <div style="font-size:14px;font-weight:600;margin-bottom:8px;color:#e8eaf0;">No Sports Picks Yet</div>
+                        <div style="font-size:12px;color:#4a5568;">Run backfill_picks.py to populate.</div>
+                    </div>`;
+                return;
+            }
+
+            const s = data.summary;
+            const fmtD = (n) => (n<0?'-$':'$') + Math.abs(n).toFixed(2);
+            const fmtP = (n) => (n*100).toFixed(1) + '%';
+            const rBadge = (r) => r==='WIN' ? '<span class="badge badge-green">WIN</span>' : r==='LOSS' ? '<span class="badge badge-red">LOSS</span>' : '<span class="badge badge-amber">PENDING</span>';
+            const cBadge = (c) => c==='HIGH' ? '<span class="badge badge-green">HIGH</span>' : c==='LOW' ? '<span class="badge badge-red">LOW</span>' : '<span class="badge badge-amber">'+(c||'MED')+'</span>';
+
+            const settled = data.picks.filter(p => p.result==='WIN'||p.result==='LOSS');
+            let cum = 0;
+            const cumData = settled
+                .sort((a,b) => (a.pick_date||'').localeCompare(b.pick_date||'') || a.id-b.id)
+                .map(p => { cum += parseFloat(p.profit_loss||0); return { date: (p.pick_date||'').slice(5,10), pnl: cum, game: p.game }; });
+
+            let html = `
+            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:12px;">
+                <div class="card" style="padding:16px;border-top:3px solid var(--green);">
+                    <div class="metric-label">Record</div>
+                    <div style="display:flex;align-items:baseline;gap:4px;">
+                        <span class="metric-value" style="color:var(--green);font-size:22px;">${s.wins}</span>
+                        <span style="color:var(--muted);font-size:14px;">-</span>
+                        <span class="metric-value" style="color:var(--red);font-size:22px;">${s.losses}</span>
+                    </div>
+                    <div class="metric-sub">${s.pending} pending</div>
+                </div>
+                <div class="card" style="padding:16px;border-top:3px solid var(--blue);">
+                    <div class="metric-label">Win Rate</div>
+                    <div class="metric-value" style="color:${s.win_rate>=0.5?'var(--green)':'var(--red)'};font-size:22px;">${fmtP(s.win_rate)}</div>
+                    <div class="metric-sub">${s.settled} settled</div>
+                </div>
+                <div class="card" style="padding:16px;border-top:3px solid ${s.total_pl>=0?'var(--green)':'var(--red)'};">
+                    <div class="metric-label">Net P&L</div>
+                    <div class="metric-value" style="color:${s.total_pl>=0?'var(--green)':'var(--red)'};font-size:22px;">${fmtD(s.total_pl)}</div>
+                </div>
+                <div class="card" style="padding:16px;border-top:3px solid var(--amber);">
+                    <div class="metric-label">Total Staked</div>
+                    <div class="metric-value" style="color:var(--amber);font-size:22px;">${fmtD(s.total_staked)}</div>
+                </div>
+                <div class="card" style="padding:16px;border-top:3px solid var(--purple);">
+                    <div class="metric-label">ROI</div>
+                    <div class="metric-value" style="color:${s.roi>=0?'var(--green)':'var(--red)'};font-size:22px;">${fmtP(s.roi)}</div>
+                    <div class="metric-sub">Return on staked</div>
+                </div>
+            </div>`;
+
+            // By Confidence + By Sport
+            html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">`;
+
+            html += `<div class="card" style="padding:20px;">
+                <div class="metric-label" style="margin-bottom:12px;">By Confidence</div>
+                <table><thead><tr><th>Level</th><th>W-L</th><th>Win%</th><th>P&L</th></tr></thead><tbody>`;
+            for (const [level, stats] of Object.entries(data.by_confidence || {})) {
+                const wr = stats.wins / Math.max(stats.wins+stats.losses, 1);
+                html += '<tr><td>'+cBadge(level)+'</td><td class="mono" style="font-size:12px;">'+stats.wins+'-'+stats.losses+'</td>';
+                html += '<td style="color:'+(wr>=0.5?'var(--green)':'var(--red)')+'">'+fmtP(wr)+'</td>';
+                html += '<td class="mono" style="font-weight:700;color:'+(stats.pl>=0?'var(--green)':'var(--red)')+'">'+fmtD(stats.pl)+'</td></tr>';
+            }
+            html += `</tbody></table></div>`;
+
+            html += `<div class="card" style="padding:20px;">
+                <div class="metric-label" style="margin-bottom:12px;">By Sport</div>
+                <table><thead><tr><th>Sport</th><th>W-L</th><th>Win%</th><th>P&L</th></tr></thead><tbody>`;
+            for (const [sport, stats] of Object.entries(data.by_sport || {})) {
+                const wr = stats.wins / Math.max(stats.wins+stats.losses, 1);
+                html += '<tr><td><span class="badge badge-blue">'+sport+'</span></td><td class="mono" style="font-size:12px;">'+stats.wins+'-'+stats.losses+'</td>';
+                html += '<td style="color:'+(wr>=0.5?'var(--green)':'var(--red)')+'">'+fmtP(wr)+'</td>';
+                html += '<td class="mono" style="font-weight:700;color:'+(stats.pl>=0?'var(--green)':'var(--red)')+'">'+fmtD(stats.pl)+'</td></tr>';
+            }
+            html += `</tbody></table></div></div>`;
+
+            // Pick log table
+            html += `<div class="metric-label" style="margin:20px 0 12px;">All Picks</div>`;
+            html += `<div class="card" style="overflow-x:auto;">
+                <table><thead><tr>
+                    <th>Date</th><th>Game</th><th>Pick</th><th>ML</th><th>Edge</th><th>Conf</th><th>Result</th><th>P&L</th>
+                </tr></thead><tbody>`;
+            for (const p of data.picks) {
+                const ml = parseInt(p.ml)||0;
+                const pl = parseFloat(p.profit_loss||0);
+                html += '<tr>';
+                html += '<td class="mono" style="font-size:11px;color:var(--muted);">'+(p.pick_date||'').slice(0,10)+'</td>';
+                html += '<td style="font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+p.game+'</td>';
+                html += '<td style="font-size:12px;font-weight:600;">'+p.pick+'</td>';
+                html += '<td class="mono" style="font-size:11px;color:'+(ml>0?'var(--green)':'var(--text)')+';">'+(ml>0?'+':'')+ml+'</td>';
+                html += '<td class="mono" style="font-size:11px;color:var(--green);">'+(p.edge_val ? '+'+parseFloat(p.edge_val).toFixed(1)+'%' : '--')+'</td>';
+                html += '<td>'+cBadge(p.confidence)+'</td>';
+                html += '<td>'+rBadge(p.result)+'</td>';
+                html += '<td class="mono" style="font-weight:700;color:'+(p.result==='PENDING'?'var(--muted)':pl>=0?'var(--green)':'var(--red)')+';">'+(p.result==='PENDING'?'--':(pl>=0?'+':'')+fmtD(pl))+'</td>';
+                html += '</tr>';
+            }
+            html += `</tbody></table></div>`;
+
+            container.innerHTML = html;
+        })
+        .catch(err => {
+            container.innerHTML = '<div class="card" style="padding:32px;text-align:center;color:var(--red);">Error loading sports picks: '+err+'</div>';
+        });
 }
 
-
-// ══════════════════════════════════════════════════════════════
-// TAB: JOHN'S BIZ
-// ══════════════════════════════════════════════════════════════
 function renderJohn() {
   app.innerHTML = `<div class="card card-p empty">
     <div class="empty-icon">◆</div>

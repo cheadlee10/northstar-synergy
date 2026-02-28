@@ -1,5 +1,5 @@
-"""
-NorthStar Synergy — Enterprise P&L Dashboard Backend
+﻿"""
+NorthStar Synergy â€” Enterprise P&L Dashboard Backend
 FastAPI application serving Kalshi trade data from SQLite
 """
 
@@ -14,7 +14,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 
-# ── Database path: use committed db, fall back to /tmp ────────────────
+# â”€â”€ Database path: use committed db, fall back to /tmp â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 DB_PATH = os.environ.get(
     "DASHBOARD_DB",
     str(Path(__file__).parent / "data" / "northstar.db")
@@ -27,7 +27,7 @@ if not os.path.exists(DB_PATH):
 app = FastAPI(title="NorthStar Synergy P&L API")
 
 
-# ── Database helpers ──────────────────────────────────────────────────
+# â”€â”€ Database helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 @contextmanager
 def get_db():
     """Synchronous SQLite connection with row_factory."""
@@ -72,7 +72,7 @@ def ensure_tables(conn):
     conn.commit()
 
 
-# ── Startup ───────────────────────────────────────────────────────────
+# â”€â”€ Startup â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 @app.on_event("startup")
 def startup():
     print(f"[DB] Using database at: {DB_PATH}")
@@ -84,8 +84,75 @@ def startup():
         print(f"[DB] kalshi_trades has {count} rows")
 
 
-# ── API: Dashboard KPIs ──────────────────────────────────────────────
+# â”€â”€ API: Dashboard KPIs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 @app.get("/api/dashboard")
+
+@app.get("/api/sports-picks")
+async def get_sports_picks():
+    db = await get_db()
+    try:
+        cur = await db.execute("SELECT * FROM sports_picks ORDER BY pick_date DESC, id DESC")
+        picks = [dict(r) for r in await cur.fetchall()]
+
+        settled = [p for p in picks if p.get("result") in ("WIN", "LOSS")]
+        pending = [p for p in picks if p.get("result") == "PENDING"]
+        wins = [p for p in settled if p["result"] == "WIN"]
+        losses = [p for p in settled if p["result"] == "LOSS"]
+        total_pl = sum(float(p.get("profit_loss") or 0) for p in settled)
+        total_staked = sum(float(p.get("stake") or 0) for p in settled)
+        win_rate = len(wins) / max(len(settled), 1)
+        roi = total_pl / max(total_staked, 1)
+
+        by_conf = {}
+        for p in settled:
+            c = p.get("confidence") or "MEDIUM"
+            if c not in by_conf:
+                by_conf[c] = {"wins": 0, "losses": 0, "pl": 0}
+            by_conf[c]["pl"] += float(p.get("profit_loss") or 0)
+            if p["result"] == "WIN":
+                by_conf[c]["wins"] += 1
+            else:
+                by_conf[c]["losses"] += 1
+
+        by_sport = {}
+        for p in settled:
+            s = p.get("sport") or "NCAAB"
+            if s not in by_sport:
+                by_sport[s] = {"wins": 0, "losses": 0, "pl": 0}
+            by_sport[s]["pl"] += float(p.get("profit_loss") or 0)
+            if p["result"] == "WIN":
+                by_sport[s]["wins"] += 1
+            else:
+                by_sport[s]["losses"] += 1
+
+        parlays = []
+        try:
+            cur2 = await db.execute("SELECT * FROM sports_parlays ORDER BY id DESC")
+            parlays = [dict(r) for r in await cur2.fetchall()]
+        except:
+            pass
+
+        return {
+            "picks": picks,
+            "parlays": parlays,
+            "summary": {
+                "total": len(picks),
+                "settled": len(settled),
+                "pending": len(pending),
+                "wins": len(wins),
+                "losses": len(losses),
+                "win_rate": round(win_rate, 4),
+                "total_pl": round(total_pl, 2),
+                "total_staked": round(total_staked, 2),
+                "roi": round(roi, 4),
+            },
+            "by_confidence": by_conf,
+            "by_sport": by_sport,
+        }
+    finally:
+        await db.close()
+
+
 def get_dashboard():
     """Complete P&L dashboard KPIs computed from kalshi_trades."""
     with get_db() as conn:
@@ -269,7 +336,7 @@ def get_dashboard():
     }
 
 
-# ── API: All Kalshi trades (for Ledger tab) ──────────────────────────
+# â”€â”€ API: All Kalshi trades (for Ledger tab) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 @app.get("/api/kalshi-trades")
 def get_kalshi_trades():
     """Return all kalshi trades for the ledger and analytics."""
@@ -280,7 +347,7 @@ def get_kalshi_trades():
     return {"trades": [dict(r) for r in rows], "count": len(rows)}
 
 
-# ── API: Usage summary ───────────────────────────────────────────────
+# â”€â”€ API: Usage summary â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 @app.get("/api/usage/summary")
 def get_usage_summary(days: int = 7):
     """API usage summary."""
@@ -306,7 +373,7 @@ def get_anthropic_usage(days: int = 1):
     return {"days": days, "usage": [dict(r) for r in rows]}
 
 
-# ── Health check ─────────────────────────────────────────────────────
+# â”€â”€ Health check â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 @app.get("/api/health")
 def health():
     with get_db() as conn:
@@ -314,7 +381,7 @@ def health():
     return {"status": "ok", "db_path": DB_PATH, "trade_count": count, "timestamp": datetime.utcnow().isoformat()}
 
 
-# ── Serve frontend ───────────────────────────────────────────────────
+# â”€â”€ Serve frontend â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 STATIC_DIR = Path(__file__).parent / "static"
 
 
@@ -331,7 +398,7 @@ if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 
-# ── Run with uvicorn ─────────────────────────────────────────────────
+# â”€â”€ Run with uvicorn â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", os.environ.get("DASHBOARD_PORT", 8080)))

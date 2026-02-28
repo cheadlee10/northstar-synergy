@@ -5,7 +5,7 @@
 
 ## 🚨 SECURITY INCIDENT (2026-02-25 7:05 PM)
 
-**GITHUB TOKEN EXPOSED:** `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`
+**GITHUB TOKEN EXPOSED:** ghp_REDACTED
 - Used in plaintext in shell git commands
 - Visible in command history and logs
 - **CRAIG MUST REVOKE IMMEDIATELY:** https://github.com/settings/tokens
