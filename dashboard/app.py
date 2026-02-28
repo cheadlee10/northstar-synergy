@@ -149,9 +149,15 @@ async def get_sports_picks():
             "by_confidence": by_conf,
             "by_sport": by_sport,
         }
+    
+    except Exception as e:
+        if 'no such table' in str(e):
+            return {'picks':[],'parlays':[],'summary':{'total':0,'settled':0,'pending':0,'wins':0,'losses':0,'win_rate':0,'total_pl':0,'total_staked':0,'roi':0},'by_confidence':{},'by_sport':{}}
+        raise
     finally:
         await db.close()
-
+
+
 
 def get_dashboard():
     """Complete P&L dashboard KPIs computed from kalshi_trades."""
