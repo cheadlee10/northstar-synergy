@@ -474,46 +474,37 @@ async def get_usage_summary(days: int = 7):
 # ══════════════════════════════════════════════════════════════════════════════
 @app.get("/api/dashboard")
 async def get_dashboard():
-    """Get complete P&L dashboard data"""
     db = await get_db()
     try:
-        # Get today's data
-        today = str(date.today())
-        
-        # Total costs (API)
-        cur = await db.execute(
-            "SELECT SUM(cost_usd) FROM api_usage WHERE usage_date = ?",
-            (today,)
-        )
-        (total_costs,) = await cur.fetchone()
-        total_costs = total_costs or 0
-        
-        # Total revenue (from company_revenue table)
-        cur = await db.execute(
-            "SELECT SUM(amount) FROM revenue WHERE revenue_date = ?",
-            (today,)
-        )
-        (total_revenue,) = await cur.fetchone()
-        total_revenue = total_revenue or 0
-        
-        # Net profit
-        net_profit = total_revenue - total_costs
-        
-        # By segment (API costs by provider)
-        cur = await db.execute(
-            """SELECT provider, SUM(cost_usd) as cost FROM api_usage 
-               WHERE usage_date = ? GROUP BY provider""",
-            (today,)
-        )
-        segments = [dict(r) for r in await cur.fetchall()]
-        
+        cur = await db.execute("SELECT * FROM kalshi_trades")
+        rows = [dict(r) for r in await cur.fetchall()]
+
+        settled = [r for r in rows if r.get("status") == "Settled"]
+        open_pos = [r for r in rows if r.get("status") == "Open"]
+
+        def pnl(r):
+            try:
+                return (float(r["exit_price"] or 0) - float(r["entry_price"] or 0)) * float(r["num_contracts"] or 0) - float(r["fees"] or 0)
+            except:
+                return 0
+
+        settled_pnl = [pnl(r) for r in settled]
+        wins = sum(p for p in settled_pnl if p > 0)
+        losses = sum(p for p in settled_pnl if p < 0)
+        net = sum(settled_pnl)
+        win_rate = len([p for p in settled_pnl if p > 0]) / max(len(settled_pnl), 1)
+        exposure = sum(float(r.get("cost_basis") or 0) for r in open_pos)
+
         return {
-            "date": today,
-            "total_revenue": round(total_revenue, 2),
-            "total_costs": round(total_costs, 2),
-            "net_profit": round(net_profit, 2),
-            "segments": segments,
-            "status": "live"
+            "betting_wins": round(wins, 2),
+            "betting_losses": round(losses, 2),
+            "betting_net": round(net, 2),
+            "open_positions": len(open_pos),
+            "open_exposure": round(exposure, 2),
+            "win_rate": round(win_rate, 4),
+            "total_trades": len(settled),
+            "openrouter_total_spend": 2274.64,
+            "openrouter_credits_remaining": 60.36,
         }
     finally:
         await db.close()
