@@ -76,26 +76,26 @@
             const [period, setPeriod] = useState("MTD");
             const [data, setData] = useState(null);
 
-            // Mock Data (Replace with API fetch in prod)
+            // Fetch Data
             useEffect(() => {
-                // Simulate fetch
-                setData({
-                    totalPnL: 4283.00,
-                    totalRev: 12940.00,
-                    totalExp: 8657.00,
-                    exposure: 1420.00,
-                    apiBurn: 14.16,
-                    segments: [
-                        { name: "Scalper", rev: 2140, net: 847, color: "#6366f1", icon: "⚡" },
-                        { name: "NorthStar", rev: 6800, net: 2380, color: "#10b981", icon: "◆" },
-                        { name: "Kelsea", rev: 4140, net: 1056, color: "#f59e0b", icon: "✦" }
-                    ],
-                    recentTx: [
-                        { date: "Live", desc: "Kalshi Settlement - NYC High", amt: 142.00, type: "win" },
-                        { date: "4h ago", desc: "NorthStar Hosting Pmt", amt: 349.00, type: "win" },
-                        { date: "5h ago", desc: "API Cost (Claude 3.7)", amt: -4.44, type: "loss" }
-                    ]
-                });
+                fetch('dashboard_data.json')
+                    .then(r => r.json())
+                    .then(d => {
+                        setData({
+                            totalPnL: d.total_net_pnl || 0,
+                            totalRev: d.betting_wins || 0, 
+                            totalExp: Math.abs(d.betting_losses || 0) + (d.openrouter_total_spend || 0),
+                            exposure: d.open_exposure || 0,
+                            apiBurn: d.openrouter_total_spend || 0,
+                            segments: [
+                                { name: "Scalper", rev: d.betting_wins || 0, net: d.betting_net || 0, color: "#6366f1", icon: "⚡" },
+                                { name: "NorthStar", rev: 0, net: 0, color: "#10b981", icon: "◆" },
+                                { name: "Kelsea", rev: 0, net: 0, color: "#f59e0b", icon: "✦" }
+                            ],
+                            recentTx: [] 
+                        });
+                    })
+                    .catch(e => console.error("Data fetch error:", e));
             }, []);
 
             if (!data) return <div className="p-10 text-center text-slate-500">Loading Command Center...</div>;
