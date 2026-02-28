@@ -1,788 +1,253 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>NorthStar Synergy — P&L Dashboard</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#0f0f23;--card:#1a1a2e;--card-hover:#222240;
-  --cyan:#00d4ff;--green:#00ff88;--red:#ff4757;
-  --text:#e2e8f0;--text-dim:#8892a4;--text-muted:#555e70;
-  --border:#2a2a4a;--glass:rgba(26,26,46,0.85);
-  --radius:12px;--radius-sm:8px;
-}
-html{font-size:16px;-webkit-text-size-adjust:100%}
-body{
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
-  background:var(--bg);color:var(--text);line-height:1.5;
-  min-height:100vh;overflow-x:hidden;
-}
-a{color:var(--cyan);text-decoration:none}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NorthStar Synergy | Enterprise P&L</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/recharts/umd/Recharts.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        :root {
+            --bg: #06080f;
+            --card: #0c1021;
+            --accent: #6366f1;
+            --green: #10b981;
+            --red: #ef4444;
+            --text: #f1f5f9;
+            --text-muted: #64748b;
+        }
 
-/* Scrollbar */
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+        }
 
-/* Layout */
-.container{max-width:1400px;margin:0 auto;padding:0 16px 40px}
+        .mono { font-family: 'JetBrains Mono', monospace; }
 
-/* Header */
-.header{
-  position:sticky;top:0;z-index:100;
-  background:linear-gradient(180deg,var(--bg) 0%,rgba(15,15,35,0.95) 100%);
-  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  border-bottom:1px solid var(--border);
-  padding:16px;
-}
-.header-inner{
-  max-width:1400px;margin:0 auto;
-  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
-}
-.brand{display:flex;align-items:center;gap:12px}
-.brand-icon{
-  width:36px;height:36px;border-radius:8px;
-  background:linear-gradient(135deg,var(--cyan),#0066ff);
-  display:flex;align-items:center;justify-content:center;font-size:18px;
-}
-.brand h1{font-size:1.1rem;font-weight:700;letter-spacing:-0.02em;color:#fff}
-.brand .subtitle{font-size:0.7rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em;font-weight:500}
-.header-meta{text-align:right;font-size:0.75rem;color:var(--text-muted)}
-.header-meta .updated{color:var(--cyan);font-weight:500}
-.header-meta .status-dot{
-  display:inline-block;width:7px;height:7px;border-radius:50%;
-  background:var(--green);margin-right:4px;vertical-align:middle;
-  animation:pulse 2s infinite;
-}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
 
-/* KPI Hero Cards */
-.kpi-hero{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
-  margin:24px 0;
-}
-.kpi-card{
-  background:var(--card);border:1px solid var(--border);
-  border-radius:var(--radius);padding:24px;position:relative;overflow:hidden;
-  transition:transform 0.2s,border-color 0.2s;
-}
-.kpi-card:hover{transform:translateY(-2px);border-color:var(--cyan)}
-.kpi-card::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:3px;
-  border-radius:var(--radius) var(--radius) 0 0;
-}
-.kpi-card.revenue::before{background:linear-gradient(90deg,var(--green),#00b894)}
-.kpi-card.expenses::before{background:linear-gradient(90deg,var(--red),#e84118)}
-.kpi-card.net-positive::before{background:linear-gradient(90deg,var(--green),var(--cyan))}
-.kpi-card.net-negative::before{background:linear-gradient(90deg,var(--red),#e84118)}
-.kpi-label{font-size:0.8rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;font-weight:600;margin-bottom:8px}
-.kpi-value{font-size:2rem;font-weight:800;letter-spacing:-0.03em;font-variant-numeric:tabular-nums}
-.kpi-value.green{color:var(--green)}
-.kpi-value.red{color:var(--red)}
-.kpi-sub{font-size:0.75rem;color:var(--text-muted);margin-top:6px}
+        .glass-card {
+            background: rgba(12, 16, 33, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
 
-/* Section Grid */
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+        .animate-fade-up {
+            animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
 
-/* Section Cards */
-.section{
-  background:var(--card);border:1px solid var(--border);
-  border-radius:var(--radius);padding:20px;margin-bottom:16px;
-}
-.section-title{
-  font-size:0.85rem;color:var(--text-dim);text-transform:uppercase;
-  letter-spacing:0.1em;font-weight:700;margin-bottom:16px;
-  display:flex;align-items:center;gap:8px;
-}
-.section-title .icon{font-size:1rem}
-
-/* Waterfall Chart */
-.waterfall{display:flex;align-items:flex-end;gap:8px;height:200px;padding:0 8px}
-.waterfall-bar{
-  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
-  position:relative;min-width:0;
-}
-.waterfall-bar .bar{
-  width:100%;max-width:60px;border-radius:4px 4px 0 0;
-  transition:height 0.6s cubic-bezier(0.22,1,0.36,1);
-  position:relative;min-height:2px;
-}
-.waterfall-bar .bar.positive{background:linear-gradient(180deg,var(--green),rgba(0,255,136,0.6))}
-.waterfall-bar .bar.negative{background:linear-gradient(180deg,var(--red),rgba(255,71,87,0.6))}
-.waterfall-bar .bar.net-pos{background:linear-gradient(180deg,var(--cyan),rgba(0,212,255,0.5))}
-.waterfall-bar .bar.net-neg{background:linear-gradient(180deg,var(--red),rgba(255,71,87,0.5))}
-.waterfall-bar .val{
-  font-size:0.7rem;font-weight:700;margin-bottom:4px;white-space:nowrap;
-  font-variant-numeric:tabular-nums;
-}
-.waterfall-bar .val.positive{color:var(--green)}
-.waterfall-bar .val.negative{color:var(--red)}
-.waterfall-bar .val.net{color:var(--cyan)}
-.waterfall-bar .lbl{
-  font-size:0.6rem;color:var(--text-muted);text-align:center;
-  margin-top:8px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  max-width:100%;
-}
-
-/* Chart containers */
-.chart-wrap{position:relative;width:100%;height:220px}
-.chart-wrap canvas{width:100%!important;height:100%!important}
-.chart-wrap-donut{position:relative;width:100%;height:260px;display:flex;align-items:center;justify-content:center}
-.chart-wrap-donut canvas{max-height:260px}
-
-/* Stat rows */
-.stat-row{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:10px 0;border-bottom:1px solid rgba(42,42,74,0.5);
-}
-.stat-row:last-child{border-bottom:none}
-.stat-label{font-size:0.85rem;color:var(--text-dim)}
-.stat-value{font-size:0.95rem;font-weight:700;font-variant-numeric:tabular-nums}
-.stat-value.green{color:var(--green)}
-.stat-value.red{color:var(--red)}
-.stat-value.cyan{color:var(--cyan)}
-
-/* Mini stat cards */
-.mini-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.mini-stat{
-  background:rgba(42,42,74,0.3);border-radius:var(--radius-sm);
-  padding:14px;text-align:center;
-}
-.mini-stat .label{font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px}
-.mini-stat .value{font-size:1.2rem;font-weight:800;font-variant-numeric:tabular-nums}
-
-/* Recent bets table */
-.bets-table{width:100%;font-size:0.8rem;border-collapse:collapse}
-.bets-table th{
-  text-align:left;color:var(--text-muted);font-weight:600;
-  text-transform:uppercase;font-size:0.68rem;letter-spacing:0.05em;
-  padding:8px 6px;border-bottom:1px solid var(--border);
-}
-.bets-table td{padding:8px 6px;border-bottom:1px solid rgba(42,42,74,0.3);white-space:nowrap}
-.bets-table tr:hover td{background:rgba(0,212,255,0.03)}
-.badge{
-  display:inline-block;padding:2px 8px;border-radius:10px;
-  font-size:0.68rem;font-weight:700;text-transform:uppercase;
-}
-.badge.win{background:rgba(0,255,136,0.15);color:var(--green)}
-.badge.loss{background:rgba(255,71,87,0.15);color:var(--red)}
-.badge.pending{background:rgba(0,212,255,0.15);color:var(--cyan)}
-.badge.push{background:rgba(136,146,164,0.15);color:var(--text-dim)}
-
-/* John's clients table */
-.clients-table{width:100%;font-size:0.8rem;border-collapse:collapse}
-.clients-table th{
-  text-align:left;color:var(--text-muted);font-weight:600;
-  text-transform:uppercase;font-size:0.68rem;letter-spacing:0.05em;
-  padding:8px 6px;border-bottom:1px solid var(--border);
-}
-.clients-table td{padding:8px 6px;border-bottom:1px solid rgba(42,42,74,0.3)}
-
-/* Progress bar */
-.progress-bar{
-  width:100%;height:6px;background:rgba(42,42,74,0.5);
-  border-radius:3px;overflow:hidden;margin-top:4px;
-}
-.progress-fill{height:100%;border-radius:3px;transition:width 0.6s}
-.progress-fill.green{background:var(--green)}
-.progress-fill.cyan{background:var(--cyan)}
-
-/* Loading skeleton */
-.skeleton{
-  background:linear-gradient(90deg,var(--card) 25%,var(--card-hover) 50%,var(--card) 75%);
-  background-size:200% 100%;animation:shimmer 1.5s infinite;
-  border-radius:4px;
-}
-@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-
-/* Error banner */
-.error-banner{
-  background:rgba(255,71,87,0.1);border:1px solid rgba(255,71,87,0.3);
-  border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:16px;
-  color:var(--red);font-size:0.85rem;display:none;
-}
-
-/* Responsive */
-@media(max-width:900px){
-  .grid-2,.grid-3{grid-template-columns:1fr}
-  .kpi-hero{grid-template-columns:1fr}
-  .kpi-value{font-size:1.6rem}
-  .header h1{font-size:0.95rem}
-}
-@media(min-width:901px) and (max-width:1100px){
-  .grid-3{grid-template-columns:1fr 1fr}
-}
-@media(max-width:480px){
-  .container{padding:0 10px 30px}
-  .header{padding:12px 10px}
-  .section{padding:14px}
-  .kpi-card{padding:16px}
-  .kpi-value{font-size:1.4rem}
-  .waterfall{height:150px}
-  .bets-table{font-size:0.72rem}
-  .bets-table th,.bets-table td{padding:6px 4px}
-}
-
-/* Fade-in animation */
-.fade-in{animation:fadeIn 0.4s ease-out}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-</style>
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
 <body>
+    <div id="root"></div>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+        const { 
+            LineChart, Line, BarChart, Bar, AreaChart, Area, 
+            XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell 
+        } = Recharts;
 
-<!-- Header -->
-<div class="header">
-  <div class="header-inner">
-    <div class="brand">
-      <div class="brand-icon">⭐</div>
-      <div>
-        <h1>NorthStar Synergy</h1>
-        <div class="subtitle">Executive P&L Dashboard</div>
-      </div>
-    </div>
-    <div class="header-meta">
-      <div><span class="status-dot" id="statusDot"></span><span id="statusText">Connecting...</span></div>
-      <div class="updated">Updated: <span id="lastUpdated">—</span></div>
-    </div>
-  </div>
-</div>
+        // ─── UTILS ───
+        const fmt = (n) => {
+            if (n === undefined || n === null) return "—";
+            return (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        };
 
-<div class="container">
+        const AnimatedNum = ({ value, color }) => {
+            return <span style={{ color }} className="mono font-bold">{fmt(value)}</span>;
+        };
 
-  <!-- Error Banner -->
-  <div class="error-banner" id="errorBanner"></div>
+        // ─── DASHBOARD COMPONENT ───
+        const Dashboard = () => {
+            const [period, setPeriod] = useState("MTD");
+            const [data, setData] = useState(null);
 
-  <!-- KPI Hero -->
-  <div class="kpi-hero fade-in">
-    <div class="kpi-card revenue">
-      <div class="kpi-label">Total Revenue</div>
-      <div class="kpi-value green" id="kpiRevenue">—</div>
-      <div class="kpi-sub" id="kpiRevenueSub"></div>
-    </div>
-    <div class="kpi-card expenses">
-      <div class="kpi-label">Total Expenses</div>
-      <div class="kpi-value red" id="kpiExpenses">—</div>
-      <div class="kpi-sub" id="kpiExpensesSub"></div>
-    </div>
-    <div class="kpi-card net-positive" id="kpiNetCard">
-      <div class="kpi-label">Net P&L</div>
-      <div class="kpi-value green" id="kpiNet">—</div>
-      <div class="kpi-sub" id="kpiNetSub"></div>
-    </div>
-  </div>
+            // Mock Data (Replace with API fetch in prod)
+            useEffect(() => {
+                // Simulate fetch
+                setData({
+                    totalPnL: 4283.00,
+                    totalRev: 12940.00,
+                    totalExp: 8657.00,
+                    exposure: 1420.00,
+                    apiBurn: 14.16,
+                    segments: [
+                        { name: "Scalper", rev: 2140, net: 847, color: "#6366f1", icon: "⚡" },
+                        { name: "NorthStar", rev: 6800, net: 2380, color: "#10b981", icon: "◆" },
+                        { name: "Kelsea", rev: 4140, net: 1056, color: "#f59e0b", icon: "✦" }
+                    ],
+                    recentTx: [
+                        { date: "Live", desc: "Kalshi Settlement - NYC High", amt: 142.00, type: "win" },
+                        { date: "4h ago", desc: "NorthStar Hosting Pmt", amt: 349.00, type: "win" },
+                        { date: "5h ago", desc: "API Cost (Claude 3.7)", amt: -4.44, type: "loss" }
+                    ]
+                });
+            }, []);
 
-  <!-- Waterfall + Trend -->
-  <div class="grid-2">
-    <div class="section fade-in">
-      <div class="section-title"><span class="icon">📊</span> P&L Waterfall</div>
-      <div class="waterfall" id="waterfall"></div>
-    </div>
-    <div class="section fade-in">
-      <div class="section-title"><span class="icon">📈</span> 30-Day Cumulative P&L</div>
-      <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
-    </div>
-  </div>
+            if (!data) return <div className="p-10 text-center text-slate-500">Loading Command Center...</div>;
 
-  <!-- Cost Breakdown + Betting Performance -->
-  <div class="grid-2">
-    <div class="section fade-in">
-      <div class="section-title"><span class="icon">🔧</span> API Cost Breakdown</div>
-      <div class="chart-wrap-donut"><canvas id="costChart"></canvas></div>
-      <div id="costTotal" style="text-align:center;margin-top:8px;font-size:0.85rem;color:var(--text-dim)"></div>
-    </div>
-    <div class="section fade-in">
-      <div class="section-title"><span class="icon">🎯</span> Betting Performance</div>
-      <div class="mini-stats" id="bettingStats">
-        <div class="mini-stat">
-          <div class="label">Win Rate</div>
-          <div class="value cyan" id="betWinRate">—</div>
-        </div>
-        <div class="mini-stat">
-          <div class="label">ROI</div>
-          <div class="value" id="betROI">—</div>
-        </div>
-        <div class="mini-stat">
-          <div class="label">Total Staked</div>
-          <div class="value" id="betStaked">—</div>
-        </div>
-        <div class="mini-stat">
-          <div class="label">Net P&L</div>
-          <div class="value" id="betPL">—</div>
-        </div>
-      </div>
-      <div style="margin-top:16px">
-        <div class="stat-row">
-          <span class="stat-label">Wins</span>
-          <span class="stat-value green" id="betWins">—</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Losses</span>
-          <span class="stat-value red" id="betLosses">—</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Pending</span>
-          <span class="stat-value cyan" id="betPending">—</span>
-        </div>
-      </div>
-    </div>
-  </div>
+            return (
+                <div className="min-h-screen pb-20">
+                    {/* Header */}
+                    <div className="border-b border-slate-800 bg-slate-900/50 backdrop-blur sticky top-0 z-50">
+                        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-indigo-500/20">NS</div>
+                                <div>
+                                    <h1 className="font-bold text-lg tracking-tight">NorthStar Synergy</h1>
+                                    <div className="text-[10px] uppercase tracking-widest text-slate-400 font-semibold">P&L Command Center</div>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <div className="flex bg-slate-800/50 rounded-lg p-1 border border-slate-700">
+                                    {["Today", "7D", "MTD", "QTD", "All"].map(p => (
+                                        <button 
+                                            key={p} 
+                                            onClick={() => setPeriod(p)}
+                                            className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${period === p ? "bg-indigo-500 text-white shadow" : "text-slate-400 hover:text-white"}`}
+                                        >
+                                            {p}
+                                        </button>
+                                    ))}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+                                    <span className="text-xs font-bold text-emerald-400">LIVE</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-  <!-- John's Business + Recent Bets -->
-  <div class="grid-2">
-    <div class="section fade-in">
-      <div class="section-title"><span class="icon">💼</span> John's Business Development</div>
-      <div class="mini-stats">
-        <div class="mini-stat">
-          <div class="label">Total Jobs</div>
-          <div class="value cyan" id="johnJobs">—</div>
-        </div>
-        <div class="mini-stat">
-          <div class="label">Invoiced</div>
-          <div class="value" id="johnInvoiced" style="color:var(--text)">—</div>
-        </div>
-        <div class="mini-stat">
-          <div class="label">Collected</div>
-          <div class="value green" id="johnCollected">—</div>
-        </div>
-        <div class="mini-stat">
-          <div class="label">Outstanding</div>
-          <div class="value" id="johnOutstanding" style="color:var(--red)">—</div>
-        </div>
-      </div>
-      <div style="margin-top:16px">
-        <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--text-muted);margin-bottom:4px">
-          <span>Collection Rate</span>
-          <span id="johnCollectPct">—</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill green" id="johnProgressBar" style="width:0%"></div>
-        </div>
-      </div>
-      <div style="margin-top:16px" id="johnClientsWrap">
-        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;font-weight:600">Client Breakdown</div>
-        <table class="clients-table" id="johnClientsTable">
-          <thead><tr><th>Client</th><th style="text-align:right">Total</th><th style="text-align:right">Paid</th></tr></thead>
-          <tbody id="johnClientsBody"></tbody>
-        </table>
-      </div>
-    </div>
-    <div class="section fade-in">
-      <div class="section-title"><span class="icon">🎲</span> Recent Bets</div>
-      <div style="overflow-x:auto">
-        <table class="bets-table">
-          <thead>
-            <tr><th>Date</th><th>Event</th><th>Bet</th><th style="text-align:right">Stake</th><th style="text-align:right">P&L</th><th>Status</th></tr>
-          </thead>
-          <tbody id="recentBetsBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+                    <div className="max-w-7xl mx-auto px-6 py-8">
+                        {/* Hero Metrics */}
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                            <div className="glass-card rounded-xl p-6 relative overflow-hidden group col-span-1 md:col-span-2 border-t-4 border-t-indigo-500">
+                                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Total Net P&L ({period})</div>
+                                <div className="flex items-baseline gap-3">
+                                    <div className="text-4xl font-mono font-bold text-white tracking-tighter">
+                                        <AnimatedNum value={data.totalPnL} color={data.totalPnL >= 0 ? "#10b981" : "#ef4444"} />
+                                    </div>
+                                    <div className="text-xs font-bold bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded">+18.4%</div>
+                                </div>
+                                <div className="mt-4 h-16 opacity-50">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <AreaChart data={[...Array(20)].map((_, i) => ({ v: Math.random() * 100 + i * 10 }))}>
+                                            <defs>
+                                                <linearGradient id="colorPnL" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
+                                                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                                                </linearGradient>
+                                            </defs>
+                                            <Area type="monotone" dataKey="v" stroke="#6366f1" strokeWidth={2} fill="url(#colorPnL)" />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
 
-  <!-- Monthly Betting P&L -->
-  <div class="section fade-in">
-    <div class="section-title"><span class="icon">📅</span> Monthly Betting P&L</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap" id="monthlyBettingPL"></div>
-  </div>
+                            <div className="glass-card rounded-xl p-5 border-l-4 border-l-emerald-500">
+                                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Revenue</div>
+                                <div className="text-2xl font-mono font-bold text-white mb-1">{fmt(data.totalRev)}</div>
+                                <div className="text-xs text-slate-400">Across 3 business units</div>
+                            </div>
 
-</div>
+                            <div className="glass-card rounded-xl p-5 border-l-4 border-l-amber-500">
+                                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Open Exposure</div>
+                                <div className="text-2xl font-mono font-bold text-white mb-1">{fmt(data.exposure)}</div>
+                                <div className="text-xs text-slate-400">7 active positions</div>
+                            </div>
 
-<script>
-/* ───────── Formatters ───────── */
-const fmt = (v) => {
-  if (v == null || isNaN(v)) return '$0.00';
-  const n = Number(v);
-  const sign = n < 0 ? '-' : '';
-  return sign + '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-};
-const fmtPct = (v) => {
-  if (v == null || isNaN(v)) return '0.0%';
-  return Number(v).toFixed(1) + '%';
-};
-const fmtInt = (v) => (v == null ? '0' : Number(v).toLocaleString('en-US'));
-const colorVal = (v) => Number(v) >= 0 ? 'green' : 'red';
-const plClass = (v) => Number(v) >= 0 ? 'green' : 'red';
+                            <div className="glass-card rounded-xl p-5 border-l-4 border-l-rose-500 md:col-start-3">
+                                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Costs</div>
+                                <div className="text-2xl font-mono font-bold text-white mb-1">{fmt(data.totalExp)}</div>
+                                <div className="text-xs text-slate-400">Operating + API burn</div>
+                            </div>
 
-/* ───────── Chart.js defaults ───────── */
-Chart.defaults.color = '#8892a4';
-Chart.defaults.borderColor = 'rgba(42,42,74,0.5)';
-Chart.defaults.font.family = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif";
-Chart.defaults.font.size = 11;
+                             <div className="glass-card rounded-xl p-5 border-l-4 border-l-purple-500">
+                                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">API Burn Rate</div>
+                                <div className="text-2xl font-mono font-bold text-white mb-1">{fmt(data.apiBurn)}/day</div>
+                                <div className="text-xs text-slate-400 text-emerald-400">Within budget ($15/day)</div>
+                            </div>
+                        </div>
 
-let trendChart = null;
-let costChart = null;
+                        {/* Segments */}
+                        <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 pl-1">Business Units</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                            {data.segments.map(seg => (
+                                <div key={seg.name} className="glass-card rounded-xl p-5 hover:bg-slate-800/40 transition-colors cursor-pointer group">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded bg-slate-800 flex items-center justify-center text-lg border border-slate-700" style={{ color: seg.color }}>{seg.icon}</div>
+                                            <div>
+                                                <div className="font-bold text-sm">{seg.name}</div>
+                                                <div className="text-[10px] text-slate-500 uppercase font-semibold">Live</div>
+                                            </div>
+                                        </div>
+                                        <div className="text-xs font-mono font-bold" style={{ color: seg.net >= 0 ? '#10b981' : '#ef4444' }}>
+                                            {seg.net >= 0 ? '+' : ''}{fmt(seg.net)} Net
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <div className="text-[10px] text-slate-500 uppercase">Revenue</div>
+                                            <div className="font-mono font-semibold text-white">{fmt(seg.rev)}</div>
+                                        </div>
+                                        <div className="text-right">
+                                            <div className="text-[10px] text-slate-500 uppercase">Margin</div>
+                                            <div className="font-mono font-semibold" style={{ color: seg.color }}>{((seg.net/seg.rev)*100).toFixed(0)}%</div>
+                                        </div>
+                                    </div>
+                                    <div className="mt-3 w-full bg-slate-800 h-1 rounded-full overflow-hidden">
+                                        <div className="h-full rounded-full" style={{ width: `${(seg.net/seg.rev)*100}%`, background: seg.color }}></div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
 
-/* ───────── Waterfall Renderer ───────── */
-function renderWaterfall(summary, betting, john, apiCosts) {
-  const container = document.getElementById('waterfall');
-  container.innerHTML = '';
+                        {/* Recent Activity */}
+                        <div className="glass-card rounded-xl p-0 overflow-hidden">
+                            <div className="px-6 py-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/30">
+                                <h3 className="font-bold text-sm text-slate-300">Live Transaction Feed</h3>
+                                <button className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold">View All</button>
+                            </div>
+                            <div className="divide-y divide-slate-800/50">
+                                {data.recentTx.map((tx, i) => (
+                                    <div key={i} className="px-6 py-4 flex items-center justify-between hover:bg-slate-800/30 transition-colors">
+                                        <div className="flex items-center gap-4">
+                                            <div className={`w-2 h-2 rounded-full ${tx.date === "Live" ? "bg-emerald-400 animate-pulse" : "bg-slate-600"}`}></div>
+                                            <div>
+                                                <div className="text-sm font-semibold text-slate-200">{tx.desc}</div>
+                                                <div className="text-xs text-slate-500 font-mono">{tx.date}</div>
+                                            </div>
+                                        </div>
+                                        <div className={`font-mono font-bold text-sm ${tx.type === 'win' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                            {tx.type === 'win' ? '+' : ''}{fmt(tx.amt)}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
 
-  const revenue = Number(summary?.total_revenue || 0);
-  const apiTotal = Number(apiCosts?.total || 0);
-  const bettingPL = Number(betting?.total_pl || 0);
-  const johnRev = Number(john?.collected || john?.invoiced || 0);
-  const netPL = Number(summary?.net_pl || 0);
+                    </div>
+                </div>
+            );
+        };
 
-  const items = [
-    { label: 'Revenue', value: revenue, type: 'positive' },
-    { label: 'API Costs', value: -apiTotal, type: 'negative' },
-    { label: 'Betting P&L', value: bettingPL, type: bettingPL >= 0 ? 'positive' : 'negative' },
-    { label: 'John Rev', value: johnRev, type: 'positive' },
-    { label: 'Net P&L', value: netPL, type: netPL >= 0 ? 'net-pos' : 'net-neg' },
-  ];
-
-  const maxAbs = Math.max(...items.map(i => Math.abs(i.value)), 1);
-
-  items.forEach(item => {
-    const col = document.createElement('div');
-    col.className = 'waterfall-bar';
-
-    const valEl = document.createElement('div');
-    valEl.className = 'val ' + (item.label === 'Net P&L' ? 'net' : (item.value >= 0 ? 'positive' : 'negative'));
-    valEl.textContent = fmt(item.value);
-
-    const bar = document.createElement('div');
-    bar.className = 'bar ' + item.type;
-    const pct = Math.max((Math.abs(item.value) / maxAbs) * 100, 3);
-    bar.style.height = pct + '%';
-
-    const lbl = document.createElement('div');
-    lbl.className = 'lbl';
-    lbl.textContent = item.label;
-
-    col.appendChild(valEl);
-    col.appendChild(bar);
-    col.appendChild(lbl);
-    container.appendChild(col);
-  });
-}
-
-/* ───────── Trend Chart ───────── */
-function renderTrendChart(data) {
-  const ctx = document.getElementById('trendChart').getContext('2d');
-  if (trendChart) trendChart.destroy();
-
-  const labels = data.map(d => {
-    const dt = new Date(d.date);
-    return (dt.getMonth()+1) + '/' + dt.getDate();
-  });
-  const cumulative = data.map(d => Number(d.cumulative || 0));
-  const daily = data.map(d => Number(d.daily_pl || 0));
-
-  const lastVal = cumulative.length ? cumulative[cumulative.length - 1] : 0;
-  const lineColor = lastVal >= 0 ? '#00ff88' : '#ff4757';
-  const gradientFill = ctx.createLinearGradient(0, 0, 0, 220);
-  if (lastVal >= 0) {
-    gradientFill.addColorStop(0, 'rgba(0,255,136,0.25)');
-    gradientFill.addColorStop(1, 'rgba(0,255,136,0.0)');
-  } else {
-    gradientFill.addColorStop(0, 'rgba(255,71,87,0.25)');
-    gradientFill.addColorStop(1, 'rgba(255,71,87,0.0)');
-  }
-
-  trendChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: 'Cumulative P&L',
-          data: cumulative,
-          borderColor: lineColor,
-          backgroundColor: gradientFill,
-          borderWidth: 2.5,
-          fill: true,
-          tension: 0.3,
-          pointRadius: 0,
-          pointHoverRadius: 5,
-          pointHoverBackgroundColor: lineColor,
-        },
-        {
-          label: 'Daily P&L',
-          data: daily,
-          type: 'bar',
-          backgroundColor: daily.map(v => v >= 0 ? 'rgba(0,255,136,0.3)' : 'rgba(255,71,87,0.3)'),
-          borderColor: daily.map(v => v >= 0 ? 'rgba(0,255,136,0.6)' : 'rgba(255,71,87,0.6)'),
-          borderWidth: 1,
-          borderRadius: 2,
-          barPercentage: 0.6,
-          yAxisID: 'y1',
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: 'rgba(26,26,46,0.95)',
-          borderColor: 'rgba(42,42,74,0.8)',
-          borderWidth: 1,
-          titleFont: { weight: '600' },
-          callbacks: {
-            label: (ctx) => ctx.dataset.label + ': ' + fmt(ctx.parsed.y)
-          }
-        }
-      },
-      scales: {
-        x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 8 } },
-        y: {
-          position: 'left',
-          grid: { color: 'rgba(42,42,74,0.3)' },
-          ticks: { callback: v => fmt(v) }
-        },
-        y1: {
-          position: 'right',
-          grid: { display: false },
-          ticks: { callback: v => fmt(v) }
-        }
-      }
-    }
-  });
-}
-
-/* ───────── Cost Donut Chart ───────── */
-function renderCostChart(byProvider) {
-  const ctx = document.getElementById('costChart').getContext('2d');
-  if (costChart) costChart.destroy();
-
-  const entries = Object.entries(byProvider || {}).sort((a,b) => b[1] - a[1]);
-  const labels = entries.map(e => e[0]);
-  const values = entries.map(e => Number(e[1]));
-  const colors = ['#00d4ff','#ff4757','#00ff88','#ffa502','#a855f7','#3b82f6','#f97316','#ec4899'];
-
-  costChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels,
-      datasets: [{
-        data: values,
-        backgroundColor: colors.slice(0, values.length),
-        borderColor: '#1a1a2e',
-        borderWidth: 3,
-        hoverOffset: 6
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      cutout: '65%',
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { padding: 12, usePointStyle: true, pointStyleWidth: 8, font: { size: 11 } }
-        },
-        tooltip: {
-          backgroundColor: 'rgba(26,26,46,0.95)',
-          borderColor: 'rgba(42,42,74,0.8)',
-          borderWidth: 1,
-          callbacks: {
-            label: (ctx) => {
-              const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
-              const pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : 0;
-              return ctx.label + ': ' + fmt(ctx.parsed) + ' (' + pct + '%)';
-            }
-          }
-        }
-      }
-    }
-  });
-}
-
-/* ───────── Recent Bets Table ───────── */
-function renderRecentBets(bets) {
-  const tbody = document.getElementById('recentBetsBody');
-  if (!bets || !bets.length) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:20px">No recent bets</td></tr>';
-    return;
-  }
-  tbody.innerHTML = bets.slice(0, 10).map(b => {
-    const st = (b.status || b.result || 'pending').toLowerCase();
-    let badgeClass = 'pending';
-    if (st === 'win' || st === 'won') badgeClass = 'win';
-    else if (st === 'loss' || st === 'lost' || st === 'lose') badgeClass = 'loss';
-    else if (st === 'push') badgeClass = 'push';
-
-    const pl = Number(b.profit || b.pl || b.payout || 0);
-    const date = b.date || b.placed_date || b.created_at || '';
-    const shortDate = date ? new Date(date).toLocaleDateString('en-US', { month:'short', day:'numeric' }) : '—';
-
-    return `<tr>
-      <td>${shortDate}</td>
-      <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis">${b.event || b.game || b.description || '—'}</td>
-      <td style="max-width:100px;overflow:hidden;text-overflow:ellipsis">${b.bet_type || b.pick || b.selection || '—'}</td>
-      <td style="text-align:right">${fmt(b.stake || b.amount || 0)}</td>
-      <td style="text-align:right;color:${pl >= 0 ? 'var(--green)' : 'var(--red)'}">${fmt(pl)}</td>
-      <td><span class="badge ${badgeClass}">${st}</span></td>
-    </tr>`;
-  }).join('');
-}
-
-/* ───────── John's Clients Table ───────── */
-function renderJohnClients(clients) {
-  const tbody = document.getElementById('johnClientsBody');
-  const wrap = document.getElementById('johnClientsWrap');
-  if (!clients || !clients.length) {
-    wrap.style.display = 'none';
-    return;
-  }
-  wrap.style.display = 'block';
-  tbody.innerHTML = clients.map(c => {
-    const total = Number(c.total || 0);
-    const paid = Number(c.paid || 0);
-    return `<tr>
-      <td>${c.client_name || c.client || '—'}</td>
-      <td style="text-align:right">${fmt(total)}</td>
-      <td style="text-align:right;color:var(--green)">${fmt(paid)}</td>
-    </tr>`;
-  }).join('');
-}
-
-/* ───────── Monthly Betting P&L ───────── */
-function renderMonthlyBetting(months) {
-  const container = document.getElementById('monthlyBettingPL');
-  if (!months || !months.length) {
-    container.innerHTML = '<div style="color:var(--text-muted);font-size:0.85rem">No monthly data</div>';
-    return;
-  }
-  container.innerHTML = months.map(m => {
-    const pl = Number(m.pl || 0);
-    const bg = pl >= 0 ? 'rgba(0,255,136,0.1)' : 'rgba(255,71,87,0.1)';
-    const border = pl >= 0 ? 'rgba(0,255,136,0.3)' : 'rgba(255,71,87,0.3)';
-    const color = pl >= 0 ? 'var(--green)' : 'var(--red)';
-    return `<div style="background:${bg};border:1px solid ${border};border-radius:8px;padding:10px 14px;text-align:center;min-width:90px">
-      <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:2px">${m.mo || m.month || '—'}</div>
-      <div style="font-size:1rem;font-weight:800;color:${color};font-variant-numeric:tabular-nums">${fmt(pl)}</div>
-    </div>`;
-  }).join('');
-}
-
-/* ───────── Data Fetching ───────── */
-async function fetchJSON(url) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`${url} returned ${res.status}`);
-  return res.json();
-}
-
-async function loadDashboard() {
-  const errorBanner = document.getElementById('errorBanner');
-  try {
-    const [summaryData, tsData, betsData] = await Promise.all([
-      fetchJSON('/api/summary'),
-      fetchJSON('/api/bets/timeseries').catch(() => []),
-      fetchJSON('/api/bets?limit=10').catch(() => []),
-    ]);
-
-    errorBanner.style.display = 'none';
-
-    const s = summaryData.summary || {};
-    const betting = summaryData.betting || {};
-    const john = summaryData.john || {};
-    const apiCosts = summaryData.api_costs || {};
-    const monthlyBetting = summaryData.monthly_betting_pl || [];
-    const johnClients = summaryData.john_clients || [];
-
-    /* KPI Cards */
-    const revenue = Number(s.total_revenue || 0);
-    const expenses = Number(s.total_expenses || 0);
-    const netPL = Number(s.net_pl || 0);
-
-    document.getElementById('kpiRevenue').textContent = fmt(revenue);
-    document.getElementById('kpiExpenses').textContent = fmt(expenses);
-    document.getElementById('kpiNet').textContent = fmt(netPL);
-
-    const netEl = document.getElementById('kpiNet');
-    const netCard = document.getElementById('kpiNetCard');
-    netEl.className = 'kpi-value ' + (netPL >= 0 ? 'green' : 'red');
-    netCard.className = 'kpi-card ' + (netPL >= 0 ? 'net-positive' : 'net-negative');
-
-    /* Revenue sub-detail */
-    const bettingRev = Number(betting.total_pl || 0);
-    const johnRev = Number(john.invoiced || 0);
-    document.getElementById('kpiRevenueSub').textContent =
-      `Betting: ${fmt(bettingRev)} · John: ${fmt(johnRev)}`;
-    document.getElementById('kpiExpensesSub').textContent =
-      `API Costs: ${fmt(apiCosts.total || 0)}`;
-    const margin = revenue > 0 ? ((netPL / revenue) * 100).toFixed(1) : '0.0';
-    document.getElementById('kpiNetSub').textContent = `Margin: ${margin}%`;
-
-    /* Waterfall */
-    renderWaterfall(s, betting, john, apiCosts);
-
-    /* Trend Chart */
-    const tsArr = Array.isArray(tsData) ? tsData : (tsData.data || []);
-    if (tsArr.length) renderTrendChart(tsArr);
-
-    /* Cost Donut */
-    if (apiCosts.by_provider && Object.keys(apiCosts.by_provider).length) {
-      renderCostChart(apiCosts.by_provider);
-      document.getElementById('costTotal').textContent = 'Total: ' + fmt(apiCosts.total);
-    }
-
-    /* Betting Stats */
-    document.getElementById('betWinRate').textContent = fmtPct(betting.win_rate);
-    const roi = Number(betting.roi || 0);
-    const roiEl = document.getElementById('betROI');
-    roiEl.textContent = (roi >= 0 ? '+' : '') + fmtPct(roi);
-    roiEl.className = 'value ' + (roi >= 0 ? 'green' : 'red');
-
-    document.getElementById('betStaked').textContent = fmt(betting.total_staked);
-    const betPLEl = document.getElementById('betPL');
-    betPLEl.textContent = fmt(betting.total_pl);
-    betPLEl.className = 'value ' + (Number(betting.total_pl || 0) >= 0 ? 'green' : 'red');
-
-    document.getElementById('betWins').textContent = fmtInt(betting.wins);
-    document.getElementById('betLosses').textContent = fmtInt(betting.losses);
-    document.getElementById('betPending').textContent = fmtInt(betting.pending);
-
-    /* John's Business */
-    document.getElementById('johnJobs').textContent = fmtInt(john.jobs);
-    document.getElementById('johnInvoiced').textContent = fmt(john.invoiced);
-    document.getElementById('johnCollected').textContent = fmt(john.collected);
-    document.getElementById('johnOutstanding').textContent = fmt(john.outstanding);
-
-    const invoiced = Number(john.invoiced || 0);
-    const collected = Number(john.collected || 0);
-    const collectPct = invoiced > 0 ? ((collected / invoiced) * 100) : 0;
-    document.getElementById('johnCollectPct').textContent = collectPct.toFixed(1) + '%';
-    document.getElementById('johnProgressBar').style.width = Math.min(collectPct, 100) + '%';
-
-    renderJohnClients(johnClients);
-
-    /* Recent Bets */
-    const betsArr = Array.isArray(betsData) ? betsData : (betsData.data || betsData.bets || []);
-    renderRecentBets(betsArr);
-
-    /* Monthly Betting */
-    renderMonthlyBetting(monthlyBetting);
-
-    /* Status */
-    document.getElementById('statusDot').style.background = 'var(--green)';
-    document.getElementById('statusText').textContent = 'Live';
-    document.getElementById('lastUpdated').textContent = new Date().toLocaleString('en-US', {
-      hour:'numeric', minute:'2-digit', second:'2-digit', hour12:true,
-      month:'short', day:'numeric'
-    });
-
-  } catch(err) {
-    console.error('Dashboard load error:', err);
-    errorBanner.textContent = '⚠ Failed to load data: ' + err.message + '. Retrying in 30s...';
-    errorBanner.style.display = 'block';
-    document.getElementById('statusDot').style.background = 'var(--red)';
-    document.getElementById('statusText').textContent = 'Error';
-  }
-}
-
-/* ───────── Init ───────── */
-loadDashboard();
-setInterval(loadDashboard, 30000);
-</script>
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<Dashboard />);
+    </script>
 </body>
 </html>
