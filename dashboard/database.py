@@ -2,13 +2,16 @@ import aiosqlite
 import os
 import tempfile
 
-# For Railway deployment: use temp directory if data folder doesn't exist
-if os.environ.get('RAILWAY_ENVIRONMENT'):
-    # Running on Railway - use temp storage
+# Use committed db file first, then fall back to env var or temp
+_committed_db = os.path.join(os.path.dirname(__file__), "data", "northstar.db")
+if os.path.exists(_committed_db):
+    DB_PATH = _committed_db
+elif os.environ.get('DATABASE_URL'):
+    DB_PATH = os.environ['DATABASE_URL']
+elif os.environ.get('RAILWAY_ENVIRONMENT'):
     DB_PATH = os.path.join(tempfile.gettempdir(), "northstar.db")
 else:
-    # Local development - use relative path
-    DB_PATH = os.path.join(os.path.dirname(__file__), "data", "northstar.db")
+    DB_PATH = _committed_db
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS bets (
