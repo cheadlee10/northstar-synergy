@@ -509,6 +509,16 @@ async def get_dashboard():
     finally:
         await db.close()
 
+@app.get("/api/kalshi-trades")
+async def get_kalshi_trades(limit: int = 500):
+    db = await get_db()
+    try:
+        cur = await db.execute("SELECT * FROM kalshi_trades ORDER BY trade_date DESC LIMIT ?", (limit,))
+        rows = [dict(r) for r in await cur.fetchall()]
+        return rows
+    finally:
+        await db.close()
+
 @app.get("/api/summary")
 async def summary():
     db = await get_db()
