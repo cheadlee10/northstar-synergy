@@ -17,7 +17,7 @@ import json, os, sqlite3, urllib.request, urllib.error, glob, datetime
 from datetime import datetime as dt, date
 
 # ── Config ────────────────────────────────────────────────────────────────────
-DASHBOARD_DB  = r"C:\Users\chead\.openclaw\workspace\dashboard\data\northstar.db"
+DASHBOARD_DB  = os.environ.get("DASHBOARD_DB", os.path.join(os.path.dirname(__file__), "data", "northstar.db"))
 AGENTS_DIR    = r"C:\Users\chead\.openclaw\agents"
 SCALPER_DB    = r"C:\Users\chead\.openclaw\workspace-scalper\scalper_v8.db"
 PICK_LOG      = r"C:\Users\chead\.openclaw\workspace-scalper\pick_performance_log.jsonl"
@@ -256,7 +256,7 @@ def sync_anthropic_from_logs(conn) -> dict:
 # ══════════════════════════════════════════════════════════════════════════════
 # SOURCE 3: KALSHI (LIVE API via Scalper's KalshiClient)
 # ══════════════════════════════════════════════════════════════════════════════
-def sync_kalshi(conn) -> dict:
+def sync_kalshi(conn) -> dict:\n    # Deprecated live Kalshi sync on Railway: read from Kalshi data already loaded into northstar.db
     """Sync Kalshi data directly from live API using Scalper's credentials."""
     import asyncio
     import sys
