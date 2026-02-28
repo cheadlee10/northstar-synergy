@@ -6,11 +6,10 @@
     <title>NorthStar Synergy | Enterprise P&L</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.5.0/Recharts.min.js"></script>
+    <script src="https://unpkg.com/recharts@2.5.0/umd/Recharts.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap');
-        
         :root {
             --bg: #06080f;
             --card: #0c1021;
@@ -20,234 +19,191 @@
             --text: #f1f5f9;
             --text-muted: #64748b;
         }
-
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'DM Sans', sans-serif;
-        }
-
+        body { background-color: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; margin: 0; }
         .mono { font-family: 'JetBrains Mono', monospace; }
-
-        /* Custom scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
-
-        .glass-card {
-            background: rgba(12, 16, 33, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .animate-fade-up {
-            animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            opacity: 0;
-            transform: translateY(10px);
-        }
-
-        @keyframes fadeUp {
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .glass-card { background: rgba(12,16,33,0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
     </style>
 </head>
 <body>
     <div id="root"></div>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script type="text/babel">
-        const { useState, useEffect, useMemo } = React;
-        const { 
-            LineChart, Line, BarChart, Bar, AreaChart, Area, 
-            XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell 
-        } = Recharts;
+    <script>
+        const { useState, useEffect } = React;
 
-        // ─── UTILS ───
         const fmt = (n) => {
-            if (n === undefined || n === null) return "—";
+            if (n === undefined || n === null || isNaN(n)) return "$0.00";
             return (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         };
 
-        const AnimatedNum = ({ value, color }) => {
-            return <span style={{ color }} className="mono font-bold">{fmt(value)}</span>;
+        const fmtPct = (n) => {
+            if (!n) return "0.0%";
+            return (n * 100).toFixed(1) + "%";
         };
 
-        // ─── DASHBOARD COMPONENT ───
+        const KPICard = ({ label, value, color, border, raw }) =>
+            React.createElement('div', { className: 'glass-card rounded-xl p-5 border-t-4 ' + border },
+                React.createElement('div', { className: 'text-xs font-bold text-slate-400 uppercase tracking-wider mb-2' }, label),
+                React.createElement('div', { className: 'text-2xl font-mono font-bold', style: { color: color } },
+                    raw ? value : fmt(value)
+                )
+            );
+
         const Dashboard = () => {
             const [period, setPeriod] = useState("MTD");
             const [data, setData] = useState(null);
+            const [error, setError] = useState(null);
+            const [lastUpdated, setLastUpdated] = useState(null);
 
-            // Fetch Data
-            useEffect(() => {
-                fetch('dashboard_data.json')
-                    .then(r => r.json())
-                    .then(d => {
-                        setData({
-                            totalPnL: d.total_net_pnl || 0,
-                            totalRev: d.betting_wins || 0, 
-                            totalExp: Math.abs(d.betting_losses || 0) + (d.openrouter_total_spend || 0),
-                            exposure: d.open_exposure || 0,
-                            apiBurn: d.openrouter_total_spend || 0,
-                            segments: [
-                                { name: "Scalper", rev: d.betting_wins || 0, net: d.betting_net || 0, color: "#6366f1", icon: "⚡" },
-                                { name: "NorthStar", rev: 0, net: 0, color: "#10b981", icon: "◆" },
-                                { name: "Kelsea", rev: 0, net: 0, color: "#f59e0b", icon: "✦" }
-                            ],
-                            recentTx: [] 
-                        });
+            const loadData = () => {
+                fetch('/api/dashboard')
+                    .then(r => {
+                        if (!r.ok) throw new Error('API returned ' + r.status);
+                        return r.json();
                     })
-                    .catch(e => console.error("Data fetch error:", e));
+                    .then(d => {
+                        setData(d);
+                        setLastUpdated(new Date().toLocaleTimeString());
+                        setError(null);
+                    })
+                    .catch(e => setError(e.toString()));
+            };
+
+            useEffect(() => {
+                loadData();
+                const interval = setInterval(loadData, 60000);
+                return () => clearInterval(interval);
             }, []);
 
-            if (!data) return <div className="p-10 text-center text-slate-500">Loading Command Center...</div>;
+            if (error) return React.createElement('div', { style: { color: '#ef4444', padding: '2rem', fontFamily: 'monospace' } },
+                React.createElement('h2', null, '⚠ Dashboard Error'),
+                React.createElement('pre', null, error),
+                React.createElement('button', { onClick: loadData, style: { marginTop: '1rem', padding: '0.5rem 1rem', background: '#6366f1', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' } }, 'Retry')
+            );
 
-            return (
-                <div className="min-h-screen pb-20">
-                    {/* Header */}
-                    <div className="border-b border-slate-800 bg-slate-900/50 backdrop-blur sticky top-0 z-50">
-                        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-indigo-500/20">NS</div>
-                                <div>
-                                    <h1 className="font-bold text-lg tracking-tight">NorthStar Synergy</h1>
-                                    <div className="text-[10px] uppercase tracking-widest text-slate-400 font-semibold">P&L Command Center</div>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-4">
-                                <div className="flex bg-slate-800/50 rounded-lg p-1 border border-slate-700">
-                                    {["Today", "7D", "MTD", "QTD", "All"].map(p => (
-                                        <button 
-                                            key={p} 
-                                            onClick={() => setPeriod(p)}
-                                            className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${period === p ? "bg-indigo-500 text-white shadow" : "text-slate-400 hover:text-white"}`}
-                                        >
-                                            {p}
-                                        </button>
-                                    ))}
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
-                                    <span className="text-xs font-bold text-emerald-400">LIVE</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            if (!data) return React.createElement('div', { style: { color: '#64748b', padding: '4rem', textAlign: 'center', fontSize: '1.2rem' } }, '⚡ Loading Command Center...');
 
-                    <div className="max-w-7xl mx-auto px-6 py-8">
-                        {/* Hero Metrics */}
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                            <div className="glass-card rounded-xl p-6 relative overflow-hidden group col-span-1 md:col-span-2 border-t-4 border-t-indigo-500">
-                                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Total Net P&L ({period})</div>
-                                <div className="flex items-baseline gap-3">
-                                    <div className="text-4xl font-mono font-bold text-white tracking-tighter">
-                                        <AnimatedNum value={data.totalPnL} color={data.totalPnL >= 0 ? "#10b981" : "#ef4444"} />
-                                    </div>
-                                    <div className="text-xs font-bold bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded">+18.4%</div>
-                                </div>
-                                <div className="mt-4 h-16 opacity-50">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <AreaChart data={[...Array(20)].map((_, i) => ({ v: Math.random() * 100 + i * 10 }))}>
-                                            <defs>
-                                                <linearGradient id="colorPnL" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
-                                                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
-                                                </linearGradient>
-                                            </defs>
-                                            <Area type="monotone" dataKey="v" stroke="#6366f1" strokeWidth={2} fill="url(#colorPnL)" />
-                                        </AreaChart>
-                                    </ResponsiveContainer>
-                                </div>
-                            </div>
+            const bettingNet = data.betting_net || 0;
+            const bettingWins = data.betting_wins || 0;
+            const bettingLosses = data.betting_losses || 0;
+            const openPositions = data.open_positions || 0;
+            const openExposure = data.open_exposure || 0;
+            const winRate = data.win_rate || 0;
+            const totalTrades = data.total_trades || 0;
+            const apiSpend = data.openrouter_total_spend || 0;
+            const creditsLeft = data.openrouter_credits_remaining || 0;
+            const totalNet = bettingNet - apiSpend;
 
-                            <div className="glass-card rounded-xl p-5 border-l-4 border-l-emerald-500">
-                                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Revenue</div>
-                                <div className="text-2xl font-mono font-bold text-white mb-1">{fmt(data.totalRev)}</div>
-                                <div className="text-xs text-slate-400">Across 3 business units</div>
-                            </div>
+            const kpis = [
+                { label: 'Total Net P&L', value: totalNet, color: totalNet >= 0 ? '#10b981' : '#ef4444', border: 'border-t-indigo-500' },
+                { label: 'Betting Wins', value: bettingWins, color: '#10b981', border: 'border-t-emerald-500' },
+                { label: 'Betting Losses', value: bettingLosses, color: '#ef4444', border: 'border-t-rose-500' },
+                { label: 'Betting Net', value: bettingNet, color: bettingNet >= 0 ? '#10b981' : '#ef4444', border: 'border-t-purple-500' },
+                { label: 'Open Positions', value: openPositions, color: '#6366f1', border: 'border-t-indigo-400', raw: true },
+                { label: 'Open Exposure', value: openExposure, color: '#f59e0b', border: 'border-t-amber-500' },
+                { label: 'Win Rate', value: fmtPct(winRate), color: '#10b981', border: 'border-t-emerald-400', raw: true },
+                { label: 'Total Trades', value: totalTrades.toLocaleString(), color: '#94a3b8', border: 'border-t-slate-500', raw: true },
+            ];
 
-                            <div className="glass-card rounded-xl p-5 border-l-4 border-l-amber-500">
-                                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Open Exposure</div>
-                                <div className="text-2xl font-mono font-bold text-white mb-1">{fmt(data.exposure)}</div>
-                                <div className="text-xs text-slate-400">7 active positions</div>
-                            </div>
+            return React.createElement('div', { className: 'min-h-screen pb-20' },
 
-                            <div className="glass-card rounded-xl p-5 border-l-4 border-l-rose-500 md:col-start-3">
-                                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Costs</div>
-                                <div className="text-2xl font-mono font-bold text-white mb-1">{fmt(data.totalExp)}</div>
-                                <div className="text-xs text-slate-400">Operating + API burn</div>
-                            </div>
+                // ── HEADER
+                React.createElement('div', { className: 'border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50' },
+                    React.createElement('div', { className: 'max-w-7xl mx-auto px-6 py-4 flex justify-between items-center' },
+                        React.createElement('div', { className: 'flex items-center gap-3' },
+                            React.createElement('div', {
+                                style: { width: 40, height: 40, borderRadius: 10, background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 16, color: 'white' }
+                            }, 'NS'),
+                            React.createElement('div', null,
+                                React.createElement('div', { style: { fontWeight: 700, fontSize: 18, letterSpacing: '-0.02em' } }, 'NorthStar Synergy'),
+                                React.createElement('div', { style: { fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748b', fontWeight: 600 } }, 'P&L Command Center')
+                            )
+                        ),
+                        React.createElement('div', { className: 'flex items-center gap-4' },
+                            React.createElement('div', { style: { fontSize: 11, color: '#64748b' } }, lastUpdated ? 'Updated ' + lastUpdated : ''),
+                            React.createElement('div', { className: 'flex bg-slate-800/50 rounded-lg p-1 border border-slate-700' },
+                                ['Today','7D','MTD','QTD','All'].map(p =>
+                                    React.createElement('button', {
+                                        key: p,
+                                        onClick: () => setPeriod(p),
+                                        style: {
+                                            padding: '4px 12px',
+                                            fontSize: 11,
+                                            fontWeight: 700,
+                                            borderRadius: 6,
+                                            border: 'none',
+                                            cursor: 'pointer',
+                                            background: period === p ? '#6366f1' : 'transparent',
+                                            color: period === p ? 'white' : '#94a3b8',
+                                            transition: 'all 0.15s'
+                                        }
+                                    }, p)
+                                )
+                            ),
+                            React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 6 } },
+                                React.createElement('div', { style: { width: 8, height: 8, borderRadius: '50%', background: '#10b981', animation: 'pulse 2s infinite' } }),
+                                React.createElement('span', { style: { fontSize: 11, fontWeight: 700, color: '#10b981' } }, 'LIVE')
+                            )
+                        )
+                    )
+                ),
 
-                             <div className="glass-card rounded-xl p-5 border-l-4 border-l-purple-500">
-                                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">API Burn Rate</div>
-                                <div className="text-2xl font-mono font-bold text-white mb-1">{fmt(data.apiBurn)}/day</div>
-                                <div className="text-xs text-slate-400 text-emerald-400">Within budget ($15/day)</div>
-                            </div>
-                        </div>
+                // ── MAIN
+                React.createElement('div', { className: 'max-w-7xl mx-auto px-6 py-8' },
 
-                        {/* Segments */}
-                        <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 pl-1">Business Units</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                            {data.segments.map(seg => (
-                                <div key={seg.name} className="glass-card rounded-xl p-5 hover:bg-slate-800/40 transition-colors cursor-pointer group">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded bg-slate-800 flex items-center justify-center text-lg border border-slate-700" style={{ color: seg.color }}>{seg.icon}</div>
-                                            <div>
-                                                <div className="font-bold text-sm">{seg.name}</div>
-                                                <div className="text-[10px] text-slate-500 uppercase font-semibold">Live</div>
-                                            </div>
-                                        </div>
-                                        <div className="text-xs font-mono font-bold" style={{ color: seg.net >= 0 ? '#10b981' : '#ef4444' }}>
-                                            {seg.net >= 0 ? '+' : ''}{fmt(seg.net)} Net
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <div>
-                                            <div className="text-[10px] text-slate-500 uppercase">Revenue</div>
-                                            <div className="font-mono font-semibold text-white">{fmt(seg.rev)}</div>
-                                        </div>
-                                        <div className="text-right">
-                                            <div className="text-[10px] text-slate-500 uppercase">Margin</div>
-                                            <div className="font-mono font-semibold" style={{ color: seg.color }}>{((seg.net/seg.rev)*100).toFixed(0)}%</div>
-                                        </div>
-                                    </div>
-                                    <div className="mt-3 w-full bg-slate-800 h-1 rounded-full overflow-hidden">
-                                        <div className="h-full rounded-full" style={{ width: `${(seg.net/seg.rev)*100}%`, background: seg.color }}></div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                    // KPI Grid
+                    React.createElement('div', { className: 'grid grid-cols-2 md:grid-cols-4 gap-4 mb-8' },
+                        kpis.map(k => React.createElement(KPICard, Object.assign({ key: k.label }, k)))
+                    ),
 
-                        {/* Recent Activity */}
-                        <div className="glass-card rounded-xl p-0 overflow-hidden">
-                            <div className="px-6 py-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/30">
-                                <h3 className="font-bold text-sm text-slate-300">Live Transaction Feed</h3>
-                                <button className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold">View All</button>
-                            </div>
-                            <div className="divide-y divide-slate-800/50">
-                                {data.recentTx.map((tx, i) => (
-                                    <div key={i} className="px-6 py-4 flex items-center justify-between hover:bg-slate-800/30 transition-colors">
-                                        <div className="flex items-center gap-4">
-                                            <div className={`w-2 h-2 rounded-full ${tx.date === "Live" ? "bg-emerald-400 animate-pulse" : "bg-slate-600"}`}></div>
-                                            <div>
-                                                <div className="text-sm font-semibold text-slate-200">{tx.desc}</div>
-                                                <div className="text-xs text-slate-500 font-mono">{tx.date}</div>
-                                            </div>
-                                        </div>
-                                        <div className={`font-mono font-bold text-sm ${tx.type === 'win' ? 'text-emerald-400' : 'text-rose-400'}`}>
-                                            {tx.type === 'win' ? '+' : ''}{fmt(tx.amt)}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                    // Business Units
+                    React.createElement('div', { className: 'mb-8' },
+                        React.createElement('div', { style: { fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 16 } }, 'Business Units'),
+                        React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-3 gap-4' },
+                            [
+                                { name: 'Scalper / Kalshi', net: bettingNet, rev: bettingWins, color: '#6366f1', icon: '⚡', detail: totalTrades + ' trades · ' + fmtPct(winRate) + ' win rate' },
+                                { name: "John's Web Biz", net: 0, rev: 0, color: '#10b981', icon: '◆', detail: 'Awaiting data sync' },
+                                { name: 'Kelsea', net: 0, rev: 0, color: '#f59e0b', icon: '✦', detail: 'Awaiting data sync' },
+                            ].map(seg =>
+                                React.createElement('div', { key: seg.name, className: 'glass-card rounded-xl p-5', style: { borderLeft: '4px solid ' + seg.color } },
+                                    React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 } },
+                                        React.createElement('span', { style: { fontSize: 20, color: seg.color } }, seg.icon),
+                                        React.createElement('span', { style: { fontWeight: 700, fontSize: 14 } }, seg.name)
+                                    ),
+                                    React.createElement('div', { style: { fontSize: 28, fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, color: seg.net >= 0 ? '#10b981' : '#ef4444', marginBottom: 4 } }, fmt(seg.net)),
+                                    React.createElement('div', { style: { fontSize: 11, color: '#64748b' } }, 'Revenue: ' + fmt(seg.rev)),
+                                    React.createElement('div', { style: { fontSize: 11, color: '#475569', marginTop: 4 } }, seg.detail)
+                                )
+                            )
+                        )
+                    ),
 
-                    </div>
-                </div>
+                    // API Cost Banner
+                    React.createElement('div', { className: 'glass-card rounded-xl p-5', style: { borderLeft: '4px solid #f59e0b' } },
+                        React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 } },
+                            React.createElement('div', null,
+                                React.createElement('div', { style: { fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 } }, 'OpenRouter API Cost'),
+                                React.createElement('div', { style: { fontSize: 28, fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, color: '#f59e0b' } }, fmt(apiSpend))
+                            ),
+                            React.createElement('div', { style: { textAlign: 'right' } },
+                                React.createElement('div', { style: { fontSize: 11, color: '#64748b', marginBottom: 4 } }, 'Credits Remaining'),
+                                React.createElement('div', { style: { fontSize: 24, fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, color: creditsLeft < 50 ? '#ef4444' : '#10b981' } }, fmt(creditsLeft)),
+                                creditsLeft < 50 ? React.createElement('div', { style: { fontSize: 11, color: '#ef4444', fontWeight: 700 } }, '⚠ TOP UP SOON') : null
+                            ),
+                            React.createElement('div', null,
+                                React.createElement('div', { style: { fontSize: 11, color: '#64748b', marginBottom: 4 } }, 'True Bottom Line'),
+                                React.createElement('div', { style: { fontSize: 24, fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, color: totalNet >= 0 ? '#10b981' : '#ef4444' } }, fmt(totalNet)),
+                                React.createElement('div', { style: { fontSize: 11, color: '#64748b' } }, 'Betting P&L minus API costs')
+                            )
+                        )
+                    )
+                )
             );
         };
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<Dashboard />);
+        root.render(React.createElement(Dashboard));
     </script>
 </body>
 </html>
