@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -29,7 +29,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:#1a2240;border-radius:3px}
 
-/* ── Layout ─────────────────────────────── */
+/* â”€â”€ Layout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .header{position:sticky;top:0;z-index:100;background:rgba(7,11,20,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
 .header-inner{max-width:1480px;margin:0 auto;padding:0 24px}
 .header-top{display:flex;justify-content:space-between;align-items:center;padding:14px 0 0}
@@ -43,13 +43,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 .live-label{font:600 10px/1 var(--mono);color:var(--green);letter-spacing:0.05em}
 .updated{font:500 10px/1 var(--font);color:var(--muted)}
 
-/* ── Tabs ───────────────────────────────── */
+/* â”€â”€ Tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .tabs{display:flex;gap:0;margin-top:6px;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .tab{padding:10px 18px;font:600 12px/1 var(--font);color:var(--muted);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:all .15s}
 .tab:hover{color:var(--text)}
 .tab.active{color:var(--blue);border-bottom-color:var(--blue)}
 
-/* ── Content ────────────────────────────── */
+/* â”€â”€ Content â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .content{max-width:1480px;margin:0 auto;padding:20px 24px 60px}
 .grid{display:grid;gap:12px}
 .g2{grid-template-columns:repeat(2,1fr)}
@@ -59,19 +59,19 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 .g8-4{grid-template-columns:2fr 1fr}
 .span2{grid-column:span 2}
 
-/* ── Cards ──────────────────────────────── */
+/* â”€â”€ Cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .card{background:var(--card);border:1px solid var(--border-light);border-radius:12px;overflow:hidden}
 .card-p{padding:20px}
 .card-header{font:700 10px/1 var(--font);color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
 
-/* ── KPI Cards ──────────────────────────── */
+/* â”€â”€ KPI Cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .kpi{padding:18px 20px;border-top:3px solid transparent;position:relative}
 .kpi-label{font:600 10px/1 var(--font);color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px}
 .kpi-value{font:700 24px/1.1 var(--mono);letter-spacing:-0.02em}
 .kpi-sub{font:500 11px/1.3 var(--font);color:var(--muted);margin-top:6px}
 .kpi-spark{position:absolute;bottom:0;left:0;right:0;height:32px;opacity:0.4}
 
-/* ── Badges ─────────────────────────────── */
+/* â”€â”€ Badges â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .badge{display:inline-block;padding:2px 8px;border-radius:20px;font:600 10px/1.4 var(--mono);letter-spacing:0.02em}
 .badge-green{background:var(--green-dim);color:var(--green)}
 .badge-red{background:var(--red-dim);color:var(--red)}
@@ -79,7 +79,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 .badge-amber{background:var(--amber-dim);color:var(--amber)}
 .badge-purple{background:var(--purple-dim);color:var(--purple)}
 
-/* ── Tables ─────────────────────────────── */
+/* â”€â”€ Tables â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 table{width:100%;border-collapse:collapse}
 th{text-align:left;font:700 9px/1 var(--font);color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;padding:10px 14px;border-bottom:1px solid var(--border)}
 td{padding:10px 14px;font-size:12px;border-bottom:1px solid var(--border-light)}
@@ -88,45 +88,45 @@ tr:hover td{background:rgba(255,255,255,0.015)}
 .green{color:var(--green)}.red{color:var(--red)}.blue{color:var(--blue)}.amber{color:var(--amber)}.purple{color:var(--purple)}
 .fw7{font-weight:700}
 
-/* ── Chart containers ───────────────────── */
+/* â”€â”€ Chart containers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .chart-wrap{position:relative}
 .chart-wrap canvas{width:100%!important}
 
-/* ── Segment cards ──────────────────────── */
+/* â”€â”€ Segment cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .seg{border-left:3px solid var(--blue)}
 .seg-icon{font-size:20px;margin-right:8px}
 .seg-name{font:700 14px/1 var(--font)}
 .seg-value{font:700 28px/1.1 var(--mono);margin:12px 0 4px}
 .seg-detail{font:500 11px/1.3 var(--font);color:var(--muted)}
 
-/* ── Loading & error ────────────────────── */
+/* â”€â”€ Loading & error â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .loading{padding:80px 0;text-align:center;color:var(--muted);font-size:13px}
 .error{padding:40px;color:var(--red);font-family:var(--mono);font-size:12px}
 .retry-btn{margin-top:12px;padding:8px 20px;background:var(--blue);color:#fff;border:none;border-radius:8px;font:600 12px/1 var(--font);cursor:pointer}
 
-/* ── Empty state ────────────────────────── */
+/* â”€â”€ Empty state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .empty{padding:60px 0;text-align:center}
 .empty-icon{font-size:36px;margin-bottom:12px}
 .empty-title{font:600 15px/1 var(--font);margin-bottom:6px}
 .empty-desc{font:500 12px/1.4 var(--font);color:var(--muted);max-width:320px;margin:0 auto}
 
-/* ── Pagination ─────────────────────────── */
+/* â”€â”€ Pagination â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .pagination{display:flex;align-items:center;gap:10px;justify-content:flex-end;margin-top:12px}
 .page-btn{padding:5px 14px;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text);font:500 12px/1 var(--font);cursor:pointer}
 .page-btn:disabled{opacity:.3;cursor:default}
 .page-info{font:500 11px/1 var(--font);color:var(--muted)}
 
-/* ── Section title ──────────────────────── */
+/* â”€â”€ Section title â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .section-title{font:700 10px/1 var(--font);color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin:28px 0 14px}
 
-/* ── Responsive ─────────────────────────── */
+/* â”€â”€ Responsive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media(max-width:1200px){.g6{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(2,1fr)}.g8-4{grid-template-columns:1fr}}
 @media(max-width:768px){.g3,.g2{grid-template-columns:1fr}.g6{grid-template-columns:repeat(2,1fr)}.tabs{gap:0}.tab{padding:10px 12px;font-size:11px}}
 </style>
 </head>
 <body>
 
-<!-- ═══════ HEADER ═══════ -->
+<!-- â•â•â•â•â•â•â• HEADER â•â•â•â•â•â•â• -->
 <div class="header">
 <div class="header-inner">
   <div class="header-top">
@@ -134,7 +134,7 @@ tr:hover td{background:rgba(255,255,255,0.015)}
       <div class="logo-icon">NS</div>
       <div class="logo-text">
         <h1>NorthStar Synergy</h1>
-        <span>Intelligence · Operations · Profit</span>
+        <span>Intelligence Â· Operations Â· Profit</span>
       </div>
     </div>
     <div class="header-right">
@@ -149,18 +149,18 @@ tr:hover td{background:rgba(255,255,255,0.015)}
 </div>
 </div>
 
-<!-- ═══════ CONTENT ═══════ -->
+<!-- â•â•â•â•â•â•â• CONTENT â•â•â•â•â•â•â• -->
 <div class="content" id="app">
-  <div class="loading">⚡ Loading Command Center...</div>
+  <div class="loading">âš¡ Loading Command Center...</div>
 </div>
 
 <script>
-/* ═══════════════════════════════════════════════════════════════
-   NORTHSTAR SYNERGY — ENTERPRISE P&L COMMAND CENTER
-   Chart.js + ApexCharts · Vanilla JS · Zero build step
-   ═══════════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   NORTHSTAR SYNERGY â€” ENTERPRISE P&L COMMAND CENTER
+   Chart.js + ApexCharts Â· Vanilla JS Â· Zero build step
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
-// ── Chart.js global defaults ─────────────────────────────────
+// â”€â”€ Chart.js global defaults â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Chart.defaults.color = '#8896ab';
 Chart.defaults.borderColor = 'rgba(136,150,171,0.08)';
 Chart.defaults.font.family = "'Outfit', system-ui, sans-serif";
@@ -174,12 +174,12 @@ Chart.defaults.plugins.tooltip.titleFont = {family:"'Outfit'",weight:'600',size:
 Chart.defaults.plugins.tooltip.bodyFont = {family:"'IBM Plex Mono'",size:11};
 Chart.defaults.plugins.tooltip.padding = 10;
 
-// ── State ────────────────────────────────────────────────────
+// â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let STATE = { tab: 'pnl', data: null, trades: null, charts: {} };
 const $ = id => document.getElementById(id);
 const app = $('app');
 
-// ── Formatting helpers ───────────────────────────────────────
+// â”€â”€ Formatting helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const fmt = (n, d=2) => {
   if (n == null || isNaN(n)) return '$0.00';
   return (n<0?'-$':'$') + Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
@@ -188,7 +188,7 @@ const fmtPct = (n,d=1) => isNaN(n)?'0.0%':(n*100).toFixed(d)+'%';
 const fmtNum = n => isNaN(n)?'0':Number(n).toLocaleString();
 const clr = (n,zero='var(--text)') => n>0?'var(--green)':n<0?'var(--red)':zero;
 
-// ── Chart management ─────────────────────────────────────────
+// â”€â”€ Chart management â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function destroyChart(id) {
   if (STATE.charts[id]) { STATE.charts[id].destroy(); delete STATE.charts[id]; }
 }
@@ -196,17 +196,17 @@ function destroyAllCharts() {
   Object.keys(STATE.charts).forEach(destroyChart);
 }
 
-// ── Tab definitions ──────────────────────────────────────────
+// â”€â”€ Tab definitions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const TABS = [
   {id:'pnl',   label:'P&L Overview'},
-  {id:'kalshi', label:'⚡ Kalshi Analytics'},
+  {id:'kalshi', label:'âš¡ Kalshi Analytics'},
   {id:'sports', label:'Sports Picks'},
   {id:'john',  label:"John's Biz"},
   {id:'costs', label:'Cost Drill-Down'},
   {id:'ledger',label:'Ledger'},
 ];
 
-// ── Render tab bar ───────────────────────────────────────────
+// â”€â”€ Render tab bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderTabs() {
   $('tabBar').innerHTML = TABS.map(t =>
     `<button class="tab${STATE.tab===t.id?' active':''}" data-tab="${t.id}">${t.label}</button>`
@@ -216,7 +216,7 @@ function renderTabs() {
   });
 }
 
-// ── Build KPI card HTML ──────────────────────────────────────
+// â”€â”€ Build KPI card HTML â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function kpi(label, value, opts={}) {
   const {color='var(--text)',border='transparent',sub='',raw=false} = opts;
   return `<div class="card kpi" style="border-top-color:${border}">
@@ -226,9 +226,9 @@ function kpi(label, value, opts={}) {
   </div>`;
 }
 
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // TAB: P&L OVERVIEW
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function renderPnL(d) {
   const net = d.betting_net - (d.openrouter_total_spend||0);
   const creditsLeft = d.openrouter_credits_remaining||0;
@@ -244,13 +244,13 @@ function renderPnL(d) {
     ${kpi('Sharpe Ratio', d.sharpe_ratio?.toFixed(2)||'0.00', {color:d.sharpe_ratio>=1?'var(--green)':d.sharpe_ratio>=0?'var(--amber)':'var(--red)', border:'var(--blue)', raw:true, sub:d.sharpe_ratio>=1?'Strong risk-adjusted':'Needs improvement'})}
     ${kpi('Max Drawdown', d.max_drawdown, {color:'var(--red)', border:'var(--red)', sub:'Largest peak-to-trough'})}
     ${kpi('Open Positions', fmtNum(d.open_positions), {color:'var(--blue)', border:'var(--blue)', raw:true, sub:fmt(d.open_exposure)+' exposure'})}
-    ${kpi('Kelly %', fmtPct(d.kelly_pct), {color:d.kelly_pct>0?'var(--green)':'var(--red)', border:d.kelly_pct>0?'var(--green)':'var(--red)', raw:true, sub:d.kelly_pct>0?'Positive edge detected':'Negative edge — reduce size'})}
+    ${kpi('Kelly %', fmtPct(d.kelly_pct), {color:d.kelly_pct>0?'var(--green)':'var(--red)', border:d.kelly_pct>0?'var(--green)':'var(--red)', raw:true, sub:d.kelly_pct>0?'Positive edge detected':'Negative edge â€” reduce size'})}
   </div>
 
   <!-- Equity curve + daily P&L -->
   <div class="grid g8-4" style="margin-bottom:12px">
     <div class="card card-p">
-      <div class="card-header">Cumulative P&L — Equity Curve</div>
+      <div class="card-header">Cumulative P&L â€” Equity Curve</div>
       <div class="chart-wrap" style="height:260px"><canvas id="chartEquity"></canvas></div>
     </div>
     <div class="card card-p">
@@ -264,16 +264,16 @@ function renderPnL(d) {
   <div class="grid g3" style="margin-bottom:12px">
     <div class="card card-p seg" style="border-left-color:var(--purple)">
       <div style="display:flex;align-items:center;margin-bottom:12px">
-        <span class="seg-icon" style="color:var(--purple)">⚡</span>
+        <span class="seg-icon" style="color:var(--purple)">âš¡</span>
         <span class="seg-name">Scalper / Kalshi</span>
       </div>
       <div class="seg-value" style="color:${clr(d.betting_net)}">${fmt(d.betting_net)}</div>
-      <div class="seg-detail">Wins: ${fmt(d.betting_wins)} · ${fmtNum(d.total_trades)} trades · ${fmtPct(d.win_rate)} win rate</div>
-      <div class="seg-detail">${d.current_streak||0}${d.streak_type||'?'} streak · ${d.open_positions} open</div>
+      <div class="seg-detail">Wins: ${fmt(d.betting_wins)} Â· ${fmtNum(d.total_trades)} trades Â· ${fmtPct(d.win_rate)} win rate</div>
+      <div class="seg-detail">${d.current_streak||0}${d.streak_type||'?'} streak Â· ${d.open_positions} open</div>
     </div>
     <div class="card card-p seg" style="border-left-color:var(--green)">
       <div style="display:flex;align-items:center;margin-bottom:12px">
-        <span class="seg-icon" style="color:var(--green)">◆</span>
+        <span class="seg-icon" style="color:var(--green)">â—†</span>
         <span class="seg-name">John's Web Biz</span>
       </div>
       <div class="seg-value" style="color:var(--muted)">$0.00</div>
@@ -281,7 +281,7 @@ function renderPnL(d) {
     </div>
     <div class="card card-p seg" style="border-left-color:var(--amber)">
       <div style="display:flex;align-items:center;margin-bottom:12px">
-        <span class="seg-icon" style="color:var(--amber)">✦</span>
+        <span class="seg-icon" style="color:var(--amber)">âœ¦</span>
         <span class="seg-name">Kelsea</span>
       </div>
       <div class="seg-value" style="color:var(--muted)">$0.00</div>
@@ -299,19 +299,19 @@ function renderPnL(d) {
       <div style="text-align:center">
         <div class="kpi-label">Credits Left</div>
         <div style="font:700 22px/1 var(--mono);color:${creditsLeft<50?'var(--red)':'var(--green)'}">${fmt(creditsLeft)}</div>
-        ${creditsLeft<50?'<div style="font:700 10px/1 var(--font);color:var(--red);margin-top:4px">⚠ TOP UP SOON</div>':''}
+        ${creditsLeft<50?'<div style="font:700 10px/1 var(--font);color:var(--red);margin-top:4px">âš  TOP UP SOON</div>':''}
       </div>
       <div style="text-align:right">
         <div class="kpi-label">True Bottom Line</div>
         <div style="font:700 22px/1 var(--mono);color:${clr(net)}">${fmt(net)}</div>
-        <div style="font:500 10px/1 var(--font);color:var(--muted);margin-top:4px">Betting P&L − API costs</div>
+        <div style="font:500 10px/1 var(--font);color:var(--muted);margin-top:4px">Betting P&L âˆ’ API costs</div>
       </div>
     </div>
   </div>`;
 
   app.innerHTML = html;
 
-  // ── Equity curve chart ──
+  // â”€â”€ Equity curve chart â”€â”€
   if (d.cumulative_pnl?.length) {
     const ctx = $('chartEquity').getContext('2d');
     const grad = ctx.createLinearGradient(0,0,0,260);
@@ -339,7 +339,7 @@ function renderPnL(d) {
     });
   }
 
-  // ── Daily P&L bars ──
+  // â”€â”€ Daily P&L bars â”€â”€
   if (d.daily_pnl?.length) {
     const ctx2 = $('chartDaily').getContext('2d');
     destroyChart('daily');
@@ -366,9 +366,9 @@ function renderPnL(d) {
 }
 
 
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // TAB: KALSHI ANALYTICS
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function renderKalshi(d) {
   const bm = d.by_market || {};
   const bd = d.by_direction || {};
@@ -393,11 +393,11 @@ function renderKalshi(d) {
   <!-- Equity + Calibration row -->
   <div class="grid g2" style="margin-bottom:12px">
     <div class="card card-p">
-      <div class="card-header">Cumulative P&L — Equity Curve (Last 200 Trades)</div>
+      <div class="card-header">Cumulative P&L â€” Equity Curve (Last 200 Trades)</div>
       <div class="chart-wrap" style="height:220px"><canvas id="chartEquityK"></canvas></div>
     </div>
     <div class="card card-p">
-      <div class="card-header">Calibration — Entry Price vs Actual Win Rate</div>
+      <div class="card-header">Calibration â€” Entry Price vs Actual Win Rate</div>
       <div style="font:500 10px/1.3 var(--font);color:var(--muted);margin-bottom:10px">Bars above the diagonal = underconfident pricing (good). Below = overpaying.</div>
       <div class="chart-wrap" style="height:190px"><canvas id="chartCalibration"></canvas></div>
     </div>
@@ -435,23 +435,23 @@ function renderKalshi(d) {
   <!-- Top Wins & Losses -->
   <div class="grid g2">
     <div class="card card-p">
-      <div class="card-header green">🏆 Top 5 Wins</div>
+      <div class="card-header green">ðŸ† Top 5 Wins</div>
       <table>
         <thead><tr><th>Market</th><th>Entry</th><th>P&L</th></tr></thead>
         <tbody>${tw.map(t=>`<tr>
-          <td style="font-size:11px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.market||'—'}</td>
-          <td class="mono" style="font-size:11px">${t.entry?((t.entry*100).toFixed(0)+'¢'):'—'}</td>
+          <td style="font-size:11px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.market||'â€”'}</td>
+          <td class="mono" style="font-size:11px">${t.entry?((t.entry*100).toFixed(0)+'Â¢'):'â€”'}</td>
           <td class="mono fw7 green">+${fmt(t.pnl)}</td>
         </tr>`).join('')}</tbody>
       </table>
     </div>
     <div class="card card-p">
-      <div class="card-header red">💀 Top 5 Losses</div>
+      <div class="card-header red">ðŸ’€ Top 5 Losses</div>
       <table>
         <thead><tr><th>Market</th><th>Entry</th><th>P&L</th></tr></thead>
         <tbody>${tl.map(t=>`<tr>
-          <td style="font-size:11px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.market||'—'}</td>
-          <td class="mono" style="font-size:11px">${t.entry?((t.entry*100).toFixed(0)+'¢'):'—'}</td>
+          <td style="font-size:11px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.market||'â€”'}</td>
+          <td class="mono" style="font-size:11px">${t.entry?((t.entry*100).toFixed(0)+'Â¢'):'â€”'}</td>
           <td class="mono fw7 red">${fmt(t.pnl)}</td>
         </tr>`).join('')}</tbody>
       </table>
@@ -460,7 +460,7 @@ function renderKalshi(d) {
 
   app.innerHTML = html;
 
-  // ── Equity Curve (Kalshi tab) ──
+  // â”€â”€ Equity Curve (Kalshi tab) â”€â”€
   if (d.cumulative_pnl?.length) {
     const ctx = $('chartEquityK').getContext('2d');
     const grad = ctx.createLinearGradient(0,0,0,220);
@@ -488,14 +488,14 @@ function renderKalshi(d) {
     });
   }
 
-  // ── Calibration bar chart ──
+  // â”€â”€ Calibration bar chart â”€â”€
   if (cal.length) {
     const ctx2 = $('chartCalibration').getContext('2d');
     destroyChart('calibration');
     STATE.charts.calibration = new Chart(ctx2, {
       type:'bar',
       data:{
-        labels: cal.map(c=>c.range+'¢'),
+        labels: cal.map(c=>c.range+'Â¢'),
         datasets:[{
           data: cal.map(c=>c.actual_win_rate),
           backgroundColor: cal.map(c=>c.actual_win_rate>0.5?'rgba(0,211,149,0.7)':'rgba(255,59,92,0.7)'),
@@ -517,7 +517,7 @@ function renderKalshi(d) {
     });
   }
 
-  // ── Category horizontal bar ──
+  // â”€â”€ Category horizontal bar â”€â”€
   if (marketsSorted.length) {
     const ctx3 = $('chartCategory').getContext('2d');
     destroyChart('category');
@@ -540,7 +540,7 @@ function renderKalshi(d) {
         },
         plugins:{
           annotation:{annotations:{zero:{type:'line',xMin:0,xMax:0,borderColor:'rgba(136,150,171,0.2)',borderWidth:1}}},
-          tooltip:{callbacks:{label:c=>{const m=marketsSorted[c.dataIndex];return fmt(m[1].pnl)+' · '+m[1].count+' trades · '+fmtPct(m[1].wins/Math.max(m[1].count,1))+' win';}}}
+          tooltip:{callbacks:{label:c=>{const m=marketsSorted[c.dataIndex];return fmt(m[1].pnl)+' Â· '+m[1].count+' trades Â· '+fmtPct(m[1].wins/Math.max(m[1].count,1))+' win';}}}
         }
       }
     });
@@ -548,11 +548,11 @@ function renderKalshi(d) {
 }
 
 
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // TAB: SPORTS PICKS
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function renderSports() {
-            const container = document.getElementById('tab-content');
+            const container = app;
             if (!container) { console.error('Container not found: tab-content'); return; }
             container.innerHTML = '<div style="text-align:center;padding:40px;color:#4a5568;">Loading picks...</div>';
             fetch('/api/sports-picks')
@@ -626,7 +626,7 @@ function renderSports() {
         }
 function renderJohn() {
   app.innerHTML = `<div class="card card-p empty">
-    <div class="empty-icon">◆</div>
+    <div class="empty-icon">â—†</div>
     <div class="empty-title">John's Web Development Business</div>
     <div class="empty-desc">Connect <code>jobs.jsonl</code> and <code>leads.jsonl</code> from John's workspace to populate revenue tracking, pipeline status, MRR, and client metrics.</div>
     <div class="section-title" style="margin-top:24px">Metrics Available Once Connected</div>
@@ -639,9 +639,9 @@ function renderJohn() {
 }
 
 
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // TAB: COST DRILL-DOWN
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function renderCosts(d) {
   const spend = d.openrouter_total_spend||0;
   const left = d.openrouter_credits_remaining||0;
@@ -654,7 +654,7 @@ function renderCosts(d) {
   <div class="section-title">API Cost Analysis</div>
   <div class="grid g4" style="margin-bottom:12px">
     ${kpi('Total API Spend', spend, {color:'var(--amber)', border:'var(--amber)'})}
-    ${kpi('Credits Remaining', left, {color:left<50?'var(--red)':'var(--green)', border:left<50?'var(--red)':'var(--green)', sub:left<50?'⚠ Top up soon':'Healthy'})}
+    ${kpi('Credits Remaining', left, {color:left<50?'var(--red)':'var(--green)', border:left<50?'var(--red)':'var(--green)', sub:left<50?'âš  Top up soon':'Healthy'})}
     ${kpi('% Credits Used', fmtPct(pctUsed), {color:'var(--amber)', border:'var(--amber)', raw:true})}
     ${kpi('Revenue / API Cost', roi.toFixed(1)+'%', {color:roi>100?'var(--green)':'var(--red)', border:roi>100?'var(--green)':'var(--red)', raw:true, sub:roi>100?'Profitable':'Spending > earning'})}
   </div>
@@ -667,7 +667,7 @@ function renderCosts(d) {
     <div style="display:flex;justify-content:space-between;font:500 10px/1 var(--font);color:var(--muted)">
       <span>$0</span><span>${fmt(total)} total credits</span>
     </div>
-    ${left<50?`<div style="margin-top:14px;padding:12px 16px;background:var(--red-dim);border:1px solid rgba(255,59,92,0.3);border-radius:8px;font:600 12px/1.4 var(--font);color:var(--red)">⚠ Only ${fmt(left)} remaining on OpenRouter. Top up to keep all 3 agents running.</div>`:''}
+    ${left<50?`<div style="margin-top:14px;padding:12px 16px;background:var(--red-dim);border:1px solid rgba(255,59,92,0.3);border-radius:8px;font:600 12px/1.4 var(--font);color:var(--red)">âš  Only ${fmt(left)} remaining on OpenRouter. Top up to keep all 3 agents running.</div>`:''}
   </div>
 
   <div class="card card-p">
@@ -686,9 +686,9 @@ function renderCosts(d) {
 }
 
 
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // TAB: LEDGER
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 let ledgerPage = 0;
 const PER_PAGE = 30;
 
@@ -707,9 +707,9 @@ function renderLedger() {
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
     <div style="font:500 12px/1 var(--font);color:var(--muted)">${fmtNum(total)} total trades</div>
     <div class="pagination">
-      <button class="page-btn" id="prevPage" ${ledgerPage===0?'disabled':''}>← Prev</button>
+      <button class="page-btn" id="prevPage" ${ledgerPage===0?'disabled':''}>â† Prev</button>
       <span class="page-info">${ledgerPage+1} / ${pages}</span>
-      <button class="page-btn" id="nextPage" ${ledgerPage>=pages-1?'disabled':''}>Next →</button>
+      <button class="page-btn" id="nextPage" ${ledgerPage>=pages-1?'disabled':''}>Next â†’</button>
     </div>
   </div>
   <div class="card" style="overflow-x:auto">
@@ -724,23 +724,23 @@ function renderLedger() {
         return `<tr>
           <td class="mono" style="font-size:11px;color:var(--muted)">${(t.trade_date||'').slice(0,10)}</td>
           <td><span class="badge badge-blue" style="font-size:9px">${(t.market||'Other').slice(0,20)}</span></td>
-          <td style="font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.contract_id||''}">${t.contract_id||'—'}</td>
+          <td style="font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.contract_id||''}">${t.contract_id||'â€”'}</td>
           <td><span class="badge ${t.direction==='YES'?'badge-green':'badge-red'}">${t.direction||'YES'}</span></td>
-          <td class="mono" style="font-size:11px">${e?(e*100).toFixed(0)+'¢':'—'}</td>
-          <td class="mono" style="font-size:11px">${x?(x*100).toFixed(0)+'¢':'—'}</td>
+          <td class="mono" style="font-size:11px">${e?(e*100).toFixed(0)+'Â¢':'â€”'}</td>
+          <td class="mono" style="font-size:11px">${x?(x*100).toFixed(0)+'Â¢':'â€”'}</td>
           <td class="mono" style="font-size:11px">${fmtNum(q)}</td>
           <td class="mono" style="font-size:11px;color:var(--muted)">${fmt(f)}</td>
-          <td><span class="badge ${t.status==='Settled'?'badge-purple':'badge-amber'}">${t.status||'—'}</span></td>
-          <td class="mono fw7" style="color:${pnl!==null?clr(pnl):'var(--muted)'}">${pnl!==null?((pnl>=0?'+':'')+fmt(pnl)):'—'}</td>
+          <td><span class="badge ${t.status==='Settled'?'badge-purple':'badge-amber'}">${t.status||'â€”'}</span></td>
+          <td class="mono fw7" style="color:${pnl!==null?clr(pnl):'var(--muted)'}">${pnl!==null?((pnl>=0?'+':'')+fmt(pnl)):'â€”'}</td>
         </tr>`;
       }).join('')}
       </tbody>
     </table>
   </div>
   <div class="pagination" style="margin-top:12px">
-    <button class="page-btn" id="prevPage2" ${ledgerPage===0?'disabled':''}>← Prev</button>
+    <button class="page-btn" id="prevPage2" ${ledgerPage===0?'disabled':''}>â† Prev</button>
     <span class="page-info">${ledgerPage+1} / ${pages}</span>
-    <button class="page-btn" id="nextPage2" ${ledgerPage>=pages-1?'disabled':''}>Next →</button>
+    <button class="page-btn" id="nextPage2" ${ledgerPage>=pages-1?'disabled':''}>Next â†’</button>
   </div>`;
 
   // Wire pagination
@@ -753,14 +753,14 @@ function renderLedger() {
 }
 
 
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // ROUTER
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function renderContent() {
   destroyAllCharts();
   const d = STATE.data;
   if (!d && STATE.tab !== 'sports' && STATE.tab !== 'john') {
-    app.innerHTML = '<div class="loading">⚡ Loading Command Center...</div>';
+    app.innerHTML = '<div class="loading">âš¡ Loading Command Center...</div>';
     return;
   }
   switch(STATE.tab) {
@@ -774,9 +774,9 @@ function renderContent() {
 }
 
 
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // DATA FETCHING
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 async function fetchDashboard() {
   try {
     const r = await fetch('/api/dashboard');
@@ -786,7 +786,7 @@ async function fetchDashboard() {
     renderContent();
   } catch(e) {
     if (!STATE.data) {
-      app.innerHTML = `<div class="error">⚠ Dashboard Error: ${e.message}<br><button class="retry-btn" onclick="fetchDashboard()">Retry</button></div>`;
+      app.innerHTML = `<div class="error">âš  Dashboard Error: ${e.message}<br><button class="retry-btn" onclick="fetchDashboard()">Retry</button></div>`;
     }
   }
 }
@@ -802,9 +802,9 @@ async function fetchTrades() {
 }
 
 
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // INIT
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 renderTabs();
 fetchDashboard();
 fetchTrades();
@@ -815,3 +815,4 @@ setInterval(fetchTrades, 120000);
 </script>
 </body>
 </html>
+
