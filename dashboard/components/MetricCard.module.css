@@ -1,0 +1,432 @@
+/* MetricCard.module.css - Key metric display with gains/losses */
+/* WCAG AA compliant, mobile-first, production-ready */
+
+.card {
+  background-color: var(--color-dark-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+  min-height: 180px;
+}
+
+.card:hover {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-glow-cyan);
+  transform: translateY(-4px);
+  animation: hover-lift 0.2s ease-out forwards;
+}
+
+.card:focus-within {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 0;
+  border-color: var(--color-accent);
+}
+
+/* Background gradient accent (subtle) */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(
+    circle,
+    rgba(0, 212, 255, 0.1) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  border-radius: var(--radius-full);
+}
+
+/* Gain state (green) */
+.cardGain {
+  border-color: var(--color-gain);
+}
+
+.cardGain:hover {
+  border-color: var(--color-gain);
+  box-shadow: var(--shadow-glow-gain);
+  background-color: rgba(22, 163, 74, 0.05);
+}
+
+/* Loss state (red) */
+.cardLoss {
+  border-color: var(--color-loss);
+}
+
+.cardLoss:hover {
+  border-color: var(--color-loss);
+  box-shadow: var(--shadow-glow-loss);
+  background-color: rgba(220, 38, 38, 0.05);
+}
+
+/* Alert state (orange) */
+.cardAlert {
+  border-color: var(--color-alert);
+  animation: pulse-alert 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.cardAlert:hover {
+  border-color: var(--color-alert);
+  box-shadow: var(--shadow-glow-alert);
+  background-color: rgba(234, 88, 12, 0.05);
+}
+
+/* Header section */
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  border-bottom: 1px solid var(--color-divider);
+  padding-bottom: var(--spacing-md);
+}
+
+/* Metric label/title */
+.label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.4;
+  flex: 1;
+}
+
+/* Icon badge */
+.iconBadge {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  background-color: var(--color-dark-tertiary);
+  border: 1px solid var(--color-border);
+}
+
+.iconBadgeGain {
+  background-color: rgba(22, 163, 74, 0.15);
+  border-color: var(--color-gain);
+  color: var(--color-gain-light);
+}
+
+.iconBadgeLoss {
+  background-color: rgba(220, 38, 38, 0.15);
+  border-color: var(--color-loss);
+  color: var(--color-loss-light);
+}
+
+.iconBadgeAlert {
+  background-color: rgba(234, 88, 12, 0.15);
+  border-color: var(--color-alert);
+  color: var(--color-alert-light);
+}
+
+/* Value section */
+.valueSection {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-sm);
+}
+
+/* Main metric value */
+.value {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.2;
+  font-family: 'Fira Code', monospace;
+  letter-spacing: -0.02em;
+}
+
+/* Currency symbol or unit */
+.unit {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  font-family: var(--font-family-base);
+}
+
+/* Change indicator section */
+.changeSection {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}
+
+/* Change value (gain/loss percentage/amount) */
+.changeValue {
+  font-size: 0.875rem;
+  font-weight: 700;
+  font-family: 'Fira Code', monospace;
+  letter-spacing: -0.01em;
+}
+
+.changeValueGain {
+  color: var(--color-gain-light);
+}
+
+.changeValueLoss {
+  color: var(--color-loss-light);
+}
+
+/* Change label/period */
+.changeLabel {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Trend indicator (arrow) */
+.trendArrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 700;
+  transition: all var(--transition-fast);
+}
+
+.trendArrowUp {
+  background-color: rgba(22, 163, 74, 0.2);
+  color: var(--color-gain-light);
+}
+
+.trendArrowDown {
+  background-color: rgba(220, 38, 38, 0.2);
+  color: var(--color-loss-light);
+}
+
+.trendArrowUp:hover,
+.trendArrowDown:hover {
+  background-color: transparent;
+}
+
+/* Footer section - comparison */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--color-divider);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.footerLabel {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.footerValue {
+  font-weight: 700;
+  font-family: 'Fira Code', monospace;
+  color: var(--color-text-secondary);
+}
+
+/* Loading skeleton state */
+.cardLoading {
+  opacity: 0.6;
+  pointer-events: none;
+  animation: shimmer-skeleton 2s infinite;
+}
+
+.skeletonValue {
+  height: 2rem;
+  background: linear-gradient(
+    90deg,
+    var(--color-dark-secondary) 0%,
+    var(--color-dark-surface) 50%,
+    var(--color-dark-secondary) 100%
+  );
+  background-size: 1000px 100%;
+  border-radius: var(--radius-md);
+  animation: shimmer-skeleton 2s infinite;
+}
+
+/* Responsive - Mobile (max 479px) */
+@media (max-width: 479px) {
+  .card {
+    padding: var(--spacing-md);
+    min-height: 160px;
+  }
+
+  .value {
+    font-size: 1.5rem;
+  }
+
+  .cardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+
+  .iconBadge {
+    align-self: flex-end;
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1rem;
+  }
+
+  .label {
+    font-size: 0.75rem;
+  }
+
+  .footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+}
+
+/* Responsive - Tablet (480px - 767px) */
+@media (min-width: 480px) and (max-width: 767px) {
+  .value {
+    font-size: 1.75rem;
+  }
+}
+
+/* Responsive - Desktop (768px+) */
+@media (min-width: 768px) {
+  .card {
+    padding: var(--spacing-xl);
+    min-height: 200px;
+  }
+
+  .value {
+    font-size: 2.25rem;
+  }
+
+  .cardHeader {
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+/* Large desktop (1280px+) */
+@media (min-width: 1280px) {
+  .card {
+    padding: var(--spacing-xl);
+  }
+
+  .value {
+    font-size: 2.5rem;
+  }
+}
+
+/* Accessibility - High contrast */
+@media (prefers-contrast: more) {
+  .card {
+    border-width: 2px;
+  }
+
+  .cardGain {
+    border-color: var(--color-gain);
+    border-width: 2px;
+  }
+
+  .cardLoss {
+    border-color: var(--color-loss);
+    border-width: 2px;
+  }
+
+  .cardAlert {
+    border-color: var(--color-alert);
+    border-width: 2px;
+  }
+
+  .value {
+    font-weight: 800;
+  }
+
+  .changeValue {
+    font-weight: 800;
+  }
+}
+
+/* Accessibility - Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .card:hover,
+  .cardAlert,
+  .trendArrow {
+    transition: none;
+    animation: none;
+  }
+
+  .card:hover {
+    transform: none;
+  }
+}
+
+/* Focus visible styling */
+.card:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 0;
+}
+
+/* Expandable/Interactive state */
+.cardInteractive {
+  cursor: pointer;
+}
+
+.cardInteractive:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 0;
+}
+
+/* Comparison indicator */
+.comparisonBadge {
+  display: inline-block;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--color-dark-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+/* Updated indicator with glow */
+.updatedIndicator {
+  position: absolute;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: var(--color-accent);
+  border-radius: var(--radius-full);
+  animation: glow-update 2s ease-in-out infinite;
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.6);
+}
+
+/* Hover effect for interactive cards */
+.cardInteractive:hover .value {
+  color: var(--color-accent);
+  transition: color var(--transition-fast);
+}

@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # P&L Streaming Backend
+  pnl-backend:
+    build: .
+    container_name: pnl-streaming-backend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - LOG_LEVEL=info
+      - API_KEY=${API_KEY:-default-key}
+      - CORS_ORIGIN=*
+      - REDIS_URL=redis://redis:6379
+      - KALSHI_API_KEY=${KALSHI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - JOHNS_REVENUE_URL=http://john-backend:5000/api/revenue
+    depends_on:
+      - redis
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    networks:
+      - pnl-network
+    restart: unless-stopped
+
+  # Redis for caching
+  redis:
+    image: redis:7-alpine
+    container_name: pnl-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - pnl-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+  # Optional: John's Backend (if running locally)
+  john-backend:
+    build:
+      context: ../workspace-john
+      dockerfile: Dockerfile
+    container_name: john-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+    networks:
+      - pnl-network
+    restart: unless-stopped
+    profiles:
+      - with-john
+
+networks:
+  pnl-network:
+    driver: bridge
+
+volumes:
+  redis-data:

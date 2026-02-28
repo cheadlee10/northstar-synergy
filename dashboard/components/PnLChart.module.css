@@ -1,0 +1,528 @@
+/* PnLChart.module.css - Profit & Loss chart visualization container */
+/* WCAG AA compliant, mobile-first, production-ready */
+
+.container {
+  background-color: var(--color-dark-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  transition: all var(--transition-base);
+  position: relative;
+}
+
+.container:hover {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-glow-cyan);
+}
+
+.container:focus-within {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 0;
+  border-color: var(--color-accent);
+}
+
+/* Header with title and controls */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+}
+
+.titleIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  background-color: var(--color-dark-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-accent);
+  margin-right: var(--spacing-sm);
+  font-size: 1rem;
+}
+
+/* Controls section (filters, time periods) */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.filterGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.filterLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.filterSelect {
+  background-color: var(--color-dark-tertiary);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  min-height: var(--touch-target);
+}
+
+.filterSelect:hover {
+  border-color: var(--color-accent);
+  background-color: var(--color-dark-surface);
+}
+
+.filterSelect:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Chart wrapper */
+.chartWrapper {
+  flex: 1;
+  min-height: 300px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-dark-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  overflow: hidden;
+}
+
+/* SVG/Canvas chart styling */
+.chart {
+  width: 100%;
+  height: 100%;
+  max-height: 400px;
+}
+
+/* Loading state for chart */
+.chartLoading {
+  animation: shimmer-skeleton 2s infinite;
+}
+
+.loadingPlaceholder {
+  width: 100%;
+  height: 300px;
+  background: linear-gradient(
+    90deg,
+    var(--color-dark-secondary) 0%,
+    var(--color-dark-surface) 50%,
+    var(--color-dark-secondary) 100%
+  );
+  background-size: 1000px 100%;
+  border-radius: var(--radius-md);
+  animation: shimmer-skeleton 2s infinite;
+}
+
+/* Chart legend */
+.legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+  padding: var(--spacing-md);
+  border-top: 1px solid var(--color-divider);
+  margin-top: var(--spacing-md);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.legendDot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.legendDotGain {
+  background-color: var(--color-gain);
+  box-shadow: 0 0 8px rgba(22, 163, 74, 0.5);
+}
+
+.legendDotLoss {
+  background-color: var(--color-loss);
+  box-shadow: 0 0 8px rgba(220, 38, 38, 0.5);
+}
+
+.legendDotBreakeven {
+  background-color: var(--color-neutral);
+}
+
+/* Chart tooltip styles */
+.tooltip {
+  position: absolute;
+  background-color: var(--color-dark-base);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-glow-cyan);
+  pointer-events: none;
+  z-index: var(--z-tooltip);
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+  max-width: 250px;
+}
+
+.tooltipHeader {
+  font-weight: 600;
+  color: var(--color-accent);
+  margin-bottom: var(--spacing-sm);
+}
+
+.tooltipRow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  line-height: 1.6;
+}
+
+.tooltipLabel {
+  color: var(--color-text-muted);
+}
+
+.tooltipValue {
+  font-family: 'Fira Code', monospace;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Data point styling */
+.dataPoint {
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.dataPoint:hover {
+  filter: brightness(1.3);
+  r: 6;
+}
+
+.dataPointGain {
+  fill: var(--color-gain);
+}
+
+.dataPointLoss {
+  fill: var(--color-loss);
+}
+
+/* Threshold line (zero line for P&L) */
+.thresholdLine {
+  stroke: var(--color-neutral);
+  stroke-width: 2;
+  stroke-dasharray: 5, 5;
+  opacity: 0.5;
+}
+
+/* Grid lines */
+.gridLine {
+  stroke: var(--color-border);
+  stroke-width: 1;
+  opacity: 0.3;
+}
+
+/* Axis styling */
+.axis {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.axisLabel {
+  fill: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Time period buttons */
+.timePeriodButtons {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  background-color: var(--color-dark-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm);
+}
+
+.timePeriodBtn {
+  background-color: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timePeriodBtn:hover {
+  color: var(--color-accent);
+  background-color: var(--color-dark-secondary);
+}
+
+.timePeriodBtn.active {
+  background-color: var(--color-accent);
+  color: var(--color-dark-base);
+  font-weight: 700;
+}
+
+.timePeriodBtn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Statistics cards within chart */
+.statsSection {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background-color: var(--color-dark-tertiary);
+  border-radius: var(--radius-md);
+  margin-top: var(--spacing-md);
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.statValue {
+  font-size: 1.125rem;
+  font-weight: 700;
+  font-family: 'Fira Code', monospace;
+  color: var(--color-text-primary);
+  letter-spacing: -0.01em;
+}
+
+.statValueGain {
+  color: var(--color-gain-light);
+}
+
+.statValueLoss {
+  color: var(--color-loss-light);
+}
+
+/* Responsive - Mobile (max 479px) */
+@media (max-width: 479px) {
+  .container {
+    padding: var(--spacing-md);
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .title {
+    font-size: 1rem;
+  }
+
+  .controls {
+    width: 100%;
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .filterGroup {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .filterSelect {
+    width: 100%;
+  }
+
+  .chartWrapper {
+    min-height: 250px;
+    padding: var(--spacing-md);
+  }
+
+  .chart {
+    max-height: 250px;
+  }
+
+  .legend {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+  }
+
+  .statsSection {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .timePeriodButtons {
+    width: 100%;
+    justify-content: space-around;
+  }
+}
+
+/* Responsive - Tablet (480px - 767px) */
+@media (min-width: 480px) and (max-width: 767px) {
+  .container {
+    padding: var(--spacing-lg);
+  }
+
+  .chartWrapper {
+    min-height: 300px;
+  }
+
+  .statsSection {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Responsive - Desktop (768px+) */
+@media (min-width: 768px) {
+  .container {
+    padding: var(--spacing-xl);
+  }
+
+  .header {
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .chartWrapper {
+    min-height: 350px;
+  }
+
+  .chart {
+    max-height: 350px;
+  }
+
+  .legend {
+    gap: var(--spacing-xl);
+  }
+
+  .statsSection {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Large desktop (1280px+) */
+@media (min-width: 1280px) {
+  .chartWrapper {
+    min-height: 400px;
+  }
+
+  .chart {
+    max-height: 400px;
+  }
+}
+
+/* Accessibility - High contrast */
+@media (prefers-contrast: more) {
+  .container {
+    border-width: 2px;
+    border-color: var(--color-accent);
+  }
+
+  .chartWrapper {
+    border-width: 2px;
+  }
+
+  .gridLine {
+    opacity: 0.8;
+    stroke-width: 2;
+  }
+
+  .legend {
+    border-width: 2px;
+  }
+
+  .tooltip {
+    border-width: 2px;
+  }
+}
+
+/* Accessibility - Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .container,
+  .dataPoint,
+  .timePeriodBtn,
+  .filterSelect {
+    transition: none;
+  }
+
+  .chartLoading,
+  .loadingPlaceholder {
+    animation: none;
+  }
+}
+
+/* Dark mode (default) */
+.container {
+  color: var(--color-text-primary);
+}
+
+/* Interactive state */
+.containerInteractive {
+  cursor: pointer;
+}
+
+.containerInteractive:hover {
+  transform: translateY(-2px);
+}
+
+/* Update indicator */
+.updateIndicator {
+  position: absolute;
+  top: var(--spacing-lg);
+  right: var(--spacing-lg);
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: var(--color-accent);
+  border-radius: var(--radius-full);
+  animation: glow-update 2s ease-in-out infinite;
+  z-index: 10;
+}

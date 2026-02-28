@@ -1,0 +1,2 @@
+# WBR Analysis Skill
+This skill ingests WBR PDFs/Excel, computes variance decompositions, builds waterfall bridges, and generates clinician-ready narrative summaries for Craig. Interfaces with the existing Craig_Budget_2026.xlsx and the dashboard database. CI-ready templates follow the standard OpenClaw skill format.

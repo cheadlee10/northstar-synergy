@@ -1,0 +1,475 @@
+/* LoadingSkeleton.module.css - Loading placeholder and shimmer component */
+/* WCAG AA compliant, mobile-first, production-ready */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-dark-secondary) 0%,
+    var(--color-dark-surface) 50%,
+    var(--color-dark-secondary) 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer-skeleton 2s infinite;
+  border-radius: var(--radius-md);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Disable animations for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+    background: var(--color-dark-tertiary);
+  }
+}
+
+/* Base skeleton variants */
+
+/* Text skeleton (single line) */
+.skeletonText {
+  height: 1rem;
+  width: 100%;
+  margin-bottom: var(--spacing-md);
+  border-radius: var(--radius-sm);
+}
+
+.skeletonTextShort {
+  width: 40%;
+}
+
+.skeletonTextMedium {
+  width: 70%;
+}
+
+.skeletonTextLong {
+  width: 100%;
+}
+
+/* Title skeleton (larger) */
+.skeletonTitle {
+  height: 1.75rem;
+  width: 60%;
+  margin-bottom: var(--spacing-md);
+  border-radius: var(--radius-sm);
+}
+
+/* Avatar skeleton */
+.skeletonAvatar {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-full);
+  display: inline-block;
+}
+
+.skeletonAvatarSmall {
+  width: 2rem;
+  height: 2rem;
+}
+
+.skeletonAvatarLarge {
+  width: 3.5rem;
+  height: 3.5rem;
+}
+
+/* Button skeleton */
+.skeletonButton {
+  height: 2.75rem;
+  width: 120px;
+  border-radius: var(--radius-md);
+}
+
+.skeletonButtonSmall {
+  height: 2rem;
+  width: 100px;
+}
+
+.skeletonButtonLarge {
+  height: 3rem;
+  width: 140px;
+}
+
+/* Card skeleton (full card placeholder) */
+.skeletonCard {
+  background-color: var(--color-dark-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.skeletonCardHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.skeletonCardContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.skeletonCardLine {
+  height: 1rem;
+  border-radius: var(--radius-sm);
+  width: 100%;
+}
+
+.skeletonCardLineShort {
+  width: 50%;
+}
+
+/* Metric card skeleton */
+.skeletonMetricCard {
+  background-color: var(--color-dark-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  min-height: 180px;
+}
+
+.skeletonMetricValue {
+  height: 2rem;
+  width: 50%;
+  border-radius: var(--radius-md);
+}
+
+.skeletonMetricLabel {
+  height: 0.75rem;
+  width: 30%;
+  border-radius: var(--radius-sm);
+}
+
+.skeletonMetricChange {
+  height: 0.875rem;
+  width: 25%;
+  border-radius: var(--radius-sm);
+}
+
+/* Table row skeleton */
+.skeletonTableRow {
+  display: flex;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  align-items: center;
+}
+
+.skeletonTableCell {
+  height: 1rem;
+  flex: 1;
+  border-radius: var(--radius-sm);
+}
+
+.skeletonTableCellSmall {
+  flex: 0.5;
+}
+
+.skeletonTableCellLarge {
+  flex: 2;
+}
+
+/* Chart skeleton */
+.skeletonChart {
+  background-color: var(--color-dark-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.skeletonChartArea {
+  flex: 1;
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    90deg,
+    var(--color-dark-secondary) 0%,
+    var(--color-dark-surface) 50%,
+    var(--color-dark-secondary) 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer-skeleton 2s infinite;
+}
+
+.skeletonChartLegend {
+  display: flex;
+  gap: var(--spacing-lg);
+  justify-content: center;
+  padding: var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+}
+
+.skeletonChartLegendItem {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+.skeletonChartDot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: var(--radius-full);
+}
+
+.skeletonChartText {
+  height: 0.875rem;
+  width: 80px;
+  border-radius: var(--radius-sm);
+}
+
+/* Pulse effect (for attention-grabbing loading states) */
+.skeletonPulse {
+  animation: pulse-skeleton 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-skeleton {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Wave effect alternative to shimmer */
+.skeletonWave {
+  position: relative;
+  overflow: hidden;
+}
+
+.skeletonWave::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: wave 1.5s infinite;
+}
+
+@keyframes wave {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Grid layout skeletons */
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.skeletonGridItem {
+  background-color: var(--color-dark-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  min-height: 200px;
+}
+
+.skeletonGridItemImage {
+  height: 120px;
+  border-radius: var(--radius-md);
+}
+
+.skeletonGridItemText {
+  height: 1rem;
+  border-radius: var(--radius-sm);
+}
+
+/* Header skeleton */
+.skeletonHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border);
+  min-height: var(--touch-target);
+}
+
+.skeletonHeaderLogo {
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-md);
+}
+
+.skeletonHeaderTitle {
+  height: 1.25rem;
+  width: 150px;
+  border-radius: var(--radius-sm);
+  flex: 1;
+}
+
+.skeletonHeaderAction {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-md);
+}
+
+/* Responsive - Mobile (max 479px) */
+@media (max-width: 479px) {
+  .skeletonCard {
+    padding: var(--spacing-md);
+  }
+
+  .skeletonMetricCard {
+    padding: var(--spacing-md);
+    min-height: 160px;
+  }
+
+  .skeletonChart {
+    padding: var(--spacing-md);
+    min-height: 250px;
+  }
+
+  .skeletonGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .skeletonTableRow {
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+  }
+
+  .skeletonHeader {
+    padding: var(--spacing-md);
+  }
+}
+
+/* Responsive - Tablet (480px - 767px) */
+@media (min-width: 480px) and (max-width: 767px) {
+  .skeletonGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Responsive - Desktop (768px+) */
+@media (min-width: 768px) {
+  .skeletonCard {
+    padding: var(--spacing-xl);
+  }
+
+  .skeletonGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Accessibility - High contrast */
+@media (prefers-contrast: more) {
+  .skeleton {
+    background: var(--color-dark-tertiary);
+    border: 1px solid var(--color-border);
+  }
+
+  .skeletonCard,
+  .skeletonMetricCard,
+  .skeletonChart,
+  .skeletonGridItem {
+    border-width: 2px;
+  }
+}
+
+/* Screen reader announcement */
+.skeletonAnnouncement {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Specific height for various text sizes */
+.skeletonTextLarge {
+  height: 1.25rem;
+}
+
+.skeletonTextSmall {
+  height: 0.75rem;
+}
+
+/* Loading container with multiple lines */
+.skeletonParagraph {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.skeletonParagraphLine {
+  height: 1rem;
+  border-radius: var(--radius-sm);
+  width: 100%;
+}
+
+.skeletonParagraphLine:last-child {
+  width: 80%;
+}
+
+/* Circle skeleton (for avatars, badges) */
+.skeletonCircle {
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-full);
+  display: inline-block;
+}
+
+/* Bar skeleton (progress bar-like) */
+.skeletonBar {
+  height: 0.5rem;
+  width: 100%;
+  border-radius: var(--radius-full);
+  margin-bottom: var(--spacing-md);
+}
+
+/* Badge skeleton */
+.skeletonBadge {
+  display: inline-block;
+  height: 1.25rem;
+  width: 80px;
+  border-radius: var(--radius-full);
+}
+
+/* Responsive card skeleton set */
+.skeletonCardSet {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+/* Block-level skeleton */
+.skeletonBlock {
+  width: 100%;
+  height: 100px;
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Inline skeleton */
+.skeletonInline {
+  display: inline-block;
+  height: 1rem;
+  width: 200px;
+  border-radius: var(--radius-sm);
+  vertical-align: middle;
+}

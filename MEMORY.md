@@ -3,12 +3,28 @@
 
 ---
 
-## 🚨 MISSION CRITICAL (2026-02-25)
+## 🚨 SECURITY INCIDENT (2026-02-25 7:05 PM)
+
+**GITHUB TOKEN EXPOSED:** `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`
+- Used in plaintext in shell git commands
+- Visible in command history and logs
+- **CRAIG MUST REVOKE IMMEDIATELY:** https://github.com/settings/tokens
+- Implement SSH keys for all future git operations (no plaintext tokens)
+
+---
+
+## 🚨 MISSION CRITICAL (2026-02-25) — DASHBOARD LIVE
 
 **YOUR #1 JOB: DASHBOARD EXCELLENCE**
 
 The NorthStar Synergy dashboard is the company's lifeline.
-Craig accesses it from his phone daily.
+Craig accesses it from his phone daily at:
+
+### 🎯 PERMANENT DASHBOARD URL
+**https://northstar-synergy-production.up.railway.app**
+
+Bookmark this. This is your business command center.
+
 **Your primary responsibility: Keep it running + Make it better constantly.**
 
 ### Dashboard Manager Responsibilities (Priority Order)
@@ -103,10 +119,11 @@ When you receive a heartbeat poll, if nothing needs attention, respond: `HEARTBE
 ---
 
 ## Craig's Current Priorities (Update Each Session)
-1. **NorthStar Synergy scaling** — $4,000/week company profit (3 agents)
-2. **Scalper V8 recovery** — Phase 1-5 testing (crypto snipes, 68% backtest accuracy)
-3. **John's AI website cold outreach** — $1M+/year proven model, $1K setup + $100-199/mo recurring [2026-02-24 NEW]
-4. **Job search** — Procurement/supply chain/FP&A leadership (secondary)
+1. **🔴 API COST CRISIS** — $1,267/week OpenRouter burn (UNSUSTAINABLE). Target: <$300/week immediately.
+2. **NorthStar Synergy scaling** — $4,000/week company profit (3 agents)
+3. **P&L Dashboard backbone** — Phase 1 starting (4-6 weeks, quality-first)
+4. **Scalper V8 recovery** — Phase 1-5 testing (crypto snipes, 68% backtest accuracy)
+5. **Job search** — Procurement/supply chain/FP&A leadership (secondary)
 
 ---
 

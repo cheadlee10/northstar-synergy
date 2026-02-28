@@ -1,0 +1,500 @@
+/* AlertBanner.module.css - Alert and notification component */
+/* WCAG AA compliant, mobile-first, production-ready */
+
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-lg);
+  border: 1px solid;
+  background-color: var(--color-dark-secondary);
+  position: relative;
+  animation: slide-in 0.3s ease-out;
+  transition: all var(--transition-base);
+  role: alert;
+}
+
+.banner:focus-within {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 0;
+}
+
+/* Alert type: Info */
+.bannerInfo {
+  border-color: var(--color-accent);
+  background-color: rgba(0, 212, 255, 0.05);
+  background-image: linear-gradient(
+    135deg,
+    rgba(0, 212, 255, 0.1) 0%,
+    transparent 100%
+  );
+}
+
+/* Alert type: Success */
+.bannerSuccess {
+  border-color: var(--color-gain);
+  background-color: rgba(22, 163, 74, 0.05);
+  background-image: linear-gradient(
+    135deg,
+    rgba(22, 163, 74, 0.1) 0%,
+    transparent 100%
+  );
+}
+
+/* Alert type: Warning */
+.bannerWarning {
+  border-color: var(--color-alert);
+  background-color: rgba(234, 88, 12, 0.05);
+  background-image: linear-gradient(
+    135deg,
+    rgba(234, 88, 12, 0.1) 0%,
+    transparent 100%
+  );
+}
+
+/* Alert type: Error */
+.bannerError {
+  border-color: var(--color-loss);
+  background-color: rgba(220, 38, 38, 0.05);
+  background-image: linear-gradient(
+    135deg,
+    rgba(220, 38, 38, 0.1) 0%,
+    transparent 100%
+  );
+  animation: pulse-alert 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Icon section */
+.iconContainer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.iconInfo {
+  background-color: rgba(0, 212, 255, 0.2);
+  color: var(--color-accent);
+}
+
+.iconSuccess {
+  background-color: rgba(22, 163, 74, 0.2);
+  color: var(--color-gain-light);
+}
+
+.iconWarning {
+  background-color: rgba(234, 88, 12, 0.2);
+  color: var(--color-alert-light);
+}
+
+.iconError {
+  background-color: rgba(220, 38, 38, 0.2);
+  color: var(--color-loss-light);
+}
+
+/* Content section */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.titleInfo {
+  color: var(--color-accent);
+}
+
+.titleSuccess {
+  color: var(--color-gain-light);
+}
+
+.titleWarning {
+  color: var(--color-alert-light);
+}
+
+.titleError {
+  color: var(--color-loss-light);
+}
+
+.message {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.messageCode {
+  display: inline-block;
+  background-color: var(--color-dark-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+  color: var(--color-accent);
+  margin: 0 var(--spacing-xs);
+}
+
+/* Actions section */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.actionLink {
+  color: var(--color-accent);
+  text-decoration: underline;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+}
+
+.actionLink:hover {
+  color: var(--color-accent-light);
+}
+
+.actionLink:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.actionBtn {
+  background-color: var(--color-accent);
+  color: var(--color-dark-base);
+  border: none;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  min-height: var(--touch-target);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.actionBtn:hover {
+  background-color: var(--color-accent-light);
+  box-shadow: var(--shadow-glow-cyan);
+}
+
+.actionBtn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.actionBtn:active {
+  transform: scale(0.98);
+}
+
+/* Close button */
+.closeBtn {
+  flex-shrink: 0;
+  background-color: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  font-size: 1.25rem;
+  transition: all var(--transition-fast);
+}
+
+.closeBtn:hover {
+  background-color: var(--color-dark-tertiary);
+  color: var(--color-accent);
+}
+
+.closeBtn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Progress bar (for loading alerts) */
+.progressBar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--color-accent);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  animation: fade-in 0.3s ease-out;
+}
+
+.progressBarInfo {
+  background-color: var(--color-accent);
+}
+
+.progressBarSuccess {
+  background-color: var(--color-gain);
+}
+
+.progressBarWarning {
+  background-color: var(--color-alert);
+}
+
+.progressBarError {
+  background-color: var(--color-loss);
+}
+
+/* Dismissible banner (sliding out animation) */
+@keyframes slide-out {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.bannerDismissing {
+  animation: slide-out 0.3s ease-out forwards;
+}
+
+/* Sticky banner variant */
+.bannerSticky {
+  position: sticky;
+  top: var(--touch-target);
+  z-index: var(--z-sticky);
+  box-shadow: var(--shadow-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Dismissible banner group container */
+.bannerGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  max-width: 100%;
+}
+
+/* Count badge for grouped alerts */
+.countBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-accent);
+  color: var(--color-dark-base);
+  border-radius: var(--radius-full);
+  font-size: 0.625rem;
+  font-weight: 700;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.countBadgeError {
+  background-color: var(--color-loss);
+  color: white;
+}
+
+/* Expandable alert details */
+.detailsToggle {
+  background-color: transparent;
+  border: none;
+  color: var(--color-accent);
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: underline;
+  padding: var(--spacing-xs);
+  transition: all var(--transition-fast);
+}
+
+.detailsToggle:hover {
+  color: var(--color-accent-light);
+}
+
+.detailsToggle:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.detailsContent {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-md);
+  border-left: 2px solid var(--color-accent);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  font-family: 'Fira Code', monospace;
+  max-height: 150px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Responsive - Mobile (max 479px) */
+@media (max-width: 479px) {
+  .banner {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+  }
+
+  .iconContainer {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .title {
+    font-size: 0.75rem;
+  }
+
+  .message {
+    font-size: 0.75rem;
+  }
+
+  .actions {
+    width: 100%;
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .actionLink,
+  .actionBtn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .closeBtn {
+    align-self: flex-end;
+  }
+}
+
+/* Responsive - Tablet (480px - 767px) */
+@media (min-width: 480px) and (max-width: 767px) {
+  .banner {
+    padding: var(--spacing-lg);
+  }
+
+  .actions {
+    gap: var(--spacing-md);
+  }
+}
+
+/* Responsive - Desktop (768px+) */
+@media (min-width: 768px) {
+  .banner {
+    padding: var(--spacing-lg);
+  }
+
+  .bannerSticky {
+    top: 3.5rem;
+  }
+}
+
+/* Accessibility - High contrast */
+@media (prefers-contrast: more) {
+  .banner {
+    border-width: 2px;
+  }
+
+  .bannerInfo {
+    border-color: var(--color-accent);
+    background-color: transparent;
+  }
+
+  .bannerSuccess {
+    border-color: var(--color-gain);
+    background-color: transparent;
+  }
+
+  .bannerWarning {
+    border-color: var(--color-alert);
+    background-color: transparent;
+  }
+
+  .bannerError {
+    border-color: var(--color-loss);
+    background-color: transparent;
+  }
+
+  .iconContainer {
+    border: 1px solid currentColor;
+  }
+
+  .title {
+    font-weight: 800;
+  }
+}
+
+/* Accessibility - Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .banner,
+  .bannerDismissing,
+  .progressBar,
+  .actionBtn,
+  .actionLink,
+  .closeBtn {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* Dark mode (default) */
+.banner {
+  color: var(--color-text-primary);
+  background-color: var(--color-dark-secondary);
+}
+
+/* Loading spinner in alert (for async operations) */
+.spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(0, 212, 255, 0.2);
+  border-top-color: var(--color-accent);
+  border-radius: var(--radius-full);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Dismissal action tracking */
+.dismissalTracker {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--color-accent) 0%,
+    transparent 100%
+  );
+  animation: slide-out 5s linear forwards;
+}

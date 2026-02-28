@@ -1,655 +1,762 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NorthStar Synergy | Command Center</title>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>NorthStar Synergy | Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.1.0/dist/chartjs-plugin-annotation.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.1/dist/apexcharts.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#070b14;--card:#0d1224;--card-hover:#131a33;--elevated:#1a2240;
+  --border:rgba(136,150,171,0.1);--border-light:rgba(136,150,171,0.06);
+  --green:#00d395;--green-dim:rgba(0,211,149,0.12);
+  --red:#ff3b5c;--red-dim:rgba(255,59,92,0.12);
+  --blue:#4f8ef7;--blue-dim:rgba(79,142,247,0.12);
+  --purple:#9b59ff;--purple-dim:rgba(155,89,255,0.12);
+  --amber:#f5a623;--amber-dim:rgba(245,166,35,0.12);
+  --text:#e2e8f0;--text2:#8896ab;--muted:#4a5568;
+  --font:'Outfit',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',monospace;
+}
+html{font-size:14px}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:#1a2240;border-radius:3px}
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
-        * { box-sizing: border-box; }
-        :root { --bg: #04060f; --card: #080d1a; --border: rgba(255,255,255,0.06); --green: #00d395; --red: #ff3b5c; --blue: #4f8ef7; --amber: #f5a623; --purple: #9b59ff; --text: #e8eaf0; --muted: #4a5568; }
-        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; min-height: 100vh; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: var(--bg); } ::-webkit-scrollbar-thumb { background: #1a2035; border-radius: 2px; }
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; }
-        .tab-active { background: rgba(79,142,247,0.15); border-bottom: 2px solid var(--blue); color: var(--blue); }
-        .tab-inactive { color: var(--muted); border-bottom: 2px solid transparent; }
-        .tab-inactive:hover { color: var(--text); }
-        .green { color: var(--green); } .red { color: var(--red); } .blue { color: var(--blue); } .amber { color: var(--amber); } .purple { color: var(--purple); }
-        .badge { padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
-        .badge-green { background: rgba(0,211,149,0.15); color: var(--green); }
-        .badge-red { background: rgba(255,59,92,0.15); color: var(--red); }
-        .badge-blue { background: rgba(79,142,247,0.15); color: var(--blue); }
-        .badge-amber { background: rgba(245,166,35,0.15); color: var(--amber); }
-        .glow-green { box-shadow: 0 0 20px rgba(0,211,149,0.1); }
-        .glow-red { box-shadow: 0 0 20px rgba(255,59,92,0.1); }
-        .pulse { animation: pulse 2s infinite; }
-        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-        .shimmer { background: linear-gradient(90deg, var(--card) 25%, #0d1530 50%, var(--card) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
-        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; padding: 10px 14px; border-bottom: 1px solid var(--border); }
-        td { padding: 11px 14px; font-size: 12px; border-bottom: 1px solid rgba(255,255,255,0.03); }
-        tr:hover td { background: rgba(255,255,255,0.02); }
-        .metric-label { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
-        .metric-value { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 22px; }
-        .metric-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
-    </style>
+/* ── Layout ─────────────────────────────── */
+.header{position:sticky;top:0;z-index:100;background:rgba(7,11,20,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.header-inner{max-width:1480px;margin:0 auto;padding:0 24px}
+.header-top{display:flex;justify-content:space-between;align-items:center;padding:14px 0 0}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-icon{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#4f8ef7,#9b59ff);display:flex;align-items:center;justify-content:center;font:800 15px/1 var(--mono);color:#fff;letter-spacing:-0.5px}
+.logo-text h1{font-size:17px;font-weight:800;letter-spacing:-0.03em}
+.logo-text span{font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:var(--text2);font-weight:600}
+.header-right{display:flex;align-items:center;gap:16px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.live-label{font:600 10px/1 var(--mono);color:var(--green);letter-spacing:0.05em}
+.updated{font:500 10px/1 var(--font);color:var(--muted)}
+
+/* ── Tabs ───────────────────────────────── */
+.tabs{display:flex;gap:0;margin-top:6px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab{padding:10px 18px;font:600 12px/1 var(--font);color:var(--muted);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:all .15s}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+
+/* ── Content ────────────────────────────── */
+.content{max-width:1480px;margin:0 auto;padding:20px 24px 60px}
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g6{grid-template-columns:repeat(6,1fr)}
+.g8-4{grid-template-columns:2fr 1fr}
+.span2{grid-column:span 2}
+
+/* ── Cards ──────────────────────────────── */
+.card{background:var(--card);border:1px solid var(--border-light);border-radius:12px;overflow:hidden}
+.card-p{padding:20px}
+.card-header{font:700 10px/1 var(--font);color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
+
+/* ── KPI Cards ──────────────────────────── */
+.kpi{padding:18px 20px;border-top:3px solid transparent;position:relative}
+.kpi-label{font:600 10px/1 var(--font);color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px}
+.kpi-value{font:700 24px/1.1 var(--mono);letter-spacing:-0.02em}
+.kpi-sub{font:500 11px/1.3 var(--font);color:var(--muted);margin-top:6px}
+.kpi-spark{position:absolute;bottom:0;left:0;right:0;height:32px;opacity:0.4}
+
+/* ── Badges ─────────────────────────────── */
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font:600 10px/1.4 var(--mono);letter-spacing:0.02em}
+.badge-green{background:var(--green-dim);color:var(--green)}
+.badge-red{background:var(--red-dim);color:var(--red)}
+.badge-blue{background:var(--blue-dim);color:var(--blue)}
+.badge-amber{background:var(--amber-dim);color:var(--amber)}
+.badge-purple{background:var(--purple-dim);color:var(--purple)}
+
+/* ── Tables ─────────────────────────────── */
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font:700 9px/1 var(--font);color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;padding:10px 14px;border-bottom:1px solid var(--border)}
+td{padding:10px 14px;font-size:12px;border-bottom:1px solid var(--border-light)}
+tr:hover td{background:rgba(255,255,255,0.015)}
+.mono{font-family:var(--mono)}
+.green{color:var(--green)}.red{color:var(--red)}.blue{color:var(--blue)}.amber{color:var(--amber)}.purple{color:var(--purple)}
+.fw7{font-weight:700}
+
+/* ── Chart containers ───────────────────── */
+.chart-wrap{position:relative}
+.chart-wrap canvas{width:100%!important}
+
+/* ── Segment cards ──────────────────────── */
+.seg{border-left:3px solid var(--blue)}
+.seg-icon{font-size:20px;margin-right:8px}
+.seg-name{font:700 14px/1 var(--font)}
+.seg-value{font:700 28px/1.1 var(--mono);margin:12px 0 4px}
+.seg-detail{font:500 11px/1.3 var(--font);color:var(--muted)}
+
+/* ── Loading & error ────────────────────── */
+.loading{padding:80px 0;text-align:center;color:var(--muted);font-size:13px}
+.error{padding:40px;color:var(--red);font-family:var(--mono);font-size:12px}
+.retry-btn{margin-top:12px;padding:8px 20px;background:var(--blue);color:#fff;border:none;border-radius:8px;font:600 12px/1 var(--font);cursor:pointer}
+
+/* ── Empty state ────────────────────────── */
+.empty{padding:60px 0;text-align:center}
+.empty-icon{font-size:36px;margin-bottom:12px}
+.empty-title{font:600 15px/1 var(--font);margin-bottom:6px}
+.empty-desc{font:500 12px/1.4 var(--font);color:var(--muted);max-width:320px;margin:0 auto}
+
+/* ── Pagination ─────────────────────────── */
+.pagination{display:flex;align-items:center;gap:10px;justify-content:flex-end;margin-top:12px}
+.page-btn{padding:5px 14px;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text);font:500 12px/1 var(--font);cursor:pointer}
+.page-btn:disabled{opacity:.3;cursor:default}
+.page-info{font:500 11px/1 var(--font);color:var(--muted)}
+
+/* ── Section title ──────────────────────── */
+.section-title{font:700 10px/1 var(--font);color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin:28px 0 14px}
+
+/* ── Responsive ─────────────────────────── */
+@media(max-width:1200px){.g6{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(2,1fr)}.g8-4{grid-template-columns:1fr}}
+@media(max-width:768px){.g3,.g2{grid-template-columns:1fr}.g6{grid-template-columns:repeat(2,1fr)}.tabs{gap:0}.tab{padding:10px 12px;font-size:11px}}
+</style>
 </head>
 <body>
-<div id="root"></div>
+
+<!-- ═══════ HEADER ═══════ -->
+<div class="header">
+<div class="header-inner">
+  <div class="header-top">
+    <div class="logo">
+      <div class="logo-icon">NS</div>
+      <div class="logo-text">
+        <h1>NorthStar Synergy</h1>
+        <span>Intelligence · Operations · Profit</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="updated" id="lastUpdate"></span>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div class="live-dot"></div>
+        <span class="live-label">LIVE</span>
+      </div>
+    </div>
+  </div>
+  <div class="tabs" id="tabBar"></div>
+</div>
+</div>
+
+<!-- ═══════ CONTENT ═══════ -->
+<div class="content" id="app">
+  <div class="loading">⚡ Loading Command Center...</div>
+</div>
+
 <script>
-const { useState, useEffect, useMemo } = React;
+/* ═══════════════════════════════════════════════════════════════
+   NORTHSTAR SYNERGY — ENTERPRISE P&L COMMAND CENTER
+   Chart.js + ApexCharts · Vanilla JS · Zero build step
+   ═══════════════════════════════════════════════════════════════ */
 
+// ── Chart.js global defaults ─────────────────────────────────
+Chart.defaults.color = '#8896ab';
+Chart.defaults.borderColor = 'rgba(136,150,171,0.08)';
+Chart.defaults.font.family = "'Outfit', system-ui, sans-serif";
+Chart.defaults.font.size = 11;
+Chart.defaults.plugins.legend.display = false;
+Chart.defaults.plugins.tooltip.backgroundColor = '#0d1224';
+Chart.defaults.plugins.tooltip.borderColor = 'rgba(136,150,171,0.2)';
+Chart.defaults.plugins.tooltip.borderWidth = 1;
+Chart.defaults.plugins.tooltip.cornerRadius = 8;
+Chart.defaults.plugins.tooltip.titleFont = {family:"'Outfit'",weight:'600',size:11};
+Chart.defaults.plugins.tooltip.bodyFont = {family:"'IBM Plex Mono'",size:11};
+Chart.defaults.plugins.tooltip.padding = 10;
 
-// ── UTILS ──────────────────────────────────────────────────────────────
-const fmt = (n, decimals=2) => {
-    if (n === undefined || n === null || isNaN(n)) return '$0.00';
-    return (n < 0 ? '-$' : '$') + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+// ── State ────────────────────────────────────────────────────
+let STATE = { tab: 'pnl', data: null, trades: null, charts: {} };
+const $ = id => document.getElementById(id);
+const app = $('app');
+
+// ── Formatting helpers ───────────────────────────────────────
+const fmt = (n, d=2) => {
+  if (n == null || isNaN(n)) return '$0.00';
+  return (n<0?'-$':'$') + Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
 };
-const fmtPct = (n, decimals=1) => isNaN(n) ? '0.0%' : (n*100).toFixed(decimals)+'%';
-const fmtNum = (n) => isNaN(n) ? '0' : Number(n).toLocaleString();
-const clamp = (n,min,max) => Math.min(Math.max(n,min),max);
+const fmtPct = (n,d=1) => isNaN(n)?'0.0%':(n*100).toFixed(d)+'%';
+const fmtNum = n => isNaN(n)?'0':Number(n).toLocaleString();
+const clr = (n,zero='var(--text)') => n>0?'var(--green)':n<0?'var(--red)':zero;
 
-// ── SHARED COMPONENTS ──────────────────────────────────────────────────
-const Spinner = () => React.createElement('div', { style: { padding: '4rem', textAlign: 'center', color: '#4a5568', fontSize: 13 } }, 'Loading...');
+// ── Chart management ─────────────────────────────────────────
+function destroyChart(id) {
+  if (STATE.charts[id]) { STATE.charts[id].destroy(); delete STATE.charts[id]; }
+}
+function destroyAllCharts() {
+  Object.keys(STATE.charts).forEach(destroyChart);
+}
 
-const KPICard = ({ label, value, sub, color='var(--text)', border='transparent', raw=false, small=false }) =>
-    React.createElement('div', { className: 'card p-5', style: { borderTop: `3px solid ${border}` } },
-        React.createElement('div', { className: 'metric-label' }, label),
-        React.createElement('div', { className: 'metric-value', style: { color, fontSize: small ? 18 : 22 } }, raw ? value : fmt(value)),
-        sub && React.createElement('div', { className: 'metric-sub' }, sub)
-    );
-
-const SectionTitle = ({ children }) =>
-    React.createElement('div', { style: { fontSize: 10, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 14, marginTop: 28 } }, children);
-
-// ── TABS ───────────────────────────────────────────────────────────────
+// ── Tab definitions ──────────────────────────────────────────
 const TABS = [
-    { id: 'pnl', label: 'P&L Overview', icon: '◈' },
-    { id: 'kalshi', label: '⚡ Kalshi Research', icon: '' },
-    { id: 'sports', label: 'Sports Picks', icon: '🏆' },
-    { id: 'john', label: "John's Biz", icon: '◆' },
-    { id: 'costs', label: 'Cost Drill-Down', icon: '▼' },
-    { id: 'ledger', label: 'Ledger', icon: '≡' },
+  {id:'pnl',   label:'P&L Overview'},
+  {id:'kalshi', label:'⚡ Kalshi Analytics'},
+  {id:'sports', label:'Sports Picks'},
+  {id:'john',  label:"John's Biz"},
+  {id:'costs', label:'Cost Drill-Down'},
+  {id:'ledger',label:'Ledger'},
 ];
 
-// ── P&L OVERVIEW TAB ──────────────────────────────────────────────────
-const PnLTab = ({ d }) => {
-    const bettingNet = d.betting_net || 0;
-    const wins = d.betting_wins || 0;
-    const losses = d.betting_losses || 0;
-    const openPos = d.open_positions || 0;
-    const exposure = d.open_exposure || 0;
-    const winRate = d.win_rate || 0;
-    const trades = d.total_trades || 0;
-    const apiSpend = d.openrouter_total_spend || 0;
-    const creditsLeft = d.openrouter_credits_remaining || 0;
-    const totalNet = bettingNet - apiSpend;
+// ── Render tab bar ───────────────────────────────────────────
+function renderTabs() {
+  $('tabBar').innerHTML = TABS.map(t =>
+    `<button class="tab${STATE.tab===t.id?' active':''}" data-tab="${t.id}">${t.label}</button>`
+  ).join('');
+  $('tabBar').querySelectorAll('.tab').forEach(btn => {
+    btn.onclick = () => { STATE.tab = btn.dataset.tab; renderTabs(); renderContent(); };
+  });
+}
 
-    const sparkData = [...Array(14)].map((_,i) => ({ d: `Feb ${i+14}`, v: (Math.random()-0.6)*200 }));
+// ── Build KPI card HTML ──────────────────────────────────────
+function kpi(label, value, opts={}) {
+  const {color='var(--text)',border='transparent',sub='',raw=false} = opts;
+  return `<div class="card kpi" style="border-top-color:${border}">
+    <div class="kpi-label">${label}</div>
+    <div class="kpi-value" style="color:${color}">${raw?value:fmt(value)}</div>
+    ${sub?`<div class="kpi-sub">${sub}</div>`:''}
+  </div>`;
+}
 
-    return React.createElement('div', null,
-        // Hero strip
-        React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 12 } },
-            React.createElement(KPICard, { label: 'True Net P&L', value: totalNet, color: totalNet>=0?'var(--green)':'var(--red)', border: totalNet>=0?'var(--green)':'var(--red)', sub: 'Betting - API costs' }),
-            React.createElement(KPICard, { label: 'Betting Wins', value: wins, color: 'var(--green)', border: 'var(--green)', sub: `${fmtNum(trades)} settled trades` }),
-            React.createElement(KPICard, { label: 'Betting Losses', value: losses, color: 'var(--red)', border: 'var(--red)', sub: `${fmtPct(winRate)} win rate` }),
-            React.createElement(KPICard, { label: 'Betting Net', value: bettingNet, color: bettingNet>=0?'var(--green)':'var(--red)', border: 'var(--purple)', sub: 'Gross P&L' }),
-        ),
-        React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 24 } },
-            React.createElement(KPICard, { label: 'Open Positions', value: fmtNum(openPos), color: 'var(--blue)', border: 'var(--blue)', raw: true, sub: 'Active contracts' }),
-            React.createElement(KPICard, { label: 'Open Exposure', value: exposure, color: 'var(--amber)', border: 'var(--amber)', sub: 'Capital at risk' }),
-            React.createElement(KPICard, { label: 'OpenRouter Spend', value: apiSpend, color: 'var(--amber)', border: 'var(--amber)', sub: `$${creditsLeft.toFixed(2)} remaining` }),
-            React.createElement(KPICard, { label: 'Credits Remaining', value: creditsLeft, color: creditsLeft<50?'var(--red)':'var(--green)', border: creditsLeft<50?'var(--red)':'var(--green)', sub: creditsLeft<50?'⚠ TOP UP SOON':'Healthy' }),
-        ),
+// ══════════════════════════════════════════════════════════════
+// TAB: P&L OVERVIEW
+// ══════════════════════════════════════════════════════════════
+function renderPnL(d) {
+  const net = d.betting_net - (d.openrouter_total_spend||0);
+  const creditsLeft = d.openrouter_credits_remaining||0;
 
-        // Business units
-        React.createElement(SectionTitle, null, 'Business Units'),
-        React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, marginBottom: 24 } },
-            [
-                { name: 'Scalper / Kalshi', net: bettingNet, rev: wins, color: 'var(--purple)', icon: '⚡', detail: `${fmtNum(trades)} trades · ${fmtPct(winRate)} win rate · ${openPos} open` },
-                { name: "John's Web Biz", net: 0, rev: 0, color: 'var(--green)', icon: '◆', detail: 'Connect jobs.jsonl to sync' },
-                { name: 'Kelsea', net: 0, rev: 0, color: 'var(--amber)', icon: '✦', detail: 'Awaiting data sync' },
-            ].map(seg =>
-                React.createElement('div', { key: seg.name, className: 'card p-5', style: { borderLeft: `3px solid ${seg.color}` } },
-                    React.createElement('div', { style: { display:'flex', alignItems:'center', gap:8, marginBottom:12 } },
-                        React.createElement('span', { style: { color: seg.color, fontSize: 18 } }, seg.icon),
-                        React.createElement('span', { style: { fontWeight: 700 } }, seg.name)
-                    ),
-                    React.createElement('div', { className: 'mono', style: { fontSize: 26, fontWeight: 700, color: seg.net>=0?'var(--green)':'var(--red)', marginBottom: 4 } }, fmt(seg.net)),
-                    React.createElement('div', { style: { fontSize: 11, color: 'var(--muted)' } }, 'Wins: ' + fmt(seg.rev)),
-                    React.createElement('div', { style: { fontSize: 11, color: 'var(--muted)', marginTop: 4 } }, seg.detail)
-                )
-            )
-        )
-    );
-};
+  let html = `
+  <div class="grid g4" style="margin-bottom:12px">
+    ${kpi('True Net P&L', net, {color:clr(net), border:net>=0?'var(--green)':'var(--red)', sub:'Betting P&L minus API costs'})}
+    ${kpi('Betting Wins', d.betting_wins, {color:'var(--green)', border:'var(--green)', sub:fmtNum(d.total_trades)+' settled trades'})}
+    ${kpi('Betting Losses', d.betting_losses, {color:'var(--red)', border:'var(--red)', sub:fmtPct(d.win_rate)+' win rate'})}
+    ${kpi('Betting Net', d.betting_net, {color:clr(d.betting_net), border:'var(--purple)', sub:'Gross prediction market P&L'})}
+  </div>
+  <div class="grid g4" style="margin-bottom:12px">
+    ${kpi('Sharpe Ratio', d.sharpe_ratio?.toFixed(2)||'0.00', {color:d.sharpe_ratio>=1?'var(--green)':d.sharpe_ratio>=0?'var(--amber)':'var(--red)', border:'var(--blue)', raw:true, sub:d.sharpe_ratio>=1?'Strong risk-adjusted':'Needs improvement'})}
+    ${kpi('Max Drawdown', d.max_drawdown, {color:'var(--red)', border:'var(--red)', sub:'Largest peak-to-trough'})}
+    ${kpi('Open Positions', fmtNum(d.open_positions), {color:'var(--blue)', border:'var(--blue)', raw:true, sub:fmt(d.open_exposure)+' exposure'})}
+    ${kpi('Kelly %', fmtPct(d.kelly_pct), {color:d.kelly_pct>0?'var(--green)':'var(--red)', border:d.kelly_pct>0?'var(--green)':'var(--red)', raw:true, sub:d.kelly_pct>0?'Positive edge detected':'Negative edge — reduce size'})}
+  </div>
 
-// ── KALSHI RESEARCH TAB ───────────────────────────────────────────────
-const KalshiTab = ({ d }) => {
-    const [trades, setTrades] = useState([]);
-    const [loading, setLoading] = useState(true);
+  <!-- Equity curve + daily P&L -->
+  <div class="grid g8-4" style="margin-bottom:12px">
+    <div class="card card-p">
+      <div class="card-header">Cumulative P&L — Equity Curve</div>
+      <div class="chart-wrap" style="height:260px"><canvas id="chartEquity"></canvas></div>
+    </div>
+    <div class="card card-p">
+      <div class="card-header">Daily P&L</div>
+      <div class="chart-wrap" style="height:260px"><canvas id="chartDaily"></canvas></div>
+    </div>
+  </div>
 
-    useEffect(() => {
-        fetch('/api/kalshi-trades')
-            .then(r => r.json())
-            .then(data => { setTrades(data.trades || []); setLoading(false); })
-            .catch(() => setLoading(false));
-    }, []);
+  <!-- Business Units -->
+  <div class="section-title">Business Units</div>
+  <div class="grid g3" style="margin-bottom:12px">
+    <div class="card card-p seg" style="border-left-color:var(--purple)">
+      <div style="display:flex;align-items:center;margin-bottom:12px">
+        <span class="seg-icon" style="color:var(--purple)">⚡</span>
+        <span class="seg-name">Scalper / Kalshi</span>
+      </div>
+      <div class="seg-value" style="color:${clr(d.betting_net)}">${fmt(d.betting_net)}</div>
+      <div class="seg-detail">Wins: ${fmt(d.betting_wins)} · ${fmtNum(d.total_trades)} trades · ${fmtPct(d.win_rate)} win rate</div>
+      <div class="seg-detail">${d.current_streak||0}${d.streak_type||'?'} streak · ${d.open_positions} open</div>
+    </div>
+    <div class="card card-p seg" style="border-left-color:var(--green)">
+      <div style="display:flex;align-items:center;margin-bottom:12px">
+        <span class="seg-icon" style="color:var(--green)">◆</span>
+        <span class="seg-name">John's Web Biz</span>
+      </div>
+      <div class="seg-value" style="color:var(--muted)">$0.00</div>
+      <div class="seg-detail">Connect jobs.jsonl to sync revenue data</div>
+    </div>
+    <div class="card card-p seg" style="border-left-color:var(--amber)">
+      <div style="display:flex;align-items:center;margin-bottom:12px">
+        <span class="seg-icon" style="color:var(--amber)">✦</span>
+        <span class="seg-name">Kelsea</span>
+      </div>
+      <div class="seg-value" style="color:var(--muted)">$0.00</div>
+      <div class="seg-detail">Awaiting transaction data sync</div>
+    </div>
+  </div>
 
-    const analytics = useMemo(() => {
-        if (!trades.length) return null;
-        const settled = trades.filter(t => t.status === 'Settled');
-        const open = trades.filter(t => t.status === 'Open');
+  <!-- API Cost Banner -->
+  <div class="card card-p" style="border-left:3px solid var(--amber)">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
+      <div>
+        <div class="kpi-label">OpenRouter API Spend</div>
+        <div style="font:700 26px/1 var(--mono);color:var(--amber)">${fmt(d.openrouter_total_spend)}</div>
+      </div>
+      <div style="text-align:center">
+        <div class="kpi-label">Credits Left</div>
+        <div style="font:700 22px/1 var(--mono);color:${creditsLeft<50?'var(--red)':'var(--green)'}">${fmt(creditsLeft)}</div>
+        ${creditsLeft<50?'<div style="font:700 10px/1 var(--font);color:var(--red);margin-top:4px">⚠ TOP UP SOON</div>':''}
+      </div>
+      <div style="text-align:right">
+        <div class="kpi-label">True Bottom Line</div>
+        <div style="font:700 22px/1 var(--mono);color:${clr(net)}">${fmt(net)}</div>
+        <div style="font:500 10px/1 var(--font);color:var(--muted);margin-top:4px">Betting P&L − API costs</div>
+      </div>
+    </div>
+  </div>`;
 
-        const pnl = t => {
-            try { return (parseFloat(t.exit_price||0) - parseFloat(t.entry_price||0)) * parseFloat(t.num_contracts||0) - parseFloat(t.fees||0); }
-            catch { return 0; }
-        };
+  app.innerHTML = html;
 
-        const pnls = settled.map(t => ({ ...t, pnl_calc: pnl(t) }));
-        const wins = pnls.filter(t => t.pnl_calc > 0);
-        const lossArr = pnls.filter(t => t.pnl_calc < 0);
-        const totalPnl = pnls.reduce((s,t) => s+t.pnl_calc, 0);
-        const winRate = wins.length / Math.max(pnls.length, 1);
-
-        // By market category
-        const byMarket = {};
-        pnls.forEach(t => {
-            const m = t.market || 'Other';
-            if (!byMarket[m]) byMarket[m] = { wins:0, losses:0, pnl:0, count:0 };
-            byMarket[m].pnl += t.pnl_calc;
-            byMarket[m].count++;
-            if (t.pnl_calc > 0) byMarket[m].wins++;
-            else byMarket[m].losses++;
-        });
-
-        // By direction
-        const byDir = {};
-        pnls.forEach(t => {
-            const d = t.direction || 'YES';
-            if (!byDir[d]) byDir[d] = { pnl:0, count:0, wins:0 };
-            byDir[d].pnl += t.pnl_calc;
-            byDir[d].count++;
-            if (t.pnl_calc > 0) byDir[d].wins++;
-        });
-
-        // Entry price buckets (calibration)
-        const buckets = { '0-30':[], '30-50':[], '50-70':[], '70-90':[], '90-100':[] };
-        pnls.forEach(t => {
-            const p = parseFloat(t.entry_price||0) * 100;
-            const key = p<30?'0-30':p<50?'30-50':p<70?'50-70':p<90?'70-90':'90-100';
-            buckets[key].push(t.pnl_calc > 0 ? 1 : 0);
-        });
-        const calibration = Object.entries(buckets).map(([range, outcomes]) => ({
-            range,
-            actualWinRate: outcomes.length ? outcomes.reduce((a,b)=>a+b,0)/outcomes.length : 0,
-            count: outcomes.length
-        }));
-
-        // Sharpe (simplified daily)
-        const dailyPnl = {};
-        pnls.forEach(t => {
-            const d = (t.trade_date||'').slice(0,10);
-            if (!dailyPnl[d]) dailyPnl[d] = 0;
-            dailyPnl[d] += t.pnl_calc;
-        });
-        const dailyArr = Object.values(dailyPnl);
-        const avg = dailyArr.reduce((a,b)=>a+b,0)/Math.max(dailyArr.length,1);
-        const std = Math.sqrt(dailyArr.reduce((s,v)=>s+Math.pow(v-avg,2),0)/Math.max(dailyArr.length,1));
-        const sharpe = std ? (avg/std)*Math.sqrt(252) : 0;
-
-        // Max drawdown
-        let peak = 0, maxDD = 0, running = 0;
-        pnls.sort((a,b) => (a.trade_date||'').localeCompare(b.trade_date||'')).forEach(t => {
-            running += t.pnl_calc;
-            if (running > peak) peak = running;
-            const dd = peak - running;
-            if (dd > maxDD) maxDD = dd;
-        });
-
-        // Kelly criterion (simplified)
-        const avgWin = wins.length ? wins.reduce((s,t)=>s+t.pnl_calc,0)/wins.length : 0;
-        const avgLoss = lossArr.length ? Math.abs(lossArr.reduce((s,t)=>s+t.pnl_calc,0)/lossArr.length) : 1;
-        const kelly = winRate - ((1-winRate)/(avgWin/Math.max(avgLoss,0.01)));
-
-        // Expected value by entry price bucket
-        const ev = pnls.reduce((s,t) => {
-            const p = parseFloat(t.entry_price||0);
-            return s + (t.pnl_calc > 0 ? (1-p)*parseFloat(t.num_contracts||0) : -p*parseFloat(t.num_contracts||0));
-        }, 0) / Math.max(pnls.length,1);
-
-        // Cumulative P&L series
-        let cum = 0;
-        const cumSeries = pnls
-            .sort((a,b) => (a.trade_date||'').localeCompare(b.trade_date||''))
-            .slice(-90)
-            .map((t,i) => { cum += t.pnl_calc; return { i, pnl: parseFloat(cum.toFixed(2)), date: (t.trade_date||'').slice(5,10) }; });
-
-        // Top wins / losses
-        const topWins = [...wins].sort((a,b)=>b.pnl_calc-a.pnl_calc).slice(0,5);
-        const topLosses = [...lossArr].sort((a,b)=>a.pnl_calc-b.pnl_calc).slice(0,5);
-
-        return { settled, open, pnls, wins, lossArr, totalPnl, winRate, byMarket, byDir, calibration, sharpe, maxDD, kelly, ev, cumSeries, avgWin, avgLoss, topWins, topLosses, dailyArr };
-    }, [trades]);
-
-    if (loading) return React.createElement(Spinner);
-    if (!analytics) return React.createElement('div', { style: { padding: '2rem', color: 'var(--muted)' } }, 'No trade data found. Run kalshi_sync.py first.');
-
-    const { settled, open, pnls, wins, lossArr, totalPnl, winRate, byMarket, byDir, calibration, sharpe, maxDD, kelly, ev, cumSeries, avgWin, avgLoss, topWins, topLosses } = analytics;
-
-    return React.createElement('div', null,
-
-        // ── Top metrics row
-        React.createElement('div', { style: { display:'grid', gridTemplateColumns:'repeat(6,1fr)', gap:10, marginBottom:10 } },
-            React.createElement('div', { className:'card p-4' },
-                React.createElement('div', { className:'metric-label' }, 'Total P&L'),
-                React.createElement('div', { className:'metric-value', style:{color:totalPnl>=0?'var(--green)':'var(--red)',fontSize:18} }, fmt(totalPnl))
-            ),
-            React.createElement('div', { className:'card p-4' },
-                React.createElement('div', { className:'metric-label' }, 'Win Rate'),
-                React.createElement('div', { className:'metric-value', style:{color:'var(--blue)',fontSize:18} }, fmtPct(winRate)),
-                React.createElement('div', { className:'metric-sub' }, `${wins.length}W / ${lossArr.length}L`)
-            ),
-            React.createElement('div', { className:'card p-4' },
-                React.createElement('div', { className:'metric-label' }, 'Sharpe Ratio'),
-                React.createElement('div', { className:'metric-value', style:{color:sharpe>=1?'var(--green)':sharpe>=0?'var(--amber)':'var(--red)',fontSize:18} }, sharpe.toFixed(2)),
-                React.createElement('div', { className:'metric-sub' }, sharpe>=1?'Strong':'Needs work')
-            ),
-            React.createElement('div', { className:'card p-4' },
-                React.createElement('div', { className:'metric-label' }, 'Max Drawdown'),
-                React.createElement('div', { className:'metric-value', style:{color:'var(--red)',fontSize:18} }, fmt(maxDD))
-            ),
-            React.createElement('div', { className:'card p-4' },
-                React.createElement('div', { className:'metric-label' }, 'Kelly %'),
-                React.createElement('div', { className:'metric-value', style:{color:kelly>0?'var(--green)':'var(--red)',fontSize:18} }, fmtPct(kelly)),
-                React.createElement('div', { className:'metric-sub' }, kelly>0?'Positive edge':'Negative edge')
-            ),
-            React.createElement('div', { className:'card p-4' },
-                React.createElement('div', { className:'metric-label' }, 'Avg Win/Loss'),
-                React.createElement('div', { className:'metric-value green', style:{fontSize:14} }, fmt(avgWin)),
-                React.createElement('div', { className:'metric-value red', style:{fontSize:14} }, fmt(-avgWin && avgLoss ? -avgLoss : 0))
-            ),
-        ),
-
-        // ── Cumulative P&L chart
-        React.createElement(SectionTitle, null, 'Cumulative P&L (Last 90 Trades)'),
-        React.createElement('div', { className:'card p-5', style:{marginBottom:12} },
-            React.createElement(ResponsiveContainer, { width:'100%', height:180 },
-                React.createElement(AreaChart, { data: cumSeries },
-                    React.createElement('defs', null,
-                        React.createElement('linearGradient', { id:'cumGrad', x1:'0', y1:'0', x2:'0', y2:'1' },
-                            React.createElement('stop', { offset:'5%', stopColor: totalPnl>=0?'#00d395':'#ff3b5c', stopOpacity:0.3 }),
-                            React.createElement('stop', { offset:'95%', stopColor: totalPnl>=0?'#00d395':'#ff3b5c', stopOpacity:0 })
-                        )
-                    ),
-                    React.createElement(XAxis, { dataKey:'date', tick:{fontSize:10,fill:'#4a5568'}, axisLine:false, tickLine:false }),
-                    React.createElement(YAxis, { tick:{fontSize:10,fill:'#4a5568'}, axisLine:false, tickLine:false, tickFormatter:v=>'$'+v }),
-                    React.createElement(ReferenceLine, { y:0, stroke:'#4a5568', strokeDasharray:'3 3' }),
-                    React.createElement(Tooltip, { contentStyle:{background:'#080d1a',border:'1px solid #1a2035',borderRadius:8,fontSize:11}, formatter:(v)=>['$'+v.toFixed(2),'P&L'] }),
-                    React.createElement(Area, { type:'monotone', dataKey:'pnl', stroke:totalPnl>=0?'#00d395':'#ff3b5c', strokeWidth:2, fill:'url(#cumGrad)' })
-                )
-            )
-        ),
-
-        // ── By market category + calibration
-        React.createElement('div', { style:{display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:12} },
-
-            // Market breakdown
-            React.createElement('div', { className:'card p-5' },
-                React.createElement('div', { className:'metric-label', style:{marginBottom:12} }, 'P&L by Market Category'),
-                React.createElement('table', null,
-                    React.createElement('thead', null,
-                        React.createElement('tr', null,
-                            React.createElement('th', null, 'Market'),
-                            React.createElement('th', null, 'Trades'),
-                            React.createElement('th', null, 'Win%'),
-                            React.createElement('th', null, 'Net P&L'),
-                        )
-                    ),
-                    React.createElement('tbody', null,
-                        Object.entries(byMarket)
-                            .sort((a,b) => b[1].pnl - a[1].pnl)
-                            .map(([market, stats]) =>
-                                React.createElement('tr', { key: market },
-                                    React.createElement('td', null, React.createElement('span', { className:'mono', style:{fontSize:11} }, market)),
-                                    React.createElement('td', null, stats.count),
-                                    React.createElement('td', null,
-                                        React.createElement('span', { style:{color: stats.wins/stats.count > 0.5 ? 'var(--green)':'var(--red)'} },
-                                            fmtPct(stats.wins/Math.max(stats.count,1))
-                                        )
-                                    ),
-                                    React.createElement('td', null,
-                                        React.createElement('span', { style:{color: stats.pnl>=0?'var(--green)':'var(--red)', fontFamily:'JetBrains Mono,monospace', fontWeight:700 } },
-                                            fmt(stats.pnl)
-                                        )
-                                    )
-                                )
-                            )
-                    )
-                )
-            ),
-
-            // Calibration curve
-            React.createElement('div', { className:'card p-5' },
-                React.createElement('div', { className:'metric-label', style:{marginBottom:4} }, 'Calibration — Entry Price vs Actual Win Rate'),
-                React.createElement('div', { style:{fontSize:11, color:'var(--muted)', marginBottom:12} }, 'Are you buying at the right prices? Bar = actual win rate at that entry price bucket.'),
-                React.createElement(ResponsiveContainer, { width:'100%', height:160 },
-                    React.createElement(BarChart, { data: calibration },
-                        React.createElement(XAxis, { dataKey:'range', tick:{fontSize:10,fill:'#4a5568'} }),
-                        React.createElement(YAxis, { tickFormatter:v=>(v*100).toFixed(0)+'%', tick:{fontSize:10,fill:'#4a5568'}, domain:[0,1] }),
-                        React.createElement(Tooltip, { formatter:(v,n,p) => [fmtPct(v), 'Win Rate'], contentStyle:{background:'#080d1a',border:'1px solid #1a2035',fontSize:11} }),
-                        React.createElement(Bar, { dataKey:'actualWinRate', radius:[4,4,0,0] },
-                            calibration.map((entry,i) =>
-                                React.createElement(Cell, { key:i, fill: entry.actualWinRate > 0.5 ? 'var(--green)' : 'var(--red)' })
-                            )
-                        )
-                    )
-                )
-            )
-        ),
-
-        // ── Direction analysis + Open positions
-        React.createElement('div', { style:{display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:12} },
-
-            React.createElement('div', { className:'card p-5' },
-                React.createElement('div', { className:'metric-label', style:{marginBottom:12} }, 'YES vs NO Performance'),
-                React.createElement('table', null,
-                    React.createElement('thead', null,
-                        React.createElement('tr', null,
-                            React.createElement('th', null, 'Direction'),
-                            React.createElement('th', null, 'Trades'),
-                            React.createElement('th', null, 'Win Rate'),
-                            React.createElement('th', null, 'Net P&L'),
-                        )
-                    ),
-                    React.createElement('tbody', null,
-                        Object.entries(byDir).map(([dir, stats]) =>
-                            React.createElement('tr', { key: dir },
-                                React.createElement('td', null, React.createElement('span', { className: dir==='YES'?'badge badge-green':'badge badge-red' }, dir)),
-                                React.createElement('td', null, stats.count),
-                                React.createElement('td', null, React.createElement('span', { style:{color:stats.wins/stats.count>0.5?'var(--green)':'var(--red)'} }, fmtPct(stats.wins/Math.max(stats.count,1)))),
-                                React.createElement('td', null, React.createElement('span', { className:'mono', style:{color:stats.pnl>=0?'var(--green)':'var(--red)',fontWeight:700} }, fmt(stats.pnl)))
-                            )
-                        )
-                    )
-                )
-            ),
-
-            React.createElement('div', { className:'card p-5' },
-                React.createElement('div', { className:'metric-label', style:{marginBottom:12} }, `Open Positions (${open.length})`),
-                React.createElement('div', { style:{maxHeight:180, overflowY:'auto'} },
-                    React.createElement('table', null,
-                        React.createElement('thead', null,
-                            React.createElement('tr', null,
-                                React.createElement('th', null, 'Contract'),
-                                React.createElement('th', null, 'Dir'),
-                                React.createElement('th', null, 'Entry'),
-                                React.createElement('th', null, 'Qty'),
-                                React.createElement('th', null, 'Expires'),
-                            )
-                        ),
-                        React.createElement('tbody', null,
-                            open.slice(0,10).map((t,i) =>
-                                React.createElement('tr', { key:i },
-                                    React.createElement('td', { style:{maxWidth:160,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',fontSize:11} }, t.contract_id || t.market),
-                                    React.createElement('td', null, React.createElement('span', { className: t.direction==='YES'?'badge badge-green':'badge badge-red' }, t.direction||'YES')),
-                                    React.createElement('td', { className:'mono' }, ((parseFloat(t.entry_price||0))*100).toFixed(0)+'¢'),
-                                    React.createElement('td', { className:'mono' }, fmtNum(t.num_contracts)),
-                                    React.createElement('td', { style:{fontSize:10,color:'var(--muted)'} }, (t.expiry_date||'').slice(5,10))
-                                )
-                            )
-                        )
-                    )
-                )
-            )
-        ),
-
-        // ── Top 5 wins and losses
-        React.createElement('div', { style:{display:'grid', gridTemplateColumns:'1fr 1fr', gap:12} },
-            React.createElement('div', { className:'card p-5' },
-                React.createElement('div', { className:'metric-label green', style:{marginBottom:12} }, 'Top 5 Wins'),
-                React.createElement('table', null,
-                    React.createElement('thead', null,
-                        React.createElement('tr', null,
-                            React.createElement('th', null, 'Market'), React.createElement('th', null, 'Entry'), React.createElement('th', null, 'P&L')
-                        )
-                    ),
-                    React.createElement('tbody', null,
-                        topWins.map((t,i) =>
-                            React.createElement('tr', { key:i },
-                                React.createElement('td', { style:{fontSize:11} }, t.market),
-                                React.createElement('td', { className:'mono', style:{fontSize:11} }, ((parseFloat(t.entry_price||0))*100).toFixed(0)+'¢'),
-                                React.createElement('td', { className:'mono green', style:{fontWeight:700} }, '+'+fmt(t.pnl_calc))
-                            )
-                        )
-                    )
-                )
-            ),
-            React.createElement('div', { className:'card p-5' },
-                React.createElement('div', { className:'metric-label red', style:{marginBottom:12} }, 'Top 5 Losses'),
-                React.createElement('table', null,
-                    React.createElement('thead', null,
-                        React.createElement('tr', null,
-                            React.createElement('th', null, 'Market'), React.createElement('th', null, 'Entry'), React.createElement('th', null, 'P&L')
-                        )
-                    ),
-                    React.createElement('tbody', null,
-                        topLosses.map((t,i) =>
-                            React.createElement('tr', { key:i },
-                                React.createElement('td', { style:{fontSize:11} }, t.market),
-                                React.createElement('td', { className:'mono', style:{fontSize:11} }, ((parseFloat(t.entry_price||0))*100).toFixed(0)+'¢'),
-                                React.createElement('td', { className:'mono red', style:{fontWeight:700} }, fmt(t.pnl_calc))
-                            )
-                        )
-                    )
-                )
-            )
-        )
-    );
-};
-
-// ── SPORTS PICKS TAB ──────────────────────────────────────────────────
-const SportsTab = () =>
-    React.createElement('div', { className:'card p-8', style:{textAlign:'center',color:'var(--muted)'} },
-        React.createElement('div', { style:{fontSize:32,marginBottom:12} }, '🏆'),
-        React.createElement('div', { style:{fontSize:14,fontWeight:600,marginBottom:8} }, 'Sports Picks'),
-        React.createElement('div', { style:{fontSize:12} }, 'Connect pick_performance_log.jsonl from Scalper workspace to populate.')
-    );
-
-// ── JOHN TAB ─────────────────────────────────────────────────────────
-const JohnTab = () =>
-    React.createElement('div', { className:'card p-8', style:{textAlign:'center',color:'var(--muted)'} },
-        React.createElement('div', { style:{fontSize:32,marginBottom:12} }, '◆'),
-        React.createElement('div', { style:{fontSize:14,fontWeight:600,marginBottom:8} }, "John's Web Biz"),
-        React.createElement('div', { style:{fontSize:12} }, 'Connect jobs.jsonl and leads.jsonl from John workspace to populate.')
-    );
-
-// ── COSTS TAB ─────────────────────────────────────────────────────────
-const CostsTab = ({ d }) => {
-    const apiSpend = d.openrouter_total_spend || 0;
-    const creditsLeft = d.openrouter_credits_remaining || 0;
-    const totalCredits = apiSpend + creditsLeft;
-    const pctUsed = apiSpend / Math.max(totalCredits, 1);
-
-    return React.createElement('div', null,
-        React.createElement(SectionTitle, null, 'API Cost Analysis'),
-        React.createElement('div', { style:{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12, marginBottom:24} },
-            React.createElement(KPICard, { label:'Total Spent', value:apiSpend, color:'var(--red)', border:'var(--red)' }),
-            React.createElement(KPICard, { label:'Credits Left', value:creditsLeft, color:creditsLeft<50?'var(--red)':'var(--green)', border:creditsLeft<50?'var(--red)':'var(--green)' }),
-            React.createElement(KPICard, { label:'% Credits Used', value:fmtPct(pctUsed), color:'var(--amber)', border:'var(--amber)', raw:true }),
-        ),
-        React.createElement('div', { className:'card p-5' },
-            React.createElement('div', { className:'metric-label', style:{marginBottom:12} }, 'Credit Usage'),
-            React.createElement('div', { style:{height:12, background:'#1a2035', borderRadius:6, overflow:'hidden'} },
-                React.createElement('div', { style:{height:'100%', width:fmtPct(pctUsed), background: pctUsed>0.9?'var(--red)':pctUsed>0.7?'var(--amber)':'var(--green)', borderRadius:6, transition:'width 0.5s'} })
-            ),
-            React.createElement('div', { style:{display:'flex', justifyContent:'space-between', marginTop:8, fontSize:11, color:'var(--muted)'} },
-                React.createElement('span', null, '$0'),
-                React.createElement('span', null, fmt(totalCredits) + ' total')
-            ),
-            creditsLeft < 50 && React.createElement('div', { style:{marginTop:12, padding:'10px 14px', background:'rgba(255,59,92,0.1)', border:'1px solid rgba(255,59,92,0.3)', borderRadius:8, fontSize:12, color:'var(--red)', fontWeight:600} },
-                '⚠ Only $' + creditsLeft.toFixed(2) + ' remaining on OpenRouter. Top up to keep agents running.'
-            )
-        )
-    );
-};
-
-// ── LEDGER TAB ────────────────────────────────────────────────────────
-const LedgerTab = () => {
-    const [trades, setTrades] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [page, setPage] = useState(0);
-    const PER_PAGE = 25;
-
-    useEffect(() => {
-        fetch('/api/kalshi-trades')
-            .then(r => r.json())
-            .then(data => { setTrades(data.trades || []); setLoading(false); })
-            .catch(() => setLoading(false));
-    }, []);
-
-    if (loading) return React.createElement(Spinner);
-
-    const settled = trades.filter(t => t.status === 'Settled');
-    const paginated = settled.slice(page*PER_PAGE, (page+1)*PER_PAGE);
-    const totalPages = Math.ceil(settled.length/PER_PAGE);
-
-    return React.createElement('div', null,
-        React.createElement('div', { style:{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12} },
-            React.createElement('div', { style:{fontSize:12, color:'var(--muted)'} }, `${fmtNum(settled.length)} settled trades`),
-            React.createElement('div', { style:{display:'flex', gap:8, alignItems:'center'} },
-                React.createElement('button', { onClick:()=>setPage(Math.max(0,page-1)), disabled:page===0, style:{padding:'4px 12px', background:'#080d1a', border:'1px solid #1a2035', borderRadius:6, color:page===0?'#4a5568':'var(--text)', cursor:page===0?'default':'pointer', fontSize:12} }, '←'),
-                React.createElement('span', { style:{fontSize:11, color:'var(--muted)'} }, `${page+1} / ${totalPages}`),
-                React.createElement('button', { onClick:()=>setPage(Math.min(totalPages-1,page+1)), disabled:page>=totalPages-1, style:{padding:'4px 12px', background:'#080d1a', border:'1px solid #1a2035', borderRadius:6, color:page>=totalPages-1?'#4a5568':'var(--text)', cursor:page>=totalPages-1?'default':'pointer', fontSize:12} }, '→')
-            )
-        ),
-        React.createElement('div', { className:'card', style:{overflowX:'auto'} },
-            React.createElement('table', null,
-                React.createElement('thead', null,
-                    React.createElement('tr', null,
-                        React.createElement('th', null, 'Date'),
-                        React.createElement('th', null, 'Market'),
-                        React.createElement('th', null, 'Contract'),
-                        React.createElement('th', null, 'Dir'),
-                        React.createElement('th', null, 'Entry'),
-                        React.createElement('th', null, 'Exit'),
-                        React.createElement('th', null, 'Qty'),
-                        React.createElement('th', null, 'Fees'),
-                        React.createElement('th', null, 'P&L'),
-                    )
-                ),
-                React.createElement('tbody', null,
-                    paginated.map((t,i) => {
-                        const pnl = (parseFloat(t.exit_price||0)-parseFloat(t.entry_price||0))*parseFloat(t.num_contracts||0)-parseFloat(t.fees||0);
-                        return React.createElement('tr', { key:i },
-                            React.createElement('td', { className:'mono', style:{fontSize:11,color:'var(--muted)'} }, (t.trade_date||'').slice(0,10)),
-                            React.createElement('td', null, React.createElement('span', { className:'badge badge-blue' }, t.market||'Other')),
-                            React.createElement('td', { style:{fontSize:11,maxWidth:200,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'} }, t.contract_id),
-                            React.createElement('td', null, React.createElement('span', { className:t.direction==='YES'?'badge badge-green':'badge badge-red' }, t.direction||'YES')),
-                            React.createElement('td', { className:'mono', style:{fontSize:11} }, ((parseFloat(t.entry_price||0))*100).toFixed(0)+'¢'),
-                            React.createElement('td', { className:'mono', style:{fontSize:11} }, ((parseFloat(t.exit_price||0))*100).toFixed(0)+'¢'),
-                            React.createElement('td', { className:'mono', style:{fontSize:11} }, fmtNum(t.num_contracts)),
-                            React.createElement('td', { className:'mono', style:{fontSize:11,color:'var(--muted)'} }, fmt(parseFloat(t.fees||0))),
-                            React.createElement('td', { className:'mono', style:{fontWeight:700,color:pnl>=0?'var(--green)':'var(--red)'} }, (pnl>=0?'+':'')+fmt(pnl))
-                        );
-                    })
-                )
-            )
-        )
-    );
-};
-
-// ── ROOT APP ──────────────────────────────────────────────────────────
-const App = () => {
-    const [tab, setTab] = useState('pnl');
-    const [data, setData] = useState(null);
-    const [error, setError] = useState(null);
-    const [lastUpdated, setLastUpdated] = useState(null);
-
-    const loadData = () => {
-        fetch('/api/dashboard')
-            .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
-            .then(d => { setData(d); setLastUpdated(new Date().toLocaleTimeString()); setError(null); })
-            .catch(e => setError(e.toString()));
-    };
-
-    useEffect(() => { loadData(); const iv = setInterval(loadData, 60000); return ()=>clearInterval(iv); }, []);
-
-    const tabContent = () => {
-        if (!data && tab !== 'sports' && tab !== 'john') return React.createElement(Spinner);
-        switch(tab) {
-            case 'pnl': return React.createElement(PnLTab, { d: data });
-            case 'kalshi': return React.createElement(KalshiTab, { d: data });
-            case 'sports': return React.createElement(SportsTab);
-            case 'john': return React.createElement(JohnTab);
-            case 'costs': return React.createElement(CostsTab, { d: data });
-            case 'ledger': return React.createElement(LedgerTab);
-            default: return null;
+  // ── Equity curve chart ──
+  if (d.cumulative_pnl?.length) {
+    const ctx = $('chartEquity').getContext('2d');
+    const grad = ctx.createLinearGradient(0,0,0,260);
+    const isPos = d.betting_net >= 0;
+    grad.addColorStop(0, isPos?'rgba(0,211,149,0.25)':'rgba(255,59,92,0.25)');
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    destroyChart('equity');
+    STATE.charts.equity = new Chart(ctx, {
+      type:'line',
+      data:{
+        labels: d.cumulative_pnl.map(p=>p.date),
+        datasets:[{data:d.cumulative_pnl.map(p=>p.pnl),borderColor:isPos?'#00d395':'#ff3b5c',borderWidth:2,fill:true,backgroundColor:grad,tension:0.3,pointRadius:0,pointHitRadius:8}]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false, animation:false,
+        scales:{
+          x:{ticks:{maxTicksLimit:8,font:{size:10}},grid:{display:false}},
+          y:{ticks:{callback:v=>'$'+v,font:{family:"'IBM Plex Mono'",size:10}},grid:{color:'rgba(136,150,171,0.05)'}}
+        },
+        plugins:{
+          annotation:{annotations:{zero:{type:'line',yMin:0,yMax:0,borderColor:'rgba(136,150,171,0.2)',borderDash:[4,4],borderWidth:1}}},
+          tooltip:{callbacks:{label:ctx=>fmt(ctx.parsed.y)}}
         }
-    };
+      }
+    });
+  }
 
-    return React.createElement('div', { style:{minHeight:'100vh'} },
+  // ── Daily P&L bars ──
+  if (d.daily_pnl?.length) {
+    const ctx2 = $('chartDaily').getContext('2d');
+    destroyChart('daily');
+    STATE.charts.daily = new Chart(ctx2, {
+      type:'bar',
+      data:{
+        labels: d.daily_pnl.map(p=>p.date),
+        datasets:[{
+          data: d.daily_pnl.map(p=>p.pnl),
+          backgroundColor: d.daily_pnl.map(p=>p.pnl>=0?'rgba(0,211,149,0.7)':'rgba(255,59,92,0.7)'),
+          borderRadius:3, borderSkipped:false
+        }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false, animation:false,
+        scales:{
+          x:{ticks:{maxTicksLimit:6,font:{size:9}},grid:{display:false}},
+          y:{ticks:{callback:v=>'$'+v,font:{family:"'IBM Plex Mono'",size:10}},grid:{color:'rgba(136,150,171,0.05)'}}
+        },
+        plugins:{tooltip:{callbacks:{label:ctx=>fmt(ctx.parsed.y)}}}
+      }
+    });
+  }
+}
 
-        // ── HEADER
-        React.createElement('div', { style:{background:'rgba(4,6,15,0.95)', backdropFilter:'blur(16px)', borderBottom:'1px solid var(--border)', position:'sticky', top:0, zIndex:50} },
-            React.createElement('div', { style:{maxWidth:1400, margin:'0 auto', padding:'0 24px'} },
-                React.createElement('div', { style:{display:'flex', justifyContent:'space-between', alignItems:'center', paddingTop:14, paddingBottom:0} },
-                    React.createElement('div', { style:{display:'flex', alignItems:'center', gap:12} },
-                        React.createElement('div', { style:{width:36,height:36,borderRadius:10,background:'linear-gradient(135deg,#4f8ef7,#9b59ff)',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:900,fontSize:14,color:'white',fontFamily:'JetBrains Mono'} }, 'NS'),
-                        React.createElement('div', null,
-                            React.createElement('div', { style:{fontWeight:800,fontSize:16,letterSpacing:'-0.02em'} }, 'NorthStar Synergy'),
-                            React.createElement('div', { style:{fontSize:9,color:'var(--muted)',textTransform:'uppercase',letterSpacing:'0.1em',fontWeight:600} }, 'Intelligence · Operations · Profit')
-                        )
-                    ),
-                    React.createElement('div', { style:{display:'flex', alignItems:'center', gap:16} },
-                        error && React.createElement('span', { style:{fontSize:11,color:'var(--red)'} }, '⚠ API Error'),
-                        lastUpdated && React.createElement('span', { style:{fontSize:10,color:'var(--muted)'} }, 'Updated ' + lastUpdated),
-                        React.createElement('div', { style:{display:'flex',alignItems:'center',gap:6} },
-                            React.createElement('div', { className:'pulse', style:{width:7,height:7,borderRadius:'50%',background:'var(--green)'} }),
-                            React.createElement('span', { style:{fontSize:10,fontWeight:700,color:'var(--green)'} }, 'LIVE')
-                        )
-                    )
-                ),
 
-                // Tab bar
-                React.createElement('div', { style:{display:'flex', gap:2, marginTop:4} },
-                    TABS.map(t =>
-                        React.createElement('button', {
-                            key: t.id,
-                            onClick: () => setTab(t.id),
-                            className: tab===t.id ? 'tab-active' : 'tab-inactive',
-                            style:{
-                                padding:'10px 16px',
-                                fontSize:12,
-                                fontWeight:600,
-                                background:'none',
-                                border:'none',
-                                borderBottom: tab===t.id ? '2px solid var(--blue)' : '2px solid transparent',
-                                color: tab===t.id ? 'var(--blue)' : 'var(--muted)',
-                                cursor:'pointer',
-                                transition:'all 0.15s',
-                                whiteSpace:'nowrap'
-                            }
-                        }, t.label)
-                    )
-                )
-            )
-        ),
+// ══════════════════════════════════════════════════════════════
+// TAB: KALSHI ANALYTICS
+// ══════════════════════════════════════════════════════════════
+function renderKalshi(d) {
+  const bm = d.by_market || {};
+  const bd = d.by_direction || {};
+  const cal = d.calibration || [];
+  const tw = d.top_wins || [];
+  const tl = d.top_losses || [];
 
-        // ── CONTENT
-        React.createElement('div', { style:{maxWidth:1400, margin:'0 auto', padding:'24px'} },
-            tabContent()
-        )
-    );
-};
+  // Sort markets by P&L
+  const marketsSorted = Object.entries(bm).sort((a,b)=>b[1].pnl-a[1].pnl);
 
-ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+  let html = `
+  <!-- Top metrics row -->
+  <div class="grid g6" style="margin-bottom:12px">
+    ${kpi('Total P&L', d.betting_net, {color:clr(d.betting_net), border:clr(d.betting_net)})}
+    ${kpi('Win Rate', fmtPct(d.win_rate), {color:'var(--blue)', border:'var(--blue)', raw:true, sub:(d.unique_contracts||0)+'W / '+(Math.round((d.unique_contracts||0)*(1-(d.win_rate||0))))+'L by contract'})}
+    ${kpi('Sharpe', (d.sharpe_ratio||0).toFixed(2), {color:d.sharpe_ratio>=1?'var(--green)':'var(--amber)', border:'var(--blue)', raw:true, sub:d.sharpe_ratio>=1?'Strong':'Needs work'})}
+    ${kpi('Max Drawdown', d.max_drawdown, {color:'var(--red)', border:'var(--red)', sub:'Peak-to-trough loss'})}
+    ${kpi('Kelly %', fmtPct(d.kelly_pct), {color:d.kelly_pct>0?'var(--green)':'var(--red)', border:d.kelly_pct>0?'var(--green)':'var(--red)', raw:true, sub:d.kelly_pct>0?'Edge present':'Negative edge'})}
+    ${kpi('Avg Win / Loss', '', {border:'var(--purple)', raw:true, sub:`<span class="green">${fmt(d.avg_win)}</span> / <span class="red">${fmt(d.avg_loss)}</span>`})}
+  </div>
+
+  <!-- Equity + Calibration row -->
+  <div class="grid g2" style="margin-bottom:12px">
+    <div class="card card-p">
+      <div class="card-header">Cumulative P&L — Equity Curve (Last 200 Trades)</div>
+      <div class="chart-wrap" style="height:220px"><canvas id="chartEquityK"></canvas></div>
+    </div>
+    <div class="card card-p">
+      <div class="card-header">Calibration — Entry Price vs Actual Win Rate</div>
+      <div style="font:500 10px/1.3 var(--font);color:var(--muted);margin-bottom:10px">Bars above the diagonal = underconfident pricing (good). Below = overpaying.</div>
+      <div class="chart-wrap" style="height:190px"><canvas id="chartCalibration"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Market category + Direction -->
+  <div class="grid g2" style="margin-bottom:12px">
+    <div class="card card-p">
+      <div class="card-header">P&L by Market Category</div>
+      <div class="chart-wrap" style="height:${Math.max(180, marketsSorted.length*32)}px"><canvas id="chartCategory"></canvas></div>
+    </div>
+    <div class="card card-p">
+      <div class="card-header">YES vs NO Performance</div>
+      <table>
+        <thead><tr><th>Direction</th><th>Trades</th><th>Win Rate</th><th>Net P&L</th></tr></thead>
+        <tbody>
+          ${Object.entries(bd).map(([dir,s])=>`<tr>
+            <td><span class="badge ${dir==='YES'?'badge-green':'badge-red'}">${dir}</span></td>
+            <td class="mono">${fmtNum(s.count)}</td>
+            <td style="color:${s.wins/Math.max(s.count,1)>0.5?'var(--green)':'var(--red)'}">
+              ${fmtPct(s.wins/Math.max(s.count,1))}
+            </td>
+            <td class="mono fw7" style="color:${clr(s.pnl)}">${fmt(s.pnl)}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+
+      <div class="card-header" style="margin-top:20px">Open Positions (${d.open_positions})</div>
+      <div style="max-height:160px;overflow-y:auto;font-size:11px;color:var(--muted)">
+        ${d.open_positions>0?'View in Ledger tab for full details.':'No open positions.'}
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Wins & Losses -->
+  <div class="grid g2">
+    <div class="card card-p">
+      <div class="card-header green">🏆 Top 5 Wins</div>
+      <table>
+        <thead><tr><th>Market</th><th>Entry</th><th>P&L</th></tr></thead>
+        <tbody>${tw.map(t=>`<tr>
+          <td style="font-size:11px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.market||'—'}</td>
+          <td class="mono" style="font-size:11px">${t.entry?((t.entry*100).toFixed(0)+'¢'):'—'}</td>
+          <td class="mono fw7 green">+${fmt(t.pnl)}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>
+    <div class="card card-p">
+      <div class="card-header red">💀 Top 5 Losses</div>
+      <table>
+        <thead><tr><th>Market</th><th>Entry</th><th>P&L</th></tr></thead>
+        <tbody>${tl.map(t=>`<tr>
+          <td style="font-size:11px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.market||'—'}</td>
+          <td class="mono" style="font-size:11px">${t.entry?((t.entry*100).toFixed(0)+'¢'):'—'}</td>
+          <td class="mono fw7 red">${fmt(t.pnl)}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>
+  </div>`;
+
+  app.innerHTML = html;
+
+  // ── Equity Curve (Kalshi tab) ──
+  if (d.cumulative_pnl?.length) {
+    const ctx = $('chartEquityK').getContext('2d');
+    const grad = ctx.createLinearGradient(0,0,0,220);
+    const pos = d.betting_net>=0;
+    grad.addColorStop(0, pos?'rgba(0,211,149,0.2)':'rgba(255,59,92,0.2)');
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    destroyChart('equityK');
+    STATE.charts.equityK = new Chart(ctx, {
+      type:'line',
+      data:{
+        labels:d.cumulative_pnl.map(p=>p.date),
+        datasets:[{data:d.cumulative_pnl.map(p=>p.pnl),borderColor:pos?'#00d395':'#ff3b5c',borderWidth:2,fill:true,backgroundColor:grad,tension:0.3,pointRadius:0}]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,animation:false,
+        scales:{
+          x:{ticks:{maxTicksLimit:6,font:{size:9}},grid:{display:false}},
+          y:{ticks:{callback:v=>'$'+v,font:{family:"'IBM Plex Mono'",size:10}},grid:{color:'rgba(136,150,171,0.05)'}}
+        },
+        plugins:{
+          annotation:{annotations:{zero:{type:'line',yMin:0,yMax:0,borderColor:'rgba(136,150,171,0.15)',borderDash:[4,4],borderWidth:1}}},
+          tooltip:{callbacks:{label:c=>fmt(c.parsed.y)}}
+        }
+      }
+    });
+  }
+
+  // ── Calibration bar chart ──
+  if (cal.length) {
+    const ctx2 = $('chartCalibration').getContext('2d');
+    destroyChart('calibration');
+    STATE.charts.calibration = new Chart(ctx2, {
+      type:'bar',
+      data:{
+        labels: cal.map(c=>c.range+'¢'),
+        datasets:[{
+          data: cal.map(c=>c.actual_win_rate),
+          backgroundColor: cal.map(c=>c.actual_win_rate>0.5?'rgba(0,211,149,0.7)':'rgba(255,59,92,0.7)'),
+          borderRadius:4,borderSkipped:false
+        }]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,animation:false,
+        indexAxis:'x',
+        scales:{
+          x:{ticks:{font:{size:10}},grid:{display:false}},
+          y:{min:0,max:1,ticks:{callback:v=>(v*100)+'%',stepSize:0.25,font:{family:"'IBM Plex Mono'",size:10}},grid:{color:'rgba(136,150,171,0.05)'}}
+        },
+        plugins:{
+          annotation:{annotations:{perfect:{type:'line',yMin:0,yMax:1,xMin:-0.5,xMax:cal.length-0.5,borderColor:'rgba(255,255,255,0.15)',borderDash:[5,5],borderWidth:1}}},
+          tooltip:{callbacks:{label:c=>fmtPct(c.parsed.y)+' ('+cal[c.dataIndex].count+' trades)'}}
+        }
+      }
+    });
+  }
+
+  // ── Category horizontal bar ──
+  if (marketsSorted.length) {
+    const ctx3 = $('chartCategory').getContext('2d');
+    destroyChart('category');
+    STATE.charts.category = new Chart(ctx3, {
+      type:'bar',
+      data:{
+        labels: marketsSorted.map(([m])=>m.length>25?m.slice(0,22)+'...':m),
+        datasets:[{
+          data: marketsSorted.map(([,s])=>s.pnl),
+          backgroundColor: marketsSorted.map(([,s])=>s.pnl>=0?'rgba(0,211,149,0.65)':'rgba(255,59,92,0.65)'),
+          borderRadius:3,borderSkipped:false
+        }]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,animation:false,
+        indexAxis:'y',
+        scales:{
+          y:{ticks:{font:{size:10},autoSkip:false},grid:{display:false}},
+          x:{ticks:{callback:v=>'$'+v,font:{family:"'IBM Plex Mono'",size:10}},grid:{color:'rgba(136,150,171,0.05)'}}
+        },
+        plugins:{
+          annotation:{annotations:{zero:{type:'line',xMin:0,xMax:0,borderColor:'rgba(136,150,171,0.2)',borderWidth:1}}},
+          tooltip:{callbacks:{label:c=>{const m=marketsSorted[c.dataIndex];return fmt(m[1].pnl)+' · '+m[1].count+' trades · '+fmtPct(m[1].wins/Math.max(m[1].count,1))+' win';}}}
+        }
+      }
+    });
+  }
+}
+
+
+// ══════════════════════════════════════════════════════════════
+// TAB: SPORTS PICKS
+// ══════════════════════════════════════════════════════════════
+function renderSports() {
+  app.innerHTML = `<div class="card card-p empty">
+    <div class="empty-icon">🏆</div>
+    <div class="empty-title">Sports Picks Analytics</div>
+    <div class="empty-desc">Connect <code>pick_performance_log.jsonl</code> from Scalper's workspace to populate CLV tracking, sport-by-sport ROI, parlay analysis, and unit tracking.</div>
+    <div class="section-title" style="margin-top:24px">Metrics Available Once Connected</div>
+    <div class="grid g3" style="gap:10px;max-width:600px;margin:12px auto 0">
+      ${['CLV Distribution','ROI by Sport','Unit P&L Curve','Win Rate by Bet Type','Streak Analysis','Variance Tracking'].map(m=>
+        `<div class="card card-p" style="text-align:center;font:500 11px/1.3 var(--font);color:var(--text2);padding:12px">${m}</div>`
+      ).join('')}
+    </div>
+  </div>`;
+}
+
+
+// ══════════════════════════════════════════════════════════════
+// TAB: JOHN'S BIZ
+// ══════════════════════════════════════════════════════════════
+function renderJohn() {
+  app.innerHTML = `<div class="card card-p empty">
+    <div class="empty-icon">◆</div>
+    <div class="empty-title">John's Web Development Business</div>
+    <div class="empty-desc">Connect <code>jobs.jsonl</code> and <code>leads.jsonl</code> from John's workspace to populate revenue tracking, pipeline status, MRR, and client metrics.</div>
+    <div class="section-title" style="margin-top:24px">Metrics Available Once Connected</div>
+    <div class="grid g3" style="gap:10px;max-width:600px;margin:12px auto 0">
+      ${['Pipeline Revenue','Active Jobs','MRR Tracking','Client Conversion Rate','Revenue by Service','Lead Source Analysis'].map(m=>
+        `<div class="card card-p" style="text-align:center;font:500 11px/1.3 var(--font);color:var(--text2);padding:12px">${m}</div>`
+      ).join('')}
+    </div>
+  </div>`;
+}
+
+
+// ══════════════════════════════════════════════════════════════
+// TAB: COST DRILL-DOWN
+// ══════════════════════════════════════════════════════════════
+function renderCosts(d) {
+  const spend = d.openrouter_total_spend||0;
+  const left = d.openrouter_credits_remaining||0;
+  const total = spend+left;
+  const pctUsed = spend/Math.max(total,1);
+  const net = d.betting_net - spend;
+  const roi = spend>0 ? (d.betting_net/spend)*100 : 0;
+
+  app.innerHTML = `
+  <div class="section-title">API Cost Analysis</div>
+  <div class="grid g4" style="margin-bottom:12px">
+    ${kpi('Total API Spend', spend, {color:'var(--amber)', border:'var(--amber)'})}
+    ${kpi('Credits Remaining', left, {color:left<50?'var(--red)':'var(--green)', border:left<50?'var(--red)':'var(--green)', sub:left<50?'⚠ Top up soon':'Healthy'})}
+    ${kpi('% Credits Used', fmtPct(pctUsed), {color:'var(--amber)', border:'var(--amber)', raw:true})}
+    ${kpi('Revenue / API Cost', roi.toFixed(1)+'%', {color:roi>100?'var(--green)':'var(--red)', border:roi>100?'var(--green)':'var(--red)', raw:true, sub:roi>100?'Profitable':'Spending > earning'})}
+  </div>
+
+  <div class="card card-p" style="margin-bottom:12px">
+    <div class="card-header">Credit Usage Progress</div>
+    <div style="height:14px;background:#1a2240;border-radius:7px;overflow:hidden;margin-bottom:8px">
+      <div style="height:100%;width:${(pctUsed*100).toFixed(1)}%;background:${pctUsed>0.9?'var(--red)':pctUsed>0.7?'var(--amber)':'var(--green)'};border-radius:7px;transition:width .5s"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font:500 10px/1 var(--font);color:var(--muted)">
+      <span>$0</span><span>${fmt(total)} total credits</span>
+    </div>
+    ${left<50?`<div style="margin-top:14px;padding:12px 16px;background:var(--red-dim);border:1px solid rgba(255,59,92,0.3);border-radius:8px;font:600 12px/1.4 var(--font);color:var(--red)">⚠ Only ${fmt(left)} remaining on OpenRouter. Top up to keep all 3 agents running.</div>`:''}
+  </div>
+
+  <div class="card card-p">
+    <div class="card-header">Cost Efficiency Summary</div>
+    <table>
+      <thead><tr><th>Metric</th><th>Value</th><th>Assessment</th></tr></thead>
+      <tbody>
+        <tr><td>Betting Revenue</td><td class="mono fw7 green">${fmt(d.betting_wins)}</td><td><span class="badge badge-green">Revenue</span></td></tr>
+        <tr><td>Betting Losses</td><td class="mono fw7 red">${fmt(d.betting_losses)}</td><td><span class="badge badge-red">Cost of trading</span></td></tr>
+        <tr><td>API Spend (OpenRouter)</td><td class="mono fw7 amber">${fmt(spend)}</td><td><span class="badge badge-amber">Infrastructure</span></td></tr>
+        <tr><td>Net After All Costs</td><td class="mono fw7" style="color:${clr(net)}">${fmt(net)}</td><td><span class="badge ${net>=0?'badge-green':'badge-red'}">${net>=0?'Profitable':'Unprofitable'}</span></td></tr>
+        <tr><td>Cost per Trade</td><td class="mono">${fmt(spend/Math.max(d.total_trades,1))}</td><td><span class="badge badge-blue">Efficiency</span></td></tr>
+      </tbody>
+    </table>
+  </div>`;
+}
+
+
+// ══════════════════════════════════════════════════════════════
+// TAB: LEDGER
+// ══════════════════════════════════════════════════════════════
+let ledgerPage = 0;
+const PER_PAGE = 30;
+
+function renderLedger() {
+  if (!STATE.trades) {
+    app.innerHTML = '<div class="loading">Loading trades...</div>';
+    return;
+  }
+  const trades = STATE.trades;
+  const total = trades.length;
+  const pages = Math.ceil(total/PER_PAGE);
+  ledgerPage = Math.min(ledgerPage, Math.max(pages-1, 0));
+  const slice = trades.slice(ledgerPage*PER_PAGE, (ledgerPage+1)*PER_PAGE);
+
+  app.innerHTML = `
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div style="font:500 12px/1 var(--font);color:var(--muted)">${fmtNum(total)} total trades</div>
+    <div class="pagination">
+      <button class="page-btn" id="prevPage" ${ledgerPage===0?'disabled':''}>← Prev</button>
+      <span class="page-info">${ledgerPage+1} / ${pages}</span>
+      <button class="page-btn" id="nextPage" ${ledgerPage>=pages-1?'disabled':''}>Next →</button>
+    </div>
+  </div>
+  <div class="card" style="overflow-x:auto">
+    <table>
+      <thead><tr>
+        <th>Date</th><th>Market</th><th>Contract</th><th>Dir</th><th>Entry</th><th>Exit</th><th>Qty</th><th>Fees</th><th>Status</th><th>P&L</th>
+      </tr></thead>
+      <tbody>
+      ${slice.map(t=>{
+        const e=parseFloat(t.entry_price||0), x=parseFloat(t.exit_price||0), q=parseFloat(t.num_contracts||0), f=parseFloat(t.fees||0);
+        const pnl = t.status==='Settled'?(x-e)*q-f:null;
+        return `<tr>
+          <td class="mono" style="font-size:11px;color:var(--muted)">${(t.trade_date||'').slice(0,10)}</td>
+          <td><span class="badge badge-blue" style="font-size:9px">${(t.market||'Other').slice(0,20)}</span></td>
+          <td style="font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.contract_id||''}">${t.contract_id||'—'}</td>
+          <td><span class="badge ${t.direction==='YES'?'badge-green':'badge-red'}">${t.direction||'YES'}</span></td>
+          <td class="mono" style="font-size:11px">${e?(e*100).toFixed(0)+'¢':'—'}</td>
+          <td class="mono" style="font-size:11px">${x?(x*100).toFixed(0)+'¢':'—'}</td>
+          <td class="mono" style="font-size:11px">${fmtNum(q)}</td>
+          <td class="mono" style="font-size:11px;color:var(--muted)">${fmt(f)}</td>
+          <td><span class="badge ${t.status==='Settled'?'badge-purple':'badge-amber'}">${t.status||'—'}</span></td>
+          <td class="mono fw7" style="color:${pnl!==null?clr(pnl):'var(--muted)'}">${pnl!==null?((pnl>=0?'+':'')+fmt(pnl)):'—'}</td>
+        </tr>`;
+      }).join('')}
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination" style="margin-top:12px">
+    <button class="page-btn" id="prevPage2" ${ledgerPage===0?'disabled':''}>← Prev</button>
+    <span class="page-info">${ledgerPage+1} / ${pages}</span>
+    <button class="page-btn" id="nextPage2" ${ledgerPage>=pages-1?'disabled':''}>Next →</button>
+  </div>`;
+
+  // Wire pagination
+  const wire = (id, delta) => {
+    const el = $(id);
+    if(el) el.onclick = () => { ledgerPage += delta; renderLedger(); };
+  };
+  wire('prevPage', -1); wire('nextPage', 1);
+  wire('prevPage2', -1); wire('nextPage2', 1);
+}
+
+
+// ══════════════════════════════════════════════════════════════
+// ROUTER
+// ══════════════════════════════════════════════════════════════
+function renderContent() {
+  destroyAllCharts();
+  const d = STATE.data;
+  if (!d && STATE.tab !== 'sports' && STATE.tab !== 'john') {
+    app.innerHTML = '<div class="loading">⚡ Loading Command Center...</div>';
+    return;
+  }
+  switch(STATE.tab) {
+    case 'pnl':    renderPnL(d); break;
+    case 'kalshi': renderKalshi(d); break;
+    case 'sports': renderSports(); break;
+    case 'john':   renderJohn(); break;
+    case 'costs':  renderCosts(d); break;
+    case 'ledger': renderLedger(); break;
+  }
+}
+
+
+// ══════════════════════════════════════════════════════════════
+// DATA FETCHING
+// ══════════════════════════════════════════════════════════════
+async function fetchDashboard() {
+  try {
+    const r = await fetch('/api/dashboard');
+    if (!r.ok) throw new Error('API '+r.status);
+    STATE.data = await r.json();
+    $('lastUpdate').textContent = 'Updated ' + new Date().toLocaleTimeString();
+    renderContent();
+  } catch(e) {
+    if (!STATE.data) {
+      app.innerHTML = `<div class="error">⚠ Dashboard Error: ${e.message}<br><button class="retry-btn" onclick="fetchDashboard()">Retry</button></div>`;
+    }
+  }
+}
+
+async function fetchTrades() {
+  try {
+    const r = await fetch('/api/kalshi-trades');
+    if (!r.ok) return;
+    const data = await r.json();
+    STATE.trades = data.trades || [];
+    if (STATE.tab === 'ledger') renderLedger();
+  } catch(e) { /* silent */ }
+}
+
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+renderTabs();
+fetchDashboard();
+fetchTrades();
+
+// Auto-refresh every 60 seconds
+setInterval(fetchDashboard, 60000);
+setInterval(fetchTrades, 120000);
 </script>
 </body>
 </html>
