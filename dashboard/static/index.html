@@ -553,6 +553,7 @@ function renderKalshi(d) {
 // ══════════════════════════════════════════════════════════════
 function renderSports() {
     const container = document.getElementById('tab-content');
+    if (!container) return;
     container.innerHTML = '<div style="text-align:center;padding:40px;color:#4a5568;">Loading sports picks...</div>';
 
     fetch('/api/sports-picks')
