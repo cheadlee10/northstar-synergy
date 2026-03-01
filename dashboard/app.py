@@ -88,15 +88,16 @@ def startup():
 @app.get("/api/dashboard")
 def get_dashboard():
     """Return full P&L dashboard data."""
-    with get_db() as conn:
-        # Get Kalshi trades
-        cursor = conn.execute("SELECT * FROM kalshi_trades ORDER BY trade_date DESC")
-        columns = [desc[0] for desc in cursor.description]
-        rows = cursor.fetchall()
-        trades = [dict(zip(columns, row)) for row in rows]
-        
-        # Calculate P&L metrics
-        wins = 0
+    try:
+        with get_db() as conn:
+            # Get Kalshi trades
+            cursor = conn.execute("SELECT * FROM kalshi_trades ORDER BY trade_date DESC")
+            columns = [desc[0] for desc in cursor.description]
+            rows = cursor.fetchall()
+            trades = [dict(zip(columns, row)) for row in rows]
+            
+            # Calculate P&L metrics
+            wins = 0
         losses = 0
         betting_net = 0.0
         total_trades = 0
@@ -218,6 +219,10 @@ def get_dashboard():
             "top_losses": [],
             "unique_contracts": settled_trades
         }
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JSONResponse(status_code=500, content={"error": str(e), "trace": traceback.format_exc()})
 
 @app.get("/api/sports-picks")
 def get_sports_picks():
