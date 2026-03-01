@@ -301,6 +301,27 @@ def get_sports_picks():
         }
 
 
+# — API: John's Business
+@app.get("/api/john/jobs")
+def get_john_jobs():
+    """Return John's job data."""
+    with get_db() as conn:
+        rows = conn.execute(
+            "SELECT * FROM john_jobs ORDER BY job_date DESC"
+        ).fetchall()
+    return {"jobs": [dict(r) for r in rows], "count": len(rows)}
+
+
+@app.get("/api/john/leads")
+def get_john_leads():
+    """Return John's lead data."""
+    with get_db() as conn:
+        rows = conn.execute(
+            "SELECT * FROM john_leads ORDER BY lead_date DESC"
+        ).fetchall()
+    return {"leads": [dict(r) for r in rows], "count": len(rows)}
+
+
 @app.get("/api/kalshi-trades")
 def get_kalshi_trades():
     """Return all kalshi trades for the ledger and analytics."""

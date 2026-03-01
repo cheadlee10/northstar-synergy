@@ -625,17 +625,87 @@ function renderSports() {
                 });
         }
 function renderJohn() {
-  app.innerHTML = `<div class="card card-p empty">
-    <div class="empty-icon">â—†</div>
-    <div class="empty-title">John's Web Development Business</div>
-    <div class="empty-desc">Connect <code>jobs.jsonl</code> and <code>leads.jsonl</code> from John's workspace to populate revenue tracking, pipeline status, MRR, and client metrics.</div>
-    <div class="section-title" style="margin-top:24px">Metrics Available Once Connected</div>
-    <div class="grid g3" style="gap:10px;max-width:600px;margin:12px auto 0">
-      ${['Pipeline Revenue','Active Jobs','MRR Tracking','Client Conversion Rate','Revenue by Service','Lead Source Analysis'].map(m=>
-        `<div class="card card-p" style="text-align:center;font:500 11px/1.3 var(--font);color:var(--text2);padding:12px">${m}</div>`
-      ).join('')}
-    </div>
-  </div>`;
+  const container = app;
+  if (!container) { console.error('Container not found: tab-content'); return; }
+  container.innerHTML = '<div style="text-align:center;padding:40px;color:#4a5568;">Loading John\'s business data...</div>';
+  
+  // Fetch both jobs and leads
+  Promise.all([
+    fetch('/api/john/jobs').then(r => r.json()).catch(() => ({jobs: []})),
+    fetch('/api/john/leads').then(r => r.json()).catch(() => ({leads: []}))
+  ]).then(([jobsData, leadsData]) => {
+    const jobs = jobsData.jobs || [];
+    const leads = leadsData.leads || [];
+    
+    // Calculate metrics
+    const totalRevenue = jobs.reduce((sum, j) => sum + (j.invoice_amount || 0), 0);
+    const paidRevenue = jobs.filter(j => j.paid).reduce((sum, j) => sum + (j.invoice_amount || 0), 0);
+    const activeJobs = jobs.filter(j => j.status === 'in_progress').length;
+    const completedJobs = jobs.filter(j => j.status === 'completed').length;
+    const quotedJobs = jobs.filter(j => j.status === 'quoted').length;
+    const conversionRate = leads.length > 0 ? (jobs.length / leads.length * 100).toFixed(1) : 0;
+    
+    // Group by status for display
+    const statusCounts = {};
+    jobs.forEach(j => {
+      statusCounts[j.status] = (statusCounts[j.status] || 0) + 1;
+    });
+    
+    let h = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;">';
+    h += '<div style="background:#0d1321;border:1px solid #1a2035;border-radius:8px;padding:16px;border-top:3px solid #00d395;"><div style="font-size:10px;text-transform:uppercase;color:#4a5568;margin-bottom:6px;">Total Revenue</div><div style="font-size:22px;font-weight:700;color:#00d395;">$' + totalRevenue.toFixed(2) + '</div></div>';
+    h += '<div style="background:#0d1321;border:1px solid #1a2035;border-radius:8px;padding:16px;border-top:3px solid #4f8ef7;"><div style="font-size:10px;text-transform:uppercase;color:#4a5568;margin-bottom:6px;">Paid Revenue</div><div style="font-size:22px;font-weight:700;color:#4f8ef7;">$' + paidRevenue.toFixed(2) + '</div></div>';
+    h += '<div style="background:#0d1321;border:1px solid #1a2035;border-radius:8px;padding:16px;border-top:3px solid #f59e0b;"><div style="font-size:10px;text-transform:uppercase;color:#4a5568;margin-bottom:6px;">Active Jobs</div><div style="font-size:22px;font-weight:700;color:#f59e0b;">' + activeJobs + '</div></div>';
+    h += '<div style="background:#0d1321;border:1px solid #1a2035;border-radius:8px;padding:16px;border-top:3px solid #a78bfa;"><div style="font-size:10px;text-transform:uppercase;color:#4a5568;margin-bottom:6px;">Leads</div><div style="font-size:22px;font-weight:700;color:#a78bfa;">' + leads.length + '</div></div>';
+    h += '</div>';
+    
+    // Status breakdown
+    h += '<div style="background:#0d1321;border:1px solid #1a2035;border-radius:8px;padding:16px;margin-bottom:16px;">';
+    h += '<div style="font-size:10px;text-transform:uppercase;color:#4a5568;margin-bottom:12px;">Job Status Breakdown</div>';
+    h += '<div style="display:flex;gap:16px;">';
+    h += '<div style="flex:1;text-align:center;padding:12px;background:#0a0f1a;border-radius:6px;"><div style="font-size:20px;font-weight:700;color:#00d395;">' + (statusCounts.completed || 0) + '</div><div style="font-size:10px;color:#4a5568;">Completed</div></div>';
+    h += '<div style="flex:1;text-align:center;padding:12px;background:#0a0f1a;border-radius:6px;"><div style="font-size:20px;font-weight:700;color:#f59e0b;">' + (statusCounts.in_progress || 0) + '</div><div style="font-size:10px;color:#4a5568;">In Progress</div></div>';
+    h += '<div style="flex:1;text-align:center;padding:12px;background:#0a0f1a;border-radius:6px;"><div style="font-size:20px;font-weight:700;color:#4f8ef7;">' + (statusCounts.quoted || 0) + '</div><div style="font-size:10px;color:#4a5568;">Quoted</div></div>';
+    h += '<div style="flex:1;text-align:center;padding:12px;background:#0a0f1a;border-radius:6px;"><div style="font-size:20px;font-weight:700;color:#a78bfa;">' + conversionRate + '%</div><div style="font-size:10px;color:#4a5568;">Conversion</div></div>';
+    h += '</div></div>';
+    
+    // Jobs table
+    if (jobs.length > 0) {
+      h += '<div style="font-size:10px;text-transform:uppercase;color:#4a5568;margin:20px 0 10px;">All Jobs (' + jobs.length + ')</div>';
+      h += '<div style="background:#0d1321;border:1px solid #1a2035;border-radius:8px;overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="border-bottom:1px solid #1a2035;"><th style="text-align:left;padding:8px;color:#4a5568;">Date</th><th style="text-align:left;padding:8px;color:#4a5568;">Client</th><th style="text-align:left;padding:8px;color:#4a5568;">Description</th><th style="padding:8px;color:#4a5568;">Status</th><th style="padding:8px;color:#4a5568;">Paid</th><th style="text-align:right;padding:8px;color:#4a5568;">Amount</th></tr></thead><tbody>';
+      for (const j of jobs.slice(0, 50)) {
+        const statusColor = j.status === 'completed' ? '#00d395' : j.status === 'in_progress' ? '#f59e0b' : '#4f8ef7';
+        h += '<tr style="border-bottom:1px solid #0a0f1a;">';
+        h += '<td style="padding:8px;font-family:monospace;font-size:11px;color:#4a5568;">' + (j.job_date || '').slice(0, 10) + '</td>';
+        h += '<td style="padding:8px;font-size:12px;font-weight:600;color:#e8eaf0;">' + j.client_name + '</td>';
+        h += '<td style="padding:8px;font-size:11px;color:#4a5568;">' + (j.job_description || '').slice(0, 40) + '</td>';
+        h += '<td style="padding:8px;text-align:center;"><span style="background:' + statusColor + ';color:#000;padding:2px 8px;border-radius:4px;font-size:11px;text-transform:uppercase;">' + j.status + '</span></td>';
+        h += '<td style="padding:8px;text-align:center;">' + (j.paid ? 'âœ“' : 'â—‹') + '</td>';
+        h += '<td style="padding:8px;text-align:right;font-family:monospace;font-weight:700;color:' + (j.paid ? '#00d395' : '#e8eaf0') + ';">$' + (j.invoice_amount || 0).toFixed(2) + '</td>';
+        h += '</tr>';
+      }
+      h += '</tbody></table></div>';
+    }
+    
+    // Leads section
+    if (leads.length > 0) {
+      h += '<div style="font-size:10px;text-transform:uppercase;color:#4a5568;margin:20px 0 10px;">Recent Leads (' + leads.length + ' total)</div>';
+      h += '<div style="background:#0d1321;border:1px solid #1a2035;border-radius:8px;overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="border-bottom:1px solid #1a2035;"><th style="text-align:left;padding:8px;color:#4a5568;">Date</th><th style="text-align:left;padding:8px;color:#4a5568;">Client</th><th style="text-align:left;padding:8px;color:#4a5568;">Service</th><th style="text-align:left;padding:8px;color:#4a5568;">Status</th><th style="text-align:right;padding:8px;color:#4a5568;">Est. Value</th></tr></thead><tbody>';
+      for (const l of leads.slice(0, 20)) {
+        h += '<tr style="border-bottom:1px solid #0a0f1a;">';
+        h += '<td style="padding:8px;font-family:monospace;font-size:11px;color:#4a5568;">' + (l.lead_date || '').slice(0, 10) + '</td>';
+        h += '<td style="padding:8px;font-size:12px;color:#e8eaf0;">' + l.client_name + '</td>';
+        h += '<td style="padding:8px;font-size:11px;color:#4a5568;">' + (l.service || '-') + '</td>';
+        h += '<td style="padding:8px;"><span style="background:#1a2240;color:#4f8ef7;padding:2px 8px;border-radius:4px;font-size:11px;">' + (l.status || 'new') + '</span></td>';
+        h += '<td style="padding:8px;text-align:right;font-family:monospace;">$' + (l.estimated_value || 0).toFixed(2) + '</td>';
+        h += '</tr>';
+      }
+      h += '</tbody></table></div>';
+    }
+    
+    container.innerHTML = h;
+  }).catch(err => {
+    container.innerHTML = '<div style="padding:32px;text-align:center;color:#ff3b5c;">Error loading data: ' + err + '</div>';
+  });
 }
 
 
