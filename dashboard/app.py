@@ -88,44 +88,52 @@ def startup():
 @app.get("/api/dashboard")
 def get_dashboard():
     """Return simplified P&L dashboard data."""
+    total = 0
+    settled = 0
+    open_pos = 0
+    usage = 0
+    
     with get_db() as conn:
         # Get counts only - avoid complex processing that causes 500
         total = conn.execute("SELECT COUNT(*) FROM kalshi_trades").fetchone()[0]
-        settled = conn.execute("SELECT COUNT(*) FROM kalshi_trades WHERE status='Settled'").fetchone()[0] or 0
-        open_pos = conn.execute("SELECT COUNT(*) FROM kalshi_trades WHERE status IS NULL OR status!='Settled'").fetchone()[0] or 0
+        settled_row = conn.execute("SELECT COUNT(*) FROM kalshi_trades WHERE status='Settled'").fetchone()
+        settled = settled_row[0] if settled_row else 0
+        open_row = conn.execute("SELECT COUNT(*) FROM kalshi_trades WHERE status IS NULL OR status!='Settled'").fetchone()
+        open_pos = open_row[0] if open_row else 0
         
         # Get API spend
         try:
-            usage = conn.execute("SELECT SUM(cost_usd) FROM api_usage").fetchone()[0] or 0
+            usage_row = conn.execute("SELECT SUM(cost_usd) FROM api_usage").fetchone()
+            usage = usage_row[0] if usage_row and usage_row[0] else 0
         except:
             usage = 0
-        
-        return {
-            "betting_wins": 0,
-            "betting_losses": 0,
-            "betting_net": 0.0,
-            "total_trades": total,
-            "win_rate": 0.0,
-            "sharpe_ratio": 0.0,
-            "max_drawdown": 0.0,
-            "open_positions": open_pos,
-            "open_exposure": 0.0,
-            "kelly_pct": 0.0,
-            "current_streak": 0,
-            "streak_type": "?",
-            "avg_win": 0.0,
-            "avg_loss": 0.0,
-            "openrouter_total_spend": round(float(usage), 2),
-            "openrouter_credits_remaining": 50.0,
-            "cumulative_pnl": [],
-            "daily_pnl": [],
-            "by_market": {},
-            "by_direction": {},
-            "calibration": [],
-            "top_wins": [],
-            "top_losses": [],
-            "unique_contracts": settled
-        }
+    
+    return {
+        "betting_wins": 0,
+        "betting_losses": 0,
+        "betting_net": 0.0,
+        "total_trades": total,
+        "win_rate": 0.0,
+        "sharpe_ratio": 0.0,
+        "max_drawdown": 0.0,
+        "open_positions": open_pos,
+        "open_exposure": 0.0,
+        "kelly_pct": 0.0,
+        "current_streak": 0,
+        "streak_type": "?",
+        "avg_win": 0.0,
+        "avg_loss": 0.0,
+        "openrouter_total_spend": round(float(usage), 2),
+        "openrouter_credits_remaining": 50.0,
+        "cumulative_pnl": [],
+        "daily_pnl": [],
+        "by_market": {},
+        "by_direction": {},
+        "calibration": [],
+        "top_wins": [],
+        "top_losses": [],
+        "unique_contracts": settled
+    }
 
 
 @app.get("/api/sports-picks")
