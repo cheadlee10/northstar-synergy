@@ -84,10 +84,10 @@ def startup():
         print(f"[DB] kalshi_trades has {count} rows")
 
 
-# — API: Dashboard KPIs (SIMPLIFIED - WORKING VERSION)
+# — API: Dashboard KPIs (FULL DATA VERSION)
 @app.get("/api/dashboard")
 def get_dashboard():
-    """Return simplified P&L dashboard data."""
+    """Return full P&L dashboard data with all business segments."""
     total = 0
     settled = 0
     open_pos = 0
@@ -99,8 +99,21 @@ def get_dashboard():
     loss_total = 0.0
     open_exposure = 0.0
     
+    # John's business metrics
+    john_revenue = 0.0
+    john_jobs = 0
+    john_leads = 0
+    
+    # Sports betting metrics
+    sports_wins = 0
+    sports_losses = 0
+    sports_net = 0.0
+    
+    # Expenses
+    total_expenses = 0.0
+    
     with get_db() as conn:
-        # Get counts
+        # Get Kalshi counts
         total = conn.execute("SELECT COUNT(*) FROM kalshi_trades").fetchone()[0]
         settled_row = conn.execute("SELECT COUNT(*) FROM kalshi_trades WHERE status='Settled'").fetchone()
         settled = settled_row[0] if settled_row else 0
@@ -113,6 +126,13 @@ def get_dashboard():
             usage = usage_row[0] if usage_row and usage_row[0] else 0
         except:
             usage = 0
+        
+        # Get expenses
+        try:
+            exp_row = conn.execute("SELECT SUM(amount) FROM expenses").fetchone()
+            total_expenses = exp_row[0] if exp_row and exp_row[0] else 0
+        except:
+            total_expenses = 0
         
         # Calculate actual P&L from price data
         try:
@@ -144,10 +164,40 @@ def get_dashboard():
                         open_exposure += entry * qty
         except Exception as e:
             print(f"[ERROR] P&L calc: {e}")
+        
+        # Get John's business data
+        try:
+            john_rev_row = conn.execute("SELECT SUM(invoice_amount) FROM john_jobs WHERE paid=1").fetchone()
+            john_revenue = john_rev_row[0] if john_rev_row and john_rev_row[0] else 0
+            
+            john_jobs = conn.execute("SELECT COUNT(*) FROM john_jobs").fetchone()[0]
+            john_leads = conn.execute("SELECT COUNT(*) FROM john_leads").fetchone()[0]
+        except:
+            pass
+        
+        # Get sports betting P&L
+        try:
+            sports_result = conn.execute("""
+                SELECT 
+                    SUM(CASE WHEN result='WIN' THEN 1 ELSE 0 END) as wins,
+                    SUM(CASE WHEN result='LOSS' THEN 1 ELSE 0 END) as losses,
+                    SUM(profit_loss) as net
+                FROM sports_picks 
+                WHERE result IN ('WIN', 'LOSS')
+            """).fetchone()
+            sports_wins = sports_result[0] if sports_result[0] else 0
+            sports_losses = sports_result[1] if sports_result[1] else 0
+            sports_net = sports_result[2] if sports_result[2] else 0
+        except:
+            pass
     
     win_rate = wins / max(wins + losses, 1)
     avg_win = win_total / max(wins, 1)
     avg_loss = -(loss_total / max(losses, 1))
+    
+    # Calculate total business P&L
+    total_revenue = john_revenue + net_pnl + (sports_net or 0)
+    total_profit = total_revenue - total_expenses
     
     return {
         "betting_wins": wins,
@@ -173,7 +223,19 @@ def get_dashboard():
         "calibration": [],
         "top_wins": [],
         "top_losses": [],
-        "unique_contracts": settled
+        "unique_contracts": settled,
+        # John's business
+        "john_revenue": round(john_revenue, 2),
+        "john_jobs": john_jobs,
+        "john_leads": john_leads,
+        # Sports
+        "sports_wins": sports_wins,
+        "sports_losses": sports_losses,
+        "sports_net": round(sports_net or 0, 2),
+        # Totals
+        "total_expenses": round(total_expenses, 2),
+        "total_revenue": round(total_revenue, 2),
+        "total_profit": round(total_profit, 2)
     }
 
 
