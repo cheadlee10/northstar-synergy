@@ -275,6 +275,123 @@ def get_anthropic_usage(days: int = 1):
     return {"days": days, "usage": [dict(r) for r in rows]}
 
 
+# — Sync Kalshi Trades from API
+@app.post("/api/sync/kalshi")
+def sync_kalshi_trades():
+    """Sync trades from Kalshi API to database."""
+    import urllib.request
+    import ssl
+    
+    api_key = os.environ.get("KALSHI_API_KEY", "4fa680d5-be76-4d85-9c1b-5fd2d42c9612")
+    
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    
+    try:
+        # Get fills (trades)
+        req = urllib.request.Request(
+            "https://trading-api.kalshi.com/trade-api/v2/portfolio/fills",
+            headers={"Authorization": f"Bearer {api_key}"}
+        )
+        with urllib.request.urlopen(req, context=ctx, timeout=30) as resp:
+            fills_data = json.loads(resp.read().decode())
+        
+        fills = fills_data.get("fills", [])
+        
+        with get_db() as conn:
+            inserted = 0
+            updated = 0
+            
+            for fill in fills:
+                contract_id = fill.get("contract_id", "")
+                market = fill.get("market_ticker", "")
+                price = fill.get("price", 0)
+                qty = fill.get("count", 0)
+                side = fill.get("side", "")
+                fill_date = fill.get("created_time", datetime.utcnow().isoformat())
+                
+                # Check if exists
+                existing = conn.execute(
+                    "SELECT 1 FROM kalshi_trades WHERE contract_id = ?",
+                    (contract_id,)
+                ).fetchone()
+                
+                if existing:
+                    # Update
+                    conn.execute(
+                        """UPDATE kalshi_trades SET 
+                           exit_price = ?, status = 'Settled'
+                           WHERE contract_id = ?""",
+                        (price, contract_id)
+                    )
+                    updated += 1
+                else:
+                    # Insert new
+                    conn.execute(
+                        """INSERT INTO kalshi_trades 
+                           (trade_date, contract_id, market, entry_price, 
+                            num_contracts, direction, status, fees)
+                           VALUES (?, ?, ?, ?, ?, ?, 'Open', 0)""",
+                        (fill_date, contract_id, market, price, qty, side)
+                    )
+                    inserted += 1
+            
+            conn.commit()
+        
+        return {
+            "synced": True,
+            "fills_received": len(fills),
+            "inserted": inserted,
+            "updated": updated,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        return {"synced": False, "error": str(e), "timestamp": datetime.utcnow().isoformat()}
+
+
+# — Kalshi Live Data (Real-time from API)
+@app.get("/api/kalshi/live")
+def get_kalshi_live():
+    """Fetch live balance and positions from Kalshi API."""
+    import urllib.request
+    import ssl
+    
+    api_key = os.environ.get("KALSHI_API_KEY", "4fa680d5-be76-4d85-9c1b-5fd2d42c9612")
+    
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    
+    try:
+        # Get balance
+        req = urllib.request.Request(
+            "https://trading-api.kalshi.com/trade-api/v2/portfolio/balance",
+            headers={"Authorization": f"Bearer {api_key}"}
+        )
+        with urllib.request.urlopen(req, context=ctx, timeout=10) as resp:
+            balance_data = json.loads(resp.read().decode())
+        
+        # Get positions
+        req2 = urllib.request.Request(
+            "https://trading-api.kalshi.com/trade-api/v2/portfolio/positions",
+            headers={"Authorization": f"Bearer {api_key}"}
+        )
+        with urllib.request.urlopen(req2, context=ctx, timeout=10) as resp2:
+            positions_data = json.loads(resp2.read().decode())
+        
+        return {
+            "balance": balance_data.get("balance", 0),
+            "available_balance": balance_data.get("available_balance", 0),
+            "open_positions": len(positions_data.get("positions", [])),
+            "positions": positions_data.get("positions", []),
+            "timestamp": datetime.utcnow().isoformat(),
+            "source": "kalshi_api"
+        }
+    except Exception as e:
+        return {"error": str(e), "timestamp": datetime.utcnow().isoformat()}
+
+
 # — Health check
 @app.get("/api/health")
 def health():
