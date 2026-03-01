@@ -89,9 +89,11 @@ def startup():
 def get_dashboard():
     """Return full P&L dashboard data."""
     with get_db() as conn:
-        # Get Kalshi trades (convert Row objects to dicts)
-        rows = conn.execute("SELECT * FROM kalshi_trades ORDER BY trade_date DESC").fetchall()
-        trades = [dict(r) for r in rows]
+        # Get Kalshi trades
+        cursor = conn.execute("SELECT * FROM kalshi_trades ORDER BY trade_date DESC")
+        columns = [desc[0] for desc in cursor.description]
+        rows = cursor.fetchall()
+        trades = [dict(zip(columns, row)) for row in rows]
         
         # Calculate P&L metrics
         wins = 0
