@@ -119,9 +119,32 @@ tr:hover td{background:rgba(255,255,255,0.015)}
 /* â”€â”€ Section title â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .section-title{font:700 10px/1 var(--font);color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin:28px 0 14px}
 
+/* â”€â”€ Attribution waterfall â”€â”€ */
+.wf-summary{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font:500 11px/1.3 var(--font);color:var(--text2);margin-bottom:12px}
+.wf-grid{display:grid;gap:10px}
+.wf-row{display:grid;grid-template-columns:minmax(140px,1.4fr) minmax(120px,2fr) auto;gap:10px;align-items:center}
+.wf-label{font:600 11px/1.2 var(--font)}
+.wf-desc{font:500 10px/1.2 var(--font);color:var(--muted);margin-top:2px}
+.wf-bar-wrap{height:10px;background:#1a2240;border-radius:99px;overflow:hidden}
+.wf-bar{height:100%;border-radius:99px}
+.wf-bar.pos{background:linear-gradient(90deg,rgba(0,211,149,.6),rgba(0,211,149,1))}
+.wf-bar.neg{background:linear-gradient(90deg,rgba(255,59,92,.6),rgba(255,59,92,1))}
+.wf-amount{font:700 12px/1 var(--mono);white-space:nowrap}
+
+/* â”€â”€ Executive exception queue â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.exq-head{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.exq-metrics{display:flex;gap:8px;flex-wrap:wrap}
+.exq-chip{padding:4px 8px;border:1px solid var(--border);border-radius:8px;background:#0b1020;font:600 10px/1 var(--mono);color:var(--text2)}
+.exq-table{width:100%;border-collapse:collapse}
+.exq-table th,.exq-table td{padding:8px 10px;font-size:11px;vertical-align:top}
+.exq-pri{font:700 11px/1 var(--mono)}
+.exq-owner{font:600 11px/1.2 var(--font)}
+.exq-note{font:500 10px/1.3 var(--font);color:var(--muted);margin-top:3px}
+.exq-sla{font:600 10px/1 var(--mono)}
+
 /* â”€â”€ Responsive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media(max-width:1200px){.g6{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(2,1fr)}.g8-4{grid-template-columns:1fr}}
-@media(max-width:768px){.g3,.g2{grid-template-columns:1fr}.g6{grid-template-columns:repeat(2,1fr)}.tabs{gap:0}.tab{padding:10px 12px;font-size:11px}}
+@media(max-width:768px){.g3,.g2{grid-template-columns:1fr}.g6{grid-template-columns:repeat(2,1fr)}.tabs{gap:0}.tab{padding:10px 12px;font-size:11px}.wf-row{grid-template-columns:1fr}.wf-bar-wrap{height:8px}.exq-table th,.exq-table td{padding:7px 6px;font-size:10px}}
 </style>
 </head>
 <body>
@@ -175,7 +198,7 @@ Chart.defaults.plugins.tooltip.bodyFont = {family:"'IBM Plex Mono'",size:11};
 Chart.defaults.plugins.tooltip.padding = 10;
 
 // â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-let STATE = { tab: 'pnl', data: null, trades: null, charts: {} };
+let STATE = { tab: 'exceptions', data: null, trades: null, health: null, charts: {} };
 const $ = id => document.getElementById(id);
 const app = $('app');
 
@@ -198,6 +221,7 @@ function destroyAllCharts() {
 
 // â”€â”€ Tab definitions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const TABS = [
+  {id:'exceptions', label:'Exec Exceptions'},
   {id:'pnl',   label:'P&L Overview'},
   {id:'kalshi', label:'âš¡ Kalshi Analytics'},
   {id:'sports', label:'Sports Picks'},
@@ -226,6 +250,37 @@ function kpi(label, value, opts={}) {
   </div>`;
 }
 
+function renderAttributionWaterfall(d) {
+  const attribution = d.pnl_attribution || {steps: []};
+  const steps = attribution.steps || [];
+  const maxAbs = Math.max(...steps.map(s => Math.abs(Number(s.amount || 0))), 1);
+
+  const rows = steps.map(step => {
+    const amt = Number(step.amount || 0);
+    const isPos = amt >= 0;
+    const width = Math.max(6, (Math.abs(amt) / maxAbs) * 100);
+    return `<div class="wf-row">
+      <div>
+        <div class="wf-label">${step.label}</div>
+        <div class="wf-desc">${step.description || ''}</div>
+      </div>
+      <div class="wf-bar-wrap">
+        <div class="wf-bar ${isPos ? 'pos' : 'neg'}" style="width:${width}%"></div>
+      </div>
+      <div class="wf-amount ${isPos ? 'green' : 'red'}">${isPos ? '+' : '-'}${fmt(Math.abs(amt))}</div>
+    </div>`;
+  }).join('');
+
+  return `<div class="card card-p" style="margin-bottom:12px">
+    <div class="card-header">Net Profit Attribution Waterfall</div>
+    <div class="wf-summary">
+      <span>Start: <span class="mono">${fmt(attribution.starting_value || 0)}</span></span>
+      <span>End: <span class="mono" style="color:${clr(d.total_profit || 0)}">${fmt(attribution.ending_value ?? d.total_profit ?? 0)}</span></span>
+    </div>
+    <div class="wf-grid">${rows}</div>
+  </div>`;
+}
+
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // TAB: P&L OVERVIEW
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -242,20 +297,39 @@ function renderPnL(d) {
   </div>
   <div class="grid g4" style="margin-bottom:12px">
     ${kpi('Sharpe Ratio', d.sharpe_ratio?.toFixed(2)||'0.00', {color:d.sharpe_ratio>=1?'var(--green)':d.sharpe_ratio>=0?'var(--amber)':'var(--red)', border:'var(--blue)', raw:true, sub:d.sharpe_ratio>=1?'Strong risk-adjusted':'Needs improvement'})}
-    ${kpi('Max Drawdown', d.max_drawdown, {color:'var(--red)', border:'var(--red)', sub:'Largest peak-to-trough'})}
+    ${kpi('Max Drawdown', d.max_drawdown, {color:d.drawdown_zone==='red'?'var(--red)':d.drawdown_zone==='amber'?'var(--amber)':'var(--green)', border:d.drawdown_zone==='red'?'var(--red)':d.drawdown_zone==='amber'?'var(--amber)':'var(--green)', sub:`${(d.max_drawdown_pct||0).toFixed(1)}% · ${(d.max_drawdown_days||0)}d`})}
     ${kpi('Open Positions', fmtNum(d.open_positions), {color:'var(--blue)', border:'var(--blue)', raw:true, sub:fmt(d.open_exposure)+' exposure'})}
     ${kpi('Kelly %', fmtPct(d.kelly_pct), {color:d.kelly_pct>0?'var(--green)':'var(--red)', border:d.kelly_pct>0?'var(--green)':'var(--red)', raw:true, sub:d.kelly_pct>0?'Positive edge detected':'Negative edge â€” reduce size'})}
   </div>
 
-  <!-- Equity curve + daily P&L -->
-  <div class="grid g8-4" style="margin-bottom:12px">
+  ${renderAttributionWaterfall(d)}
+
+  <!-- Drawdown & recovery analytics -->
+  <div class="grid g2" style="margin-bottom:12px">
     <div class="card card-p">
-      <div class="card-header">Cumulative P&L â€” Equity Curve</div>
-      <div class="chart-wrap" style="height:260px"><canvas id="chartEquity"></canvas></div>
+      <div class="card-header">Cumulative P&L â€” EOD Equity Curve</div>
+      <div class="chart-wrap" style="height:240px"><canvas id="chartEquity"></canvas></div>
     </div>
     <div class="card card-p">
-      <div class="card-header">Daily P&L</div>
-      <div class="chart-wrap" style="height:260px"><canvas id="chartDaily"></canvas></div>
+      <div class="card-header">Underwater Drawdown (EOD)</div>
+      <div class="chart-wrap" style="height:240px"><canvas id="chartUnderwater"></canvas></div>
+    </div>
+  </div>
+  <div class="grid g2" style="margin-bottom:12px">
+    <div class="card card-p">
+      <div class="card-header">Daily P&L (EOD deltas)</div>
+      <div class="chart-wrap" style="height:210px"><canvas id="chartDaily"></canvas></div>
+    </div>
+    <div class="card card-p">
+      <div class="card-header">Recovery Durations</div>
+      <div style="max-height:210px;overflow:auto">
+        ${(d.recovery_markers||[]).length ? `<table><thead><tr><th>Drawdown Start</th><th>Recovered</th><th>Days</th></tr></thead><tbody>${d.recovery_markers.slice(-8).reverse().map(m=>`<tr><td class="mono">${m.drawdown_start}</td><td class="mono">${m.recovered_on}</td><td class="mono fw7" style="color:${m.duration_days>10?'var(--red)':m.duration_days>5?'var(--amber)':'var(--green)'}">${m.duration_days}</td></tr>`).join('')}</tbody></table>` : `<div class="empty-desc" style="padding:30px 0">No completed recovery cycles yet.</div>`}
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <span class="badge badge-green">Green ≤ $${(d.drawdown_thresholds?.green?.max_dd_usd||250).toFixed(0)}</span>
+        <span class="badge badge-amber">Amber ≤ $${(d.drawdown_thresholds?.amber?.max_dd_usd||750).toFixed(0)}</span>
+        <span class="badge badge-red">Red &gt; $${(d.drawdown_thresholds?.amber?.max_dd_usd||750).toFixed(0)}</span>
+      </div>
     </div>
   </div>
 
@@ -276,8 +350,9 @@ function renderPnL(d) {
         <span class="seg-icon" style="color:var(--green)">â—†</span>
         <span class="seg-name">John's Web Biz</span>
       </div>
-      <div class="seg-value" style="color:var(--muted)">$0.00</div>
-      <div class="seg-detail">Connect jobs.jsonl to sync revenue data</div>
+      <div class="seg-value" style="color:${clr(d.john_revenue||0)}">${fmt(d.john_revenue||0)}</div>
+      <div class="seg-detail">Actual cash received (counts in net profit)</div>
+      <div class="seg-detail">Pipeline only: ${fmt(d.john_pipeline||0)} (does not count in net)</div>
     </div>
     <div class="card card-p seg" style="border-left-color:var(--amber)">
       <div style="display:flex;align-items:center;margin-bottom:12px">
@@ -334,6 +409,36 @@ function renderPnL(d) {
         plugins:{
           annotation:{annotations:{zero:{type:'line',yMin:0,yMax:0,borderColor:'rgba(136,150,171,0.2)',borderDash:[4,4],borderWidth:1}}},
           tooltip:{callbacks:{label:ctx=>fmt(ctx.parsed.y)}}
+        }
+      }
+    });
+  }
+
+  // â”€â”€ Underwater drawdown chart â”€â”€
+  if (d.underwater_drawdown?.length) {
+    const ctxU = $('chartUnderwater').getContext('2d');
+    destroyChart('underwater');
+    const amberT = -Math.abs(d.drawdown_thresholds?.green?.max_dd_usd || 250);
+    const redT = -Math.abs(d.drawdown_thresholds?.amber?.max_dd_usd || 750);
+    STATE.charts.underwater = new Chart(ctxU, {
+      type:'line',
+      data:{
+        labels: d.underwater_drawdown.map(p=>p.date),
+        datasets:[{data:d.underwater_drawdown.map(p=>p.drawdown),borderColor:'#ff3b5c',borderWidth:2,fill:true,backgroundColor:'rgba(255,59,92,0.2)',tension:0.25,pointRadius:0}]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false, animation:false,
+        scales:{
+          x:{ticks:{maxTicksLimit:8,font:{size:10}},grid:{display:false}},
+          y:{ticks:{callback:v=>'$'+v,font:{family:"'IBM Plex Mono'",size:10}},grid:{color:'rgba(136,150,171,0.05)'}}
+        },
+        plugins:{
+          annotation:{annotations:{
+            zero:{type:'line',yMin:0,yMax:0,borderColor:'rgba(0,211,149,0.35)',borderWidth:1},
+            amber:{type:'line',yMin:amberT,yMax:amberT,borderColor:'rgba(245,166,35,0.8)',borderDash:[6,4],borderWidth:1},
+            red:{type:'line',yMin:redT,yMax:redT,borderColor:'rgba(255,59,92,0.8)',borderDash:[6,4],borderWidth:1}
+          }},
+          tooltip:{callbacks:{label:ctx=>`${fmt(ctx.parsed.y)} (${(d.underwater_drawdown[ctx.dataIndex]?.drawdown_pct||0).toFixed(1)}%)`}}
         }
       }
     });
@@ -429,6 +534,18 @@ function renderKalshi(d) {
       <div style="max-height:160px;overflow-y:auto;font-size:11px;color:var(--muted)">
         ${d.open_positions>0?'View in Ledger tab for full details.':'No open positions.'}
       </div>
+    </div>
+  </div>
+
+  <!-- Exposure heatmap + concentration alerts -->
+  <div class="grid g2" style="margin-bottom:12px">
+    <div class="card card-p">
+      <div class="card-header">Open Exposure Heatmap (Kalshi + Sports)</div>
+      <div id="riskHeatmapWrap" style="font-size:12px;color:var(--text2)">Loading exposure map...</div>
+    </div>
+    <div class="card card-p">
+      <div class="card-header">Concentration Alerts</div>
+      <div id="riskAlertWrap" style="font-size:12px;color:var(--text2)">Loading concentration checks...</div>
     </div>
   </div>
 
@@ -545,8 +662,64 @@ function renderKalshi(d) {
       }
     });
   }
+
+  loadExposureHeatmap();
 }
 
+
+async function loadExposureHeatmap() {
+  const heatWrap = $('riskHeatmapWrap');
+  const alertWrap = $('riskAlertWrap');
+  if (!heatWrap || !alertWrap) return;
+
+  try {
+    const r = await fetch('/api/risk/exposure-heatmap');
+    const data = await r.json();
+
+    if (data.fallback_state === 'no_open_positions') {
+      heatWrap.innerHTML = '<div class="empty-desc">No open positions. Heatmap will populate when Kalshi or sports exposure is open.</div>';
+      alertWrap.innerHTML = '<span class="badge badge-green">OK</span> No open exposure concentration risk.';
+      return;
+    }
+
+    const maxCell = Math.max(...(data.heatmap.cells||[]).map(c => Number(c.exposure_usd||0)), 1);
+    const rows = data.heatmap.rows || [];
+    const cols = data.heatmap.cols || [];
+
+    let h = '<table><thead><tr><th>Source \\ Cluster</th>' + cols.map(c=>`<th>${c}</th>`).join('') + '</tr></thead><tbody>';
+    for (const row of rows) {
+      h += `<tr><td><span class="badge badge-blue">${row}</span></td>`;
+      for (const col of cols) {
+        const cell = (data.heatmap.cells||[]).find(x => x.source===row && x.cluster===col);
+        const exp = Number(cell?.exposure_usd||0);
+        const alpha = Math.max(0.08, exp / maxCell);
+        h += `<td style="background:rgba(245,166,35,${alpha.toFixed(3)});font-family:var(--mono);">${exp>0?fmt(exp):'--'}</td>`;
+      }
+      h += '</tr>';
+    }
+    h += '</tbody></table>';
+
+    const top = data.summary?.top_market;
+    h += `<div style="margin-top:10px;color:var(--muted)">Top market: <span class="mono">${top?.name||'n/a'}</span> (${fmt(top?.exposure_usd||0)}) · HHI ${data.summary?.hhi||0}</div>`;
+    heatWrap.innerHTML = h;
+
+    const sevColor = {ok:'badge-green', warning:'badge-amber', critical:'badge-red'};
+    let a = `<div style="margin-bottom:10px"><span class="badge ${sevColor[data.overall_risk]||'badge-blue'}">${(data.overall_risk||'ok').toUpperCase()}</span></div>`;
+    a += '<table><thead><tr><th>Metric</th><th>Value</th><th>Status</th></tr></thead><tbody>';
+    for (const item of (data.alerts||[])) {
+      const val = item.metric.includes('share') ? fmtPct(item.value, 1) : (item.metric==='hhi' ? Number(item.value).toFixed(1) : fmt(item.value));
+      a += `<tr><td>${item.metric}</td><td class="mono">${val}</td><td><span class="badge ${sevColor[item.level]||'badge-blue'}">${item.level.toUpperCase()}</span></td></tr>`;
+    }
+    a += '</tbody></table>';
+    if ((data.guardrails?.missing_exposure_count||0) > 0) {
+      a += `<div style="margin-top:10px;color:var(--amber)">Guardrail: ${data.guardrails.missing_exposure_count} rows had missing exposure fields and were defaulted to $0.</div>`;
+    }
+    alertWrap.innerHTML = a;
+  } catch (e) {
+    heatWrap.innerHTML = '<span class="red">Unable to load exposure heatmap.</span>';
+    alertWrap.innerHTML = `<span class="red">${String(e)}</span>`;
+  }
+}
 
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // TAB: SPORTS PICKS
@@ -632,14 +805,16 @@ function renderJohn() {
   // Fetch both jobs and leads
   Promise.all([
     fetch('/api/john/jobs').then(r => r.json()).catch(() => ({jobs: []})),
-    fetch('/api/john/leads').then(r => r.json()).catch(() => ({leads: []}))
-  ]).then(([jobsData, leadsData]) => {
+    fetch('/api/john/leads').then(r => r.json()).catch(() => ({leads: []})),
+    fetch('/api/dashboard').then(r => r.json()).catch(() => ({}))
+  ]).then(([jobsData, leadsData, dashData]) => {
     const jobs = jobsData.jobs || [];
     const leads = leadsData.leads || [];
+    const actualCashRevenue = Number(dashData.john_revenue || 0);
     
     // Calculate metrics
-    const totalRevenue = jobs.reduce((sum, j) => sum + (j.invoice_amount || 0), 0);
     const paidRevenue = jobs.filter(j => j.paid).reduce((sum, j) => sum + (j.invoice_amount || 0), 0);
+    const pipelineRevenue = jobs.filter(j => !j.paid && ['quoted','in_progress'].includes((j.status || '').toLowerCase())).reduce((sum, j) => sum + (j.invoice_amount || 0), 0);
     const activeJobs = jobs.filter(j => j.status === 'in_progress').length;
     const completedJobs = jobs.filter(j => j.status === 'completed').length;
     const quotedJobs = jobs.filter(j => j.status === 'quoted').length;
@@ -652,8 +827,8 @@ function renderJohn() {
     });
     
     let h = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;">';
-    h += '<div style="background:#0d1321;border:1px solid #1a2035;border-radius:8px;padding:16px;border-top:3px solid #00d395;"><div style="font-size:10px;text-transform:uppercase;color:#4a5568;margin-bottom:6px;">Total Revenue</div><div style="font-size:22px;font-weight:700;color:#00d395;">$' + totalRevenue.toFixed(2) + '</div></div>';
-    h += '<div style="background:#0d1321;border:1px solid #1a2035;border-radius:8px;padding:16px;border-top:3px solid #4f8ef7;"><div style="font-size:10px;text-transform:uppercase;color:#4a5568;margin-bottom:6px;">Paid Revenue</div><div style="font-size:22px;font-weight:700;color:#4f8ef7;">$' + paidRevenue.toFixed(2) + '</div></div>';
+    h += '<div style="background:#0d1321;border:1px solid #1a2035;border-radius:8px;padding:16px;border-top:3px solid #00d395;"><div style="font-size:10px;text-transform:uppercase;color:#4a5568;margin-bottom:6px;">Cash Collected (Actual)</div><div style="font-size:22px;font-weight:700;color:#00d395;">$' + actualCashRevenue.toFixed(2) + '</div><div style="font-size:10px;color:#4a5568;margin-top:4px;">From revenue ledger only</div></div>';
+    h += '<div style="background:#0d1321;border:1px solid #1a2035;border-radius:8px;padding:16px;border-top:3px solid #4f8ef7;"><div style="font-size:10px;text-transform:uppercase;color:#4a5568;margin-bottom:6px;">Pipeline (Potential)</div><div style="font-size:22px;font-weight:700;color:#4f8ef7;">$' + pipelineRevenue.toFixed(2) + '</div><div style="font-size:10px;color:#4a5568;margin-top:4px;">Excluded from net profit</div></div>';
     h += '<div style="background:#0d1321;border:1px solid #1a2035;border-radius:8px;padding:16px;border-top:3px solid #f59e0b;"><div style="font-size:10px;text-transform:uppercase;color:#4a5568;margin-bottom:6px;">Active Jobs</div><div style="font-size:22px;font-weight:700;color:#f59e0b;">' + activeJobs + '</div></div>';
     h += '<div style="background:#0d1321;border:1px solid #1a2035;border-radius:8px;padding:16px;border-top:3px solid #a78bfa;"><div style="font-size:10px;text-transform:uppercase;color:#4a5568;margin-bottom:6px;">Leads</div><div style="font-size:22px;font-weight:700;color:#a78bfa;">' + leads.length + '</div></div>';
     h += '</div>';
@@ -710,6 +885,94 @@ function renderJohn() {
 
 
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+function queueException(type, title, detail, priority, owner, status, slaMins, source) {
+  return { type, title, detail, priority, owner, status, slaMins, source };
+}
+
+function buildExceptionQueue(d, h) {
+  const items = [];
+  const freshness = h?.freshness?.sources || {};
+  Object.entries(freshness).forEach(([src, v]) => {
+    if (v?.is_stale) {
+      const overBy = Math.max(0, (v.age_minutes ?? (v.max_age_minutes||0)) - (v.max_age_minutes||0));
+      const pri = Math.min(100, 60 + Math.round(overBy * 0.6) + ((v.status !== 'success') ? 12 : 0));
+      const sla = Math.max(0, (v.max_age_minutes || 60) - (v.age_minutes || 0));
+      items.push(queueException('Stale Feed', `${src} sync stale`, `Status ${v.status || 'unknown'} • age ${(v.age_minutes ?? '—')}m`, pri, 'Data Ops', v.status === 'success' ? 'Open' : 'Investigate', sla, src));
+    }
+  });
+
+  const delta = d?.kalshi_reconciliation?.delta_snapshot_minus_legacy || {};
+  const reconMagnitude = Math.abs(delta.betting_net || 0);
+  if (reconMagnitude >= 25 || Math.abs(delta.total_trades || 0) >= 3) {
+    const pri = Math.min(100, 68 + Math.round(reconMagnitude / 3) + Math.abs(delta.total_trades || 0) * 2);
+    items.push(queueException('Reconciliation', 'Snapshot vs legacy mismatch', `Net Δ ${fmt(delta.betting_net || 0)} • Trades Δ ${delta.total_trades || 0}`, pri, 'Trading Ops', 'Open', 120, 'kalshi_reconciliation'));
+  }
+
+  const caps = d?.cost_caps?.caps || {};
+  Object.entries(caps).forEach(([provider, cap]) => {
+    const projected = cap?.projected_month_end_usd || 0;
+    const capUsd = cap?.cap_usd || 0;
+    if (capUsd <= 0) return;
+    const over = projected - capUsd;
+    if (over > 0 || projected / capUsd > 0.9) {
+      const pri = over > 0 ? Math.min(100, 80 + Math.round(over)) : Math.round(58 + (projected / capUsd) * 20);
+      const status = over > 0 ? 'Escalate' : 'Watch';
+      const sla = over > 0 ? 60 : 24 * 60;
+      items.push(queueException('Cap Breach', `${provider} budget risk`, `Projected ${fmt(projected)} vs cap ${fmt(capUsd)} (${over > 0 ? '+' : ''}${fmt(over)})`, pri, 'FinOps', status, sla, provider));
+    }
+  });
+
+  const periods = d?.kalshi_periods || {};
+  const today = periods.today?.pnl_usd ?? null;
+  const week = periods.week?.pnl_usd ?? null;
+  if (today != null && week != null) {
+    const baseline = Math.max(25, Math.abs(week) / 5);
+    if (Math.abs(today) > baseline * 2) {
+      const pri = Math.min(100, 64 + Math.round((Math.abs(today) - baseline * 2) / 5));
+      const trend = today < 0 ? 'downside shock' : 'upside spike';
+      items.push(queueException('P&L Delta', `Unusual daily P&L ${trend}`, `Today ${fmt(today)} vs baseline ±${fmt(baseline)}/day`, pri, 'Risk', today < 0 ? 'Investigate' : 'Review', 180, 'kalshi_periods'));
+    }
+  }
+
+  return items.sort((a,b)=>b.priority-a.priority).slice(0,8);
+}
+
+function renderExceptions(d, h) {
+  const q = buildExceptionQueue(d, h);
+  const high = q.filter(x=>x.priority>=80).length;
+  const med = q.filter(x=>x.priority>=60 && x.priority<80).length;
+
+  app.innerHTML = `
+  <div class="card card-p">
+    <div class="exq-head">
+      <div>
+        <div class="card-header" style="margin-bottom:8px">Executive Exception Queue</div>
+        <div style="font:500 11px/1.3 var(--font);color:var(--text2)">Actionable only: stale feeds, reconciliation, cap risk, and unusual P&L moves.</div>
+      </div>
+      <div class="exq-metrics">
+        <div class="exq-chip">${q.length} Open</div>
+        <div class="exq-chip" style="color:var(--red)">${high} High</div>
+        <div class="exq-chip" style="color:var(--amber)">${med} Medium</div>
+      </div>
+    </div>
+    ${q.length ? `
+      <div style="overflow-x:auto">
+      <table class="exq-table">
+        <thead><tr><th>Priority</th><th>Issue</th><th>Owner</th><th>Status</th><th>SLA</th></tr></thead>
+        <tbody>
+          ${q.map(i=>`<tr>
+            <td><div class="exq-pri" style="color:${i.priority>=80?'var(--red)':i.priority>=60?'var(--amber)':'var(--blue)'}">${i.priority}</div><div class="exq-note">${i.type}</div></td>
+            <td><div class="exq-owner">${i.title}</div><div class="exq-note">${i.detail}</div></td>
+            <td><span class="badge badge-blue">${i.owner}</span></td>
+            <td><span class="badge ${i.status==='Escalate' || i.status==='Investigate'?'badge-red':i.status==='Watch' || i.status==='Review'?'badge-amber':'badge-purple'}">${i.status}</span></td>
+            <td><span class="exq-sla" style="color:${i.slaMins<=60?'var(--red)':i.slaMins<=240?'var(--amber)':'var(--text2)'}">${i.slaMins<=0?'Overdue':i.slaMins<60?`${i.slaMins}m`:`${Math.ceil(i.slaMins/60)}h`}</span></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+      </div>` : `<div class="empty"><div class="empty-icon">✅</div><div class="empty-title">No actionable exceptions</div><div class="empty-desc">All monitored feeds and controls are currently within thresholds.</div></div>`}
+  </div>`;
+}
+
 // TAB: COST DRILL-DOWN
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function renderCosts(d) {
@@ -719,14 +982,40 @@ function renderCosts(d) {
   const pctUsed = spend/Math.max(total,1);
   const net = d.betting_net - spend;
   const roi = spend>0 ? (d.betting_net/spend)*100 : 0;
+  const caps = d.cost_caps?.caps || {};
+  const anth = caps.anthropic || {mtd_burn_usd:0, projected_month_end_usd:0, delta_to_cap_usd:200, cap_usd:200, status:'under'};
+  const oai = caps.openai_chatgpt || {mtd_burn_usd:0, projected_month_end_usd:0, delta_to_cap_usd:200, cap_usd:200, status:'under'};
 
   app.innerHTML = `
   <div class="section-title">API Cost Analysis</div>
   <div class="grid g4" style="margin-bottom:12px">
-    ${kpi('Total API Spend', spend, {color:'var(--amber)', border:'var(--amber)'})}
+    ${kpi('OpenRouter Actual Spend', spend, {color:'var(--amber)', border:'var(--amber)', sub:'Latest lifetime from OpenRouter aggregate'})}
     ${kpi('Credits Remaining', left, {color:left<50?'var(--red)':'var(--green)', border:left<50?'var(--red)':'var(--green)', sub:left<50?'âš  Top up soon':'Healthy'})}
     ${kpi('% Credits Used', fmtPct(pctUsed), {color:'var(--amber)', border:'var(--amber)', raw:true})}
     ${kpi('Revenue / API Cost', roi.toFixed(1)+'%', {color:roi>100?'var(--green)':'var(--red)', border:roi>100?'var(--green)':'var(--red)', raw:true, sub:roi>100?'Profitable':'Spending > earning'})}
+  </div>
+
+  <div class="grid g2" style="margin-bottom:12px">
+    <div class="card card-p" style="border-left:3px solid ${anth.status==='over'?'var(--red)':'var(--green)'}">
+      <div class="card-header">Anthropic Budget Cap ($${(anth.cap_usd||200).toFixed(0)}/mo)</div>
+      <table>
+        <tbody>
+          <tr><td>MTD Burn</td><td class="mono fw7">${fmt(anth.mtd_burn_usd||0)}</td></tr>
+          <tr><td>Projected Month-End</td><td class="mono fw7" style="color:${(anth.projected_month_end_usd||0)>(anth.cap_usd||200)?'var(--red)':'var(--green)'}">${fmt(anth.projected_month_end_usd||0)}</td></tr>
+          <tr><td>Cap Delta</td><td class="mono fw7" style="color:${(anth.delta_to_cap_usd||0)>=0?'var(--green)':'var(--red)'}">${(anth.delta_to_cap_usd||0)>=0?'+':''}${fmt(anth.delta_to_cap_usd||0)}</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card card-p" style="border-left:3px solid ${oai.status==='over'?'var(--red)':'var(--green)'}">
+      <div class="card-header">ChatGPT/OpenAI Budget Cap ($${(oai.cap_usd||200).toFixed(0)}/mo)</div>
+      <table>
+        <tbody>
+          <tr><td>MTD Burn</td><td class="mono fw7">${fmt(oai.mtd_burn_usd||0)}</td></tr>
+          <tr><td>Projected Month-End</td><td class="mono fw7" style="color:${(oai.projected_month_end_usd||0)>(oai.cap_usd||200)?'var(--red)':'var(--green)'}">${fmt(oai.projected_month_end_usd||0)}</td></tr>
+          <tr><td>Cap Delta</td><td class="mono fw7" style="color:${(oai.delta_to_cap_usd||0)>=0?'var(--green)':'var(--red)'}">${(oai.delta_to_cap_usd||0)>=0?'+':''}${fmt(oai.delta_to_cap_usd||0)}</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <div class="card card-p" style="margin-bottom:12px">
@@ -834,6 +1123,7 @@ function renderContent() {
     return;
   }
   switch(STATE.tab) {
+    case 'exceptions': renderExceptions(d, STATE.health); break;
     case 'pnl':    renderPnL(d); break;
     case 'kalshi': renderKalshi(d); break;
     case 'sports': renderSports(); break;
@@ -871,6 +1161,15 @@ async function fetchTrades() {
   } catch(e) { /* silent */ }
 }
 
+async function fetchHealth() {
+  try {
+    const r = await fetch('/api/health');
+    if (!r.ok) return;
+    STATE.health = await r.json();
+    if (STATE.tab === 'exceptions') renderExceptions(STATE.data, STATE.health);
+  } catch(e) { /* silent */ }
+}
+
 
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // INIT
@@ -878,10 +1177,12 @@ async function fetchTrades() {
 renderTabs();
 fetchDashboard();
 fetchTrades();
+fetchHealth();
 
 // Auto-refresh every 60 seconds
 setInterval(fetchDashboard, 60000);
 setInterval(fetchTrades, 120000);
+setInterval(fetchHealth, 120000);
 </script>
 </body>
 </html>

@@ -13,7 +13,7 @@ Sources:
 Run via: python auto_populate.py
 Registered in Task Scheduler as NorthstarAutoPopulate (every 15 min)
 """
-import json, os, sqlite3, urllib.request, urllib.error, glob, datetime
+import json, os, sqlite3, urllib.request, urllib.error, glob, datetime, uuid, traceback
 from datetime import datetime as dt, date
 
 # ── Config ────────────────────────────────────────────────────────────────────
@@ -153,6 +153,17 @@ def init_db(conn):
         result TEXT DEFAULT 'PENDING', profit_loss REAL DEFAULT 0,
         edge_pct REAL, notes TEXT
     );
+    CREATE TABLE IF NOT EXISTS sync_run_audit (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        run_id TEXT NOT NULL,
+        source TEXT NOT NULL,
+        started_at TEXT NOT NULL,
+        completed_at TEXT,
+        status TEXT NOT NULL,
+        records_synced INTEGER DEFAULT 0,
+        error_message TEXT,
+        details_json TEXT
+    );
     """)
     conn.commit()
 
@@ -256,7 +267,8 @@ def sync_anthropic_from_logs(conn) -> dict:
 # ══════════════════════════════════════════════════════════════════════════════
 # SOURCE 3: KALSHI (LIVE API via Scalper's KalshiClient)
 # ══════════════════════════════════════════════════════════════════════════════
-def sync_kalshi(conn) -> dict:\n    # Deprecated live Kalshi sync on Railway: read from Kalshi data already loaded into northstar.db
+def sync_kalshi(conn) -> dict:
+    # Sync Kalshi data directly from live API using Scalper credentials.
     """Sync Kalshi data directly from live API using Scalper's credentials."""
     import asyncio
     import sys
@@ -444,22 +456,76 @@ def _sync_john_leads(conn, fpath):
 # ══════════════════════════════════════════════════════════════════════════════
 # MASTER SYNC
 # ══════════════════════════════════════════════════════════════════════════════
+def _extract_records_synced(result: dict) -> int:
+    if not isinstance(result, dict):
+        return 0
+    total = 0
+    for key in ("synced", "jobs", "leads"):
+        val = result.get(key)
+        if isinstance(val, int):
+            total += val
+    return total
+
+
+def _run_source_with_audit(conn, run_id: str, source: str, fn):
+    started = datetime.datetime.utcnow().isoformat() + "Z"
+    conn.execute(
+        """
+        INSERT INTO sync_run_audit (run_id, source, started_at, status)
+        VALUES (?, ?, ?, 'running')
+        """,
+        (run_id, source, started),
+    )
+    audit_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+    conn.commit()
+
+    try:
+        result = fn(conn)
+        status = "success"
+        error_message = None
+    except Exception as e:
+        result = {"error": str(e), "traceback": traceback.format_exc(limit=2)}
+        status = "error"
+        error_message = str(e)
+
+    completed = datetime.datetime.utcnow().isoformat() + "Z"
+    records_synced = _extract_records_synced(result)
+    conn.execute(
+        """
+        UPDATE sync_run_audit
+        SET completed_at=?, status=?, records_synced=?, error_message=?, details_json=?
+        WHERE id=?
+        """,
+        (
+            completed,
+            status,
+            records_synced,
+            error_message,
+            json.dumps(result, default=str)[:4000],
+            audit_id,
+        ),
+    )
+    conn.commit()
+    return result
+
+
 def run_all() -> dict:
     os.makedirs(os.path.dirname(DASHBOARD_DB), exist_ok=True)
     conn = sqlite3.connect(DASHBOARD_DB)
     init_db(conn)
-    results = {}
-    results['openrouter']  = sync_openrouter(conn)
-    results['anthropic']   = sync_anthropic_from_logs(conn)
-    results['kalshi']      = sync_kalshi(conn)
-    results['sports_picks'] = sync_sports_picks(conn)
-    results['john']        = sync_john(conn)
+    run_id = datetime.datetime.utcnow().strftime("run-%Y%m%dT%H%M%S-") + uuid.uuid4().hex[:8]
+    results = {"run_id": run_id}
+    results['openrouter'] = _run_source_with_audit(conn, run_id, 'openrouter', sync_openrouter)
+    results['anthropic'] = _run_source_with_audit(conn, run_id, 'anthropic', sync_anthropic_from_logs)
+    results['kalshi'] = _run_source_with_audit(conn, run_id, 'kalshi', sync_kalshi)
+    results['sports_picks'] = _run_source_with_audit(conn, run_id, 'sports_picks', sync_sports_picks)
+    results['john'] = _run_source_with_audit(conn, run_id, 'john', sync_john)
     conn.close()
     return results
 
 if __name__ == '__main__':
-    print(f"[{datetime.now().strftime('%H:%M:%S')}] Northstar auto-populate starting...")
+    print(f"[{dt.now().strftime('%H:%M:%S')}] Northstar auto-populate starting...")
     r = run_all()
     for src, res in r.items():
         print(f"  {src}: {res}")
-    print(f"[{datetime.now().strftime('%H:%M:%S')}] Done.")
+    print(f"[{dt.now().strftime('%H:%M:%S')}] Done.")

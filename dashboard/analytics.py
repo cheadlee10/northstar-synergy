@@ -35,16 +35,27 @@ async def kalshi_summary():
         cur = await db.execute("SELECT * FROM kalshi_snapshots ORDER BY snapshot_ts DESC LIMIT 1")
         latest = dict((await cur.fetchone()) or {})
 
-        # Daily P&L — last 30 days, one snapshot per day (last of day)
+        # Daily P&L — last 30 days, one snapshot per day (end-of-day LAST snapshot)
         cur = await db.execute("""
-            SELECT snap_date, 
-                   MAX(total_pnl_cents) max_pnl,
-                   MAX(balance_cents) max_bal,
-                   MAX(total_fills) max_fills,
-                   MAX(win_count) wins,
-                   MAX(loss_count) losses
-            FROM kalshi_snapshots
-            GROUP BY snap_date
+            WITH daily_eod AS (
+                SELECT *
+                FROM (
+                    SELECT *,
+                           ROW_NUMBER() OVER (
+                               PARTITION BY snap_date
+                               ORDER BY snapshot_ts DESC
+                           ) AS rn
+                    FROM kalshi_snapshots
+                )
+                WHERE rn = 1
+            )
+            SELECT snap_date,
+                   total_pnl_cents AS max_pnl,
+                   balance_cents AS max_bal,
+                   total_fills AS max_fills,
+                   win_count AS wins,
+                   loss_count AS losses
+            FROM daily_eod
             ORDER BY snap_date DESC LIMIT 30
         """)
         daily = [dict(r) for r in await cur.fetchall()]
@@ -60,25 +71,54 @@ async def kalshi_summary():
                 "lip_rewards":   round((latest.get("lip_rewards_cents") or 0) / 100, 2),
             }
 
-        # Period P&L — calculate as balance change WITHIN the period
+        # Period P&L — calculate balance change using end-of-day LAST snapshots
         periods = {}
         for period, cond in PERIOD_SQL.items():
-            # First snapshot in period
+            # First EOD snapshot in period
             cur = await db.execute(f"""
-                SELECT balance_cents FROM kalshi_snapshots WHERE {cond}
-                ORDER BY snapshot_ts ASC LIMIT 1
+                WITH daily_eod AS (
+                    SELECT *
+                    FROM (
+                        SELECT *,
+                               ROW_NUMBER() OVER (
+                                   PARTITION BY snap_date
+                                   ORDER BY snapshot_ts DESC
+                               ) AS rn
+                        FROM kalshi_snapshots
+                    )
+                    WHERE rn = 1
+                )
+                SELECT balance_cents
+                FROM daily_eod
+                WHERE {cond}
+                ORDER BY snap_date ASC
+                LIMIT 1
             """)
             first = await cur.fetchone()
             start_bal = (first[0] if first else 0) or 0
-            
-            # Last snapshot in period
+
+            # Last EOD snapshot in period
             cur = await db.execute(f"""
+                WITH daily_eod AS (
+                    SELECT *
+                    FROM (
+                        SELECT *,
+                               ROW_NUMBER() OVER (
+                                   PARTITION BY snap_date
+                                   ORDER BY snapshot_ts DESC
+                               ) AS rn
+                        FROM kalshi_snapshots
+                    )
+                    WHERE rn = 1
+                )
                 SELECT balance_cents, total_fills, win_count, loss_count
-                FROM kalshi_snapshots WHERE {cond}
-                ORDER BY snapshot_ts DESC LIMIT 1
+                FROM daily_eod
+                WHERE {cond}
+                ORDER BY snap_date DESC
+                LIMIT 1
             """)
             last = await cur.fetchone()
-            
+
             if last:
                 end_bal = (last[0] or 0)
                 pnl = (end_bal - start_bal) / 100
@@ -113,15 +153,27 @@ async def kalshi_timeseries():
     db = await get_db()
     try:
         cur = await db.execute("""
+            WITH daily_eod AS (
+                SELECT *
+                FROM (
+                    SELECT *,
+                           ROW_NUMBER() OVER (
+                               PARTITION BY snap_date
+                               ORDER BY snapshot_ts DESC
+                           ) AS rn
+                    FROM kalshi_snapshots
+                )
+                WHERE rn = 1
+            )
             SELECT snap_date,
-                   MAX(total_pnl_cents) total_pnl,
-                   MAX(balance_cents) balance,
-                   MAX(weather_pnl_cents) weather,
-                   MAX(crypto_pnl_cents) crypto,
-                   MAX(econ_pnl_cents) econ,
-                   MAX(mm_pnl_cents) mm
-            FROM kalshi_snapshots
-            GROUP BY snap_date ORDER BY snap_date
+                   total_pnl_cents AS total_pnl,
+                   balance_cents AS balance,
+                   weather_pnl_cents AS weather,
+                   crypto_pnl_cents AS crypto,
+                   econ_pnl_cents AS econ,
+                   mm_pnl_cents AS mm
+            FROM daily_eod
+            ORDER BY snap_date
         """)
         rows = await cur.fetchall()
         return [{"date": r[0],
