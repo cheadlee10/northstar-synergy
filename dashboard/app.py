@@ -265,6 +265,19 @@ def get_freshness_summary(conn):
 
 def get_scheduler_checks():
     """Task Scheduler validation checks for production monitoring."""
+    if os.name != "nt":
+        return {
+            "all_pass": True,
+            "checks": [
+                {
+                    "task": "windows_task_scheduler",
+                    "pass": True,
+                    "skipped": True,
+                    "reason": "non-windows runtime",
+                }
+            ],
+        }
+
     checks = []
     expected = ["\\OpenClaw\\NorthstarAutoPopulate", "\\OpenClaw\\NorthstarDashboard"]
     for task in expected:
@@ -590,6 +603,7 @@ def get_dashboard():
     }
     kalshi_periods = {}
     kalshi_reconciliation = {}
+    kalshi_source = "kalshi_snapshots"
     drawdown_analytics = {
         "equity_curve": [],
         "underwater": [],
@@ -661,6 +675,25 @@ def get_dashboard():
             # Keep old fields for compatibility/diagnostics only
             snapshot_metrics["avg_win"] = legacy["avg_win"]
             snapshot_metrics["avg_loss"] = legacy["avg_loss"]
+
+            # Fallback safety: if snapshot stream is stale/empty, use legacy trades for live top-line KPIs.
+            try:
+                last_ts = snapshot_metrics.get("last_snapshot_ts")
+                stale_minutes = None
+                if last_ts:
+                    stale_minutes = (datetime.utcnow() - datetime.fromisoformat(str(last_ts))).total_seconds() / 60.0
+                snapshot_missing_or_stale = (snapshot_metrics.get("total_trades", 0) == 0) or (stale_minutes is not None and stale_minutes > 120)
+                if snapshot_missing_or_stale and legacy.get("total_trades", 0) > 0:
+                    snapshot_metrics["betting_wins"] = int(legacy.get("betting_wins", 0))
+                    snapshot_metrics["betting_losses"] = int(legacy.get("betting_losses", 0))
+                    snapshot_metrics["betting_net"] = float(legacy.get("betting_net", 0.0))
+                    snapshot_metrics["total_trades"] = int(legacy.get("total_trades", 0))
+                    snapshot_metrics["open_positions"] = int(legacy.get("open_positions", 0))
+                    snapshot_metrics["open_exposure"] = float(legacy.get("open_exposure", 0.0))
+                    snapshot_metrics["unique_contracts"] = int(legacy.get("unique_contracts", 0))
+                    kalshi_source = "kalshi_trades_fallback"
+            except Exception as fallback_err:
+                print(f"[WARN] Kalshi fallback decision failed: {fallback_err}")
         except Exception as e:
             print(f"[ERROR] Reconciliation calc: {e}")
 
@@ -812,7 +845,7 @@ def get_dashboard():
         "top_wins": [],
         "top_losses": [],
         "unique_contracts": snapshot_metrics["unique_contracts"],
-        "kalshi_source": "kalshi_snapshots",
+        "kalshi_source": kalshi_source,
         "kalshi_last_snapshot_ts": snapshot_metrics["last_snapshot_ts"],
         "kalshi_periods": kalshi_periods,
         "kalshi_reconciliation": kalshi_reconciliation,
@@ -1347,7 +1380,7 @@ def health():
     return {
         "status": "ok" if overall_ok else "degraded",
         "timestamp": now.isoformat() + "Z",
-        "version": "2026-03-01.freshness-guardrails.v1",
+        "version": "2026-03-01.accuracy-hotfix.v2", 
         "checks": checks,
         "freshness": freshness,
     }
